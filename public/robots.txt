@@ -1,0 +1,16 @@
+# Robots.txt para CETIN México
+# https://cetinmexico.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://cetinmexico.com/sitemap.xml
+
+# Bloquear archivos de desarrollo
+Disallow: /src/
+Disallow: /*.ts$
+Disallow: /*.vue$
+
+# Permitir assets
+Allow: /assets/

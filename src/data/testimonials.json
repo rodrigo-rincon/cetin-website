@@ -1,0 +1,402 @@
+[
+	{
+		"id": 1,
+		"name": "Bermúdez Anaid",
+		"text": "Excelente servicio, la atención del personal es excelente tratan muy bien a tu bebe para que se sienta comodo y así les permita realizar las pruebas lo más rapido posible.",
+		"branch": "Cuautitlán",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 2,
+		"name": "Quetzalli SH",
+		"text": "Excelente servicio. Desde la entrada a la clínica te atienden muy bien. Todas las doctoras son muy lindas y pacientes con los bebés, en el caso de mi pequeña jugaban y la entretenian ella pasó todas sus pruebas riendo) día siguiente comenzaron a llegarme los resultados de los tamices. Muy recomendable al 100%",
+		"branch": "Cuautitlán",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 3,
+		"name": "Jiimee Martiinez",
+		"text": "Excelente ambiente desde que entras, muy armonioso y las enfermeras y doctoras son muy pacientes con los bebés, muy accesibles y muy amables con los papás",
+		"branch": "Cuautitlán",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 4,
+		"name": "Merry Lu",
+		"text": "Desde que hice la cita fue trato cordial y amable, a nuestra llegada nos recibieron muy amables y nos explicaron todos los procedimientos antes de realizar cada uno, nuestra cita fue el día 13 y recibí resultados de 2 tamices el día 14.",
+		"branch": "Cuautitlán",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 5,
+		"name": "Damniela Escobar",
+		"text": "La atención desde el primer contacto por WhatsApp es muy buena y son muy amables y una vez acudiendo el trato de igual manera excelente, te explican perfectamente lo que le harán a Bebé y son muy lindas con los pequeños y pacientes. Las instalaciones y la ambientación 10/10",
+		"branch": "Cuautitlán",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 6,
+		"name": "Ximena Sanchez",
+		"text": "Me gustó mucho la atención son muy amables todo el personal, trataron muy bien a mi bebé y eso me da la confianza de volver a regresar; ya que en donde traten bien a mi bebito me da mucha seguridad.",
+		"branch": "Cuautitlán",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 7,
+		"name": "Jessica Jiménez",
+		"text": "Excelente lugar, personal atento y amable, claro en explicaciones, tratan a los bebés con mucha ternura y cuidado, las instalaciones limpias y tranquilas",
+		"branch": "Cuautitlán",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 8,
+		"name": "Mariana Itzel Negrete Ramírez",
+		"text": "Súper recomendable, trataron muy bien a mi bebé y me explicaron todo súper bien, mi bebé estaba inquieta pero esperaron para que estuviera más tranquila mi bebé y hacer los estudios de la mejor manera.",
+		"branch": "Cuautitlán",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 9,
+		"name": "Paola Tellez Olvera",
+		"text": "Excelente servicio, son muy amables desde el momento que llegas hasta que se termina el servicio, son muy pacientes con los bebés la verdad lo recomiendo 10/10.",
+		"branch": "Cuautitlán",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 10,
+		"name": "% joanna alicia parra garcia",
+		"text": "Excelente servicio y buen trato con los bebés con mucha paciencia y muy amables súper recomendado si aún no se realizan algún tamiz tienen que ir a cetin sin duda ¿+",
+		"branch": "Cuautitlán",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 11,
+		"name": "Ana Gloria Jiménez",
+		"text": "Excelente clínica, el personal es muy amable y la atención que brindan es excelente, sus instalaciones limpias, sin duda la recomiendo !!!!",
+		"branch": "Lindavista",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 12,
+		"name": "Dante Corichi YA",
+		"text": "muy buena atención y muy atentos con los bebés",
+		"branch": "Lindavista",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 13,
+		"name": "Itzel Viveros",
+		"text": "Excelente atención, buen trato y resultados rápidos. Instalaciones limpias y servicio confiable.",
+		"branch": "Lindavista",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 14,
+		"name": "Arikunorikushi Young HA",
+		"text": "excelente ubicación, buen trato del personal y mucho cuidado con los bebés",
+		"branch": "Lindavista",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 15,
+		"name": "Kevin Garcia Marreros",
+		"text": "Excelente atención, tratan a los bebés con mucho cariño y cuidado. Los tamices los hacen con gran delicadeza, y las instalaciones son muy cómodas. ¡Totalmente recomendado!",
+		"branch": "Lindavista",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 16,
+		"name": "Morales Baca Ingrid Berenice",
+		"text": "Muy buena atención! Sin duda recomendaría el lugar, los doctores tienen mucha paciencia y le hablan con mucho amor a los bebés, es un poco tardado ya que los pequeños se mueven pero en ningún momento pierden la paciencia o la calidez al hablarles de de %",
+		"branch": "Lindavista",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 17,
+		"name": "MarY Sanchez",
+		"text": "Súper recomendable 10 de 101! Y La atención que tuvieron con mi bebé fue muy buena al realizarle cada uno de sus tamices 313",
+		"branch": "Lindavista",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 18,
+		"name": "Alondra Fragoso",
+		"text": "Excelente atención, Quedamos encantadas con la atención que nos brindaron, las chicas y chicos muy amables y atentos. Y 100% recomendado!! Y)",
+		"branch": "Lindavista",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 19,
+		"name": "Katia Cienfuegos Jimenez",
+		"text": "Excelente lugar, son muy pacientes y perseverantes para obtener las muestras correctas, sentí mucha empatía de parte de todos los doctores. Y Y",
+		"branch": "Lindavista",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 20,
+		"name": "Adrián Rosas Rangel",
+		"text": "Fueron muy pacientes y amables. Excelente atención",
+		"branch": "Lindavista",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 21,
+		"name": "| Sandy González",
+		"text": "Súper atentas, y lindas Recomiendo hacer sus tamices Gracias por el trato(y",
+		"branch": "Puebla",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 22,
+		"name": "¿EA Oscar De J",
+		"text": "Es un lugar muy bonito, te atienden en el momento que llegas, las encargadas de hacer los estudios tienen un trato muy cálido y muy profesional. Muchas gracias por la atención a mi bebé. Y sin problemas de estacionamiento.",
+		"branch": "Puebla",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 23,
+		"name": "Ana Maria Castillo",
+		"text": "Lo recomiendo ampliamente, la atención es muy buena, todo el personal muy amable y con mucha paciencia, además que te explican el paso a paso desde el inicio. Ojalá hubiera más lugares así.",
+		"branch": "Puebla",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 24,
+		"name": "¿ló, Ivan M Rey",
+		"text": "Instalaciones adecuadas, no cuentan con estacionamiento, doctoras con mucho conocimiento y buena atención, tratan al bebé con mucha delicadeza y aclaran todas las dudas, deberían informar claramente que se deben llevar copias, podrían ofrecer agua de beber a la mamá.",
+		"branch": "Puebla",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 25,
+		"name": "> IIhuitl Montoya Calixto HA",
+		"text": "Se nota el amor con el que trabajan. Nos sentimos acompañados en todo momento en los tamices de mi pequeño y el personal fue de lo más cálido, súper recomendado",
+		"branch": "Puebla",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 26,
+		"name": "Andrea Reyes",
+		"text": "Excelente servicio, me atendieron de maravilla y me explicaron cada cosa que iban a realizar. Yo hacía preguntas y sin duda alguna me respondieron mis dudas. Muchísimas gracias por la atención 10/10",
+		"branch": "Puebla",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 27,
+		"name": "Cc Carolina AA",
+		"text": "Paciencia del personal, amor a los bebés, muy buen atención, y mucho amor",
+		"branch": "Puebla",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 28,
+		"name": "NN Noé Mena Sánchez",
+		"text": "El personal es muy atento, llegamos porque nos habían recomendado el lugar y la verdad es que nos agradó bastante. 100% recomendado.",
+		"branch": "Puebla",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 29,
+		"name": "Edgar Carpio",
+		"text": "Todo fue excelente! Te apapachaban todo el tiempo, te explican muy bien todo!!! Una gran experiencia!",
+		"branch": "Puebla",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 30,
+		"name": "Bernardo Martinez",
+		"text": "Buena atención, personal muy atento y muy amable, la atención hacia nuestro hijo muy profesional.",
+		"branch": "Puebla",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 31,
+		"name": "2 Maribel Rodriguez Y]",
+		"text": "La atencion fue buena, tienen un buen trato, las instalaciones estan con un buen ambiente y tranquilo",
+		"branch": "Reyes",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 32,
+		"name": "Cristo Rojas HA",
+		"text": "muy buena atención son pacientes atentos y amables con los bebés y no los presionan con el tiempo los recomiendo",
+		"branch": "Reyes",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 33,
+		"name": "Kareen Zamudio",
+		"text": "Muy buen trato excelente trabajo y atención de parte del personal lo recomiendo",
+		"branch": "Reyes",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 34,
+		"name": "¿Ej?, Musmet Hernández PA",
+		"text": "Excelente servicio, el trato muy amable por parte del personal, la atención fue muy rapida, mi bb no sintió molestia en ningún momento lo recomiendo mucho.",
+		"branch": "Reyes",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 35,
+		"name": "Ad Omar Oro Ed",
+		"text": "Una atención muy especializada, muy amables, instalaciones en excelentes condiciones con personal capacitado. Te explican a detalle en que consiste y los resultados claros a manera que uno lo pueda entender.",
+		"branch": "Reyes",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 36,
+		"name": "e y Onita Guzmán :",
+		"text": "Excelente servicio, atención e instalaciones. Todo el personal muy amable y paciente con todos los bebés. Recomendado al 100% 4 ¿a - > E A» AÑ > a",
+		"branch": "Reyes",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 37,
+		"name": "MiGUuErUXD :",
+		"text": "Aprovecho el espacio, para felicitar al equipo de CETIN Reyes La Paz por su excelente atención y el trato amable que brindan. Los estudios los dan en el tiempo indicado y te explican en caso de dudas.",
+		"branch": "Reyes",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 38,
+		"name": "4 Wendy :",
+		"text": "' 3 opiniones Ó Servicio completo,fueron puntuales con el horario de la cita, tuvieron mucha paciencia con mi bebé para la aplicación de todos sus tamices, instalaciones limpias recomendable 100%",
+		"branch": "Reyes",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 39,
+		"name": "Abigail Lopez :",
+		"text": "Excelente servicio, muy buena experiencia y trato de parte de todo el personal, instalaciones limpias y agradables 1000/10 £2",
+		"branch": "Reyes",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 40,
+		"name": "Ñ KAREM OS :",
+		"text": "Excelente atención del personal, mis mellizos fueron atendidos muy bien, me explicaron casa procedimiento que se le hacía a mis bebés de una manera entendible y siempre fueron muy profesionales.",
+		"branch": "Reyes",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 41,
+		"name": "Lucy Rodriguez Y",
+		"text": "Muy recomendable, el tiempo de espera depende de tu bebé. La atención de los médicos es buena, y la explicación que te dan también lo es.",
+		"branch": "Roma",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 42,
+		"name": "Mon Peralta",
+		"text": "Excelente Servicio y atención, todo el personal muy amable y atentos con los bebes.",
+		"branch": "Roma",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 43,
+		"name": "Mitzi Romero",
+		"text": "La atención perfecta y rápido, ya tres tamices aquí. Altamente recomendado.",
+		"branch": "Roma",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 44,
+		"name": "Laddy Cacao",
+		"text": "100% recomendado no se tardaron nada en entregarme los resultados e indicarme todo lo relacionado al tamiz que le realizaron a mi bebé.",
+		"branch": "Roma",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 45,
+		"name": "Dani Ramirez",
+		"text": "Recomiendo Ampliamente Cetin Roma, tienen un trato muy lindo con los papás y con los bebes igual, se toman el tiempo necesario para cada estudio.",
+		"branch": "Roma",
+		"source": "Facebook",
+		"rating": 5
+	},
+	{
+		"id": 46,
+		"name": "Aqua Luna",
+		"text": "Ecxelente atención muy pacientes con los bebes ambiente agradable, lo recomendamos ampliamente, precios accesibles y el personal muy profesional",
+		"branch": "Roma ",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 47,
+		"name": "Raquel Gonzalez",
+		"text": "En ese lugar dan un excelente servicio todos son muy amables muy profesionales el trato que le dieron a mi bebé fue maravilloso estoy muy agradecida",
+		"branch": "Roma",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 48,
+		"name": "Irving Sanchez",
+		"text": "La atención es buena desde que llegas, nos tomaron datos y las atenciones en cada tamiz son excelentes",
+		"branch": "Roma",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 49,
+		"name": "JUAN PABLO MEZA CRUZ",
+		"text": "Muy agradecidos con la atencion que fue brindada a mi bebe, la información es clara y precisa, tambien el personal es muy amable y profesional. Y)",
+		"branch": "Roma",
+		"source": "Google",
+		"rating": 5
+	},
+	{
+		"id": 50,
+		"name": "Y Yazmin Benito",
+		"text": "Muy agradecida con la atención que se brinda, también el manejo de la información es muy clara y concreta. Definitivamente Y una gran experiencia.",
+		"branch": "Roma",
+		"source": "Google",
+		"rating": 5
+	}
+]
