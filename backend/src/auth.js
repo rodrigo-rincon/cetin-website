@@ -21,7 +21,7 @@ export async function requireSuperadmin(headers, jwtSecret) {
     throw Object.assign(new Error('Superadmin access required'), { statusCode: 403 });
   }
   return {
-    id: String(payload.sub || payload.id || ''),
+    id: String(payload.id || ''),
     email: String(payload.email || payload.correo || ''),
     role,
   };

@@ -35,6 +35,26 @@ async function getContent() {
   return Object.fromEntries(rows.map((row) => [row.section_key, row.content]));
 }
 
+async function authorizeSuperadmin(event) {
+  const claims = await requireSuperadmin(event.headers, process.env.JWT_SECRET);
+  if (!claims.id) throw Object.assign(new Error('Token has no user id'), { statusCode: 401 });
+
+  const users = await execute(`
+    select id, correo, rol, estatus
+    from usuario
+    where id = cast(:id as uuid)
+    limit 1
+  `, [textParam('id', claims.id)]);
+  const user = users[0];
+  if (!user || user.estatus !== 'activo') {
+    throw Object.assign(new Error('User is inactive or does not exist'), { statusCode: 401 });
+  }
+  if (user.rol !== 'superadmin') {
+    throw Object.assign(new Error('Superadmin access required'), { statusCode: 403 });
+  }
+  return { id: user.id, email: user.correo, role: user.rol };
+}
+
 async function updateSection(section, content, actor, event) {
   await execute(`
     insert into web_content_sections (section_key, content, published, updated_by)
@@ -75,7 +95,7 @@ export async function handler(event) {
     if (verb === 'PUT' && match) {
       const section = decodeURIComponent(match[1]);
       if (!allowedSections.has(section)) return response(400, { message: 'Unknown content section' });
-      const actor = await requireSuperadmin(event.headers, process.env.JWT_SECRET);
+      const actor = await authorizeSuperadmin(event);
       const body = JSON.parse(event.body || '{}');
       await updateSection(section, body, actor, event);
       return response(200, { section, updated: true });

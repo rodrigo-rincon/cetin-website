@@ -7,7 +7,9 @@ Lambda used by `cetin-app`.
 
 - `GET /api/content`: public published content.
 - `PUT /api/content/:section`: update one section; requires a valid CETIN JWT whose
-  `rol` (or `role`) claim is `superadmin`.
+  `rol` (or `role`) claim is `superadmin`. The Lambda then reads the current
+  `usuario` row from Aurora and requires `estatus = 'activo'` and
+  `rol = 'superadmin'`, matching the authorization behavior of `cetin-be`.
 
 Supported sections are `hero`, `videosSection`, `stats`, `infoSection`,
 `laborAltruista`, `proximamente`, `sucursales`, `contact`, and `footer`.
@@ -32,7 +34,6 @@ first. The tables use the `web_` prefix and do not alter operational CETIN table
 `cetin-website-content-api`. It accepts the Aurora and secret ARNs as parameters and
 does not reference, update, or deploy the existing `cetin-app` Lambda.
 
-Before deployment, confirm that the current CETIN token is signed with HS256, exposes
-the user role in `rol`/`role`, and that its signing secret can be supplied securely to
-this function. If the production token uses a different algorithm or does not include
-the role, adapt `src/auth.js` and its tests before deploying.
+The current `cetin-be` token was verified in source: it is signed with HS256, expires
+after eight hours, and includes `id` and `rol`. Supply the same signing secret securely
+to the new function. Never commit that secret or print it in deployment logs.
