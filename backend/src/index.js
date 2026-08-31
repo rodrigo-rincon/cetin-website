@@ -1,4 +1,4 @@
-import { execute, textParam } from './database.js';
+import { execute } from './database.js';
 import { requireSuperadmin } from './auth.js';
 
 const allowedSections = new Set([
@@ -42,9 +42,9 @@ async function authorizeSuperadmin(event) {
   const users = await execute(`
     select id, correo, rol, estatus
     from usuario
-    where id = cast(:id as uuid)
+    where id = $1::uuid
     limit 1
-  `, [textParam('id', claims.id)]);
+  `, [claims.id]);
   const user = users[0];
   if (!user || user.estatus !== 'activo') {
     throw Object.assign(new Error('User is inactive or does not exist'), { statusCode: 401 });
@@ -58,27 +58,23 @@ async function authorizeSuperadmin(event) {
 async function updateSection(section, content, actor, event) {
   await execute(`
     insert into web_content_sections (section_key, content, published, updated_by)
-    values (:section, cast(:content as jsonb), true, nullif(:actor, '')::uuid)
+    values ($1, $2::jsonb, true, nullif($3, '')::uuid)
     on conflict (section_key) do update
       set content = excluded.content,
           published = excluded.published,
           updated_by = excluded.updated_by,
           updated_at = now()
-  `, [
-    textParam('section', section),
-    textParam('content', JSON.stringify(content)),
-    textParam('actor', actor.id),
-  ]);
+  `, [section, JSON.stringify(content), actor.id]);
 
   await execute(`
     insert into web_content_audit (actor_id, actor_email, action, section_key, new_data, source_ip)
-    values (nullif(:actor, '')::uuid, :email, 'update', :section, cast(:content as jsonb), nullif(:ip, '')::inet)
+    values (nullif($1, '')::uuid, $2, 'update', $3, $4::jsonb, nullif($5, '')::inet)
   `, [
-    textParam('actor', actor.id),
-    textParam('email', actor.email),
-    textParam('section', section),
-    textParam('content', JSON.stringify(content)),
-    textParam('ip', event.requestContext?.http?.sourceIp || event.requestContext?.identity?.sourceIp || ''),
+    actor.id,
+    actor.email,
+    section,
+    JSON.stringify(content),
+    event.requestContext?.http?.sourceIp || event.requestContext?.identity?.sourceIp || '',
   ]);
 }
 

@@ -3,12 +3,24 @@ Transform: AWS::Serverless-2016-10-31
 Description: Isolated content API for cetin-website
 
 Parameters:
-  AuroraClusterArn:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-0848873ae9c755fd8
+  LambdaSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Default: subnet-0872c7eb35b753e62,subnet-0db00de5404a89b5b
+  DatabaseSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Default: sg-01a79910b3804c080
+  DatabaseHost:
     Type: String
+    Default: cetin-test-db.c5goqkww44oa.us-east-1.rds.amazonaws.com
   DatabaseSecretArn:
     Type: String
+    Default: arn:aws:secretsmanager:us-east-1:011528289560:secret:rds!db-3a8d6a9c-991a-4935-a5fb-1932f71d83b4-y8JStf
   DatabaseName:
     Type: String
+    Default: cetin_dev
   JwtSecret:
     Type: String
     NoEcho: true
@@ -16,29 +28,51 @@ Parameters:
     Type: String
 
 Resources:
+  ContentLambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Outbound access for the isolated CETIN website content Lambda
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  DatabaseIngressFromContentLambda:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref DatabaseSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !Ref ContentLambdaSecurityGroup
+      Description: PostgreSQL from cetin-website-content-api only
+
   ContentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: cetin-website-content-api
-      Description: Public content and superadmin-only editing for cetin-website
+      FunctionName: cetin-website-content-api-test
+      Description: Public content and superadmin-only editing for cetin-website test
       CodeUri: ../backend
       Handler: src/index.handler
       Runtime: nodejs22.x
       Architectures: [arm64]
       MemorySize: 256
       Timeout: 15
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref ContentLambdaSecurityGroup
+        SubnetIds: !Ref LambdaSubnetIds
       Environment:
         Variables:
-          DB_CLUSTER_ARN: !Ref AuroraClusterArn
+          DB_HOST: !Ref DatabaseHost
+          DB_PORT: '5432'
           DB_SECRET_ARN: !Ref DatabaseSecretArn
           DB_NAME: !Ref DatabaseName
           JWT_SECRET: !Ref JwtSecret
           WEB_ORIGIN: !Ref WebOrigin
       Policies:
+        - AWSLambdaVPCAccessExecutionRole
         - Statement:
-            - Effect: Allow
-              Action: rds-data:ExecuteStatement
-              Resource: !Ref AuroraClusterArn
             - Effect: Allow
               Action: secretsmanager:GetSecretValue
               Resource: !Ref DatabaseSecretArn

@@ -8,7 +8,8 @@
     "check": "node --check src/index.js"
   },
   "dependencies": {
-    "@aws-sdk/client-rds-data": "^3.883.0",
-    "jose": "^6.1.0"
+    "@aws-sdk/client-secrets-manager": "^3.883.0",
+    "jose": "^6.1.0",
+    "pg": "^8.16.3"
   }
 }
