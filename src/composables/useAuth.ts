@@ -8,6 +8,15 @@ const error = ref<string | null>(null);
 const ROLE_KEY = 'cetin_user_role';
 
 export function useAuth() {
+  function loginForLocalPreview(): boolean {
+    if (!import.meta.env.DEV || import.meta.env.VITE_DEV_ADMIN_BYPASS !== 'true') return false;
+    localStorage.setItem('cetin_jwt_token', 'local-preview-only');
+    localStorage.setItem(ROLE_KEY, 'superadmin');
+    token.value = 'local-preview-only';
+    isAuthenticated.value = true;
+    return true;
+  }
+
   /**
    * Hacer login en el backend
    */
@@ -96,6 +105,7 @@ export function useAuth() {
     isLoading,
     error,
     login,
+    loginForLocalPreview,
     logout,
     getToken,
     checkAuth,

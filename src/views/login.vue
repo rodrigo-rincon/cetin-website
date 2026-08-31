@@ -73,6 +73,15 @@
           >
             Iniciar Sesión
           </button>
+
+          <button
+            v-if="isLocalPreviewEnabled"
+            type="button"
+            style="width:100%;background:#fff;color:#0f2a5c;font-weight:600;padding:14px;border-radius:12px;border:2px solid #0f2a5c;cursor:pointer;font-size:15px;"
+            @click="handleLocalPreview"
+          >
+            Ver gestor en modo demostración
+          </button>
           
           <p v-if="error" style="color:#ef4444;font-size:14px;text-align:center;padding:12px;background:#fef2f2;border-radius:8px;">{{ error }}</p>
         </form>
@@ -95,10 +104,11 @@ import { ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import { useRouter } from 'vue-router';
 
-const { login, error } = useAuth();
+const { login, loginForLocalPreview, error } = useAuth();
 const router = useRouter();
 const email = ref('');
 const password = ref('');
+const isLocalPreviewEnabled = import.meta.env.DEV && import.meta.env.VITE_DEV_ADMIN_BYPASS === 'true';
 
 function setBorderColor(event: Event, color: string) {
   (event.currentTarget as HTMLElement).style.borderColor = color;
@@ -113,5 +123,9 @@ async function handleLogin() {
   if (success) {
     router.push('/admin');
   }
+}
+
+function handleLocalPreview() {
+  if (loginForLocalPreview()) router.push('/admin');
 }
 </script>
