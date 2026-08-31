@@ -1,0 +1,14 @@
+{
+  "name": "cetin-web-content-lambda",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-rds-data": "^3.883.0",
+    "jose": "^6.1.0"
+  }
+}

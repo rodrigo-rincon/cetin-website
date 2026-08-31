@@ -52,7 +52,7 @@ async function syncSectionToBackend(section: keyof SiteContent, data: any): Prom
   try {
     isSyncing = true;
     const endpoint = API_CONFIG.endpoints.content.updateSection(String(section));
-    const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+    const response = await fetch(`${API_CONFIG.contentBaseUrl}${endpoint}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -61,11 +61,7 @@ async function syncSectionToBackend(section: keyof SiteContent, data: any): Prom
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      console.error(`Failed to sync ${String(section)} to backend:`, response.statusText);
-    } else {
-      console.log(`✓ Synced ${String(section)} to backend`);
-    }
+    if (!response.ok) throw new Error(`No se pudo guardar ${String(section)} (${response.status})`);
   } catch (error) {
     console.error(`Error syncing ${String(section)} to backend:`, error);
   } finally {
@@ -77,7 +73,7 @@ async function syncSectionToBackend(section: keyof SiteContent, data: any): Prom
 async function loadFromBackend(): Promise<void> {
   try {
     const endpoint = API_CONFIG.endpoints.content.getAll;
-    const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`);
+    const response = await fetch(`${API_CONFIG.contentBaseUrl}${endpoint}`);
     if (response.ok) {
       const backendContent = await response.json();
       const merged = deepMerge(defaultContent, backendContent);
@@ -96,12 +92,6 @@ function saveContent(newContent: SiteContent): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newContent));
     content.value = newContent;
     
-    // Intentar sincronizar todas las secciones con el backend
-    if (localStorage.getItem(JWT_TOKEN_KEY)) {
-      Object.entries(newContent).forEach(([section, data]) => {
-        syncSectionToBackend(section as keyof SiteContent, data);
-      });
-    }
   } catch (error) {
     console.error('Error saving content:', error);
   }
@@ -124,6 +114,7 @@ function updateSection<K extends keyof SiteContent>(
     },
   };
   saveContent(newContent);
+  void syncSectionToBackend(section, newContent[section]);
 }
 
 function updateHero(data: Partial<SiteContent['hero']>): void {
@@ -148,22 +139,15 @@ function updateSucursales(sucursales: SiteContent['sucursales']): void {
     sucursales,
   };
   saveContent(newContent);
+  void syncSectionToBackend('sucursales', sucursales);
 }
 
 function addSucursal(sucursal: SiteContent['sucursales'][0]): void {
-  const newContent = {
-    ...content.value,
-    sucursales: [...content.value.sucursales, sucursal],
-  };
-  saveContent(newContent);
+  updateSucursales([...content.value.sucursales, sucursal]);
 }
 
 function removeSucursal(id: string): void {
-  const newContent = {
-    ...content.value,
-    sucursales: content.value.sucursales.filter((s) => s.id !== id),
-  };
-  saveContent(newContent);
+  updateSucursales(content.value.sucursales.filter((s) => s.id !== id));
 }
 
 function updateService(

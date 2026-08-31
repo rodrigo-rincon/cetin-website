@@ -7,6 +7,7 @@ import router from './router';
 import { vScrollReveal, vFadeUp, vFadeIn, vSlideLeft, vSlideRight, vScaleUp } from './directives/scrollReveal';
 // Directiva lazy loading
 import { vLazyImg } from './composables/useLazyImage';
+import { useContent } from './composables/useContent';
 
 const app = createApp(App);
 
@@ -20,6 +21,9 @@ app.directive('scale-up', vScaleUp);
 app.directive('lazy-img', vLazyImg);
 
 app.use(router).mount('#app');
+
+// Aurora is the source of truth; bundled defaults remain as an offline fallback.
+void useContent().loadFromBackend();
 
 // Registrar Service Worker para PWA
 if ('serviceWorker' in navigator) {

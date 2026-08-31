@@ -17,7 +17,8 @@ const router = createRouter({
 
 router.beforeEach((_to, _from, next) => {
   const token = localStorage.getItem('cetin_jwt_token');
-  if (_to.path === '/admin' && !token) {
+  const role = localStorage.getItem('cetin_user_role');
+  if (_to.path === '/admin' && (!token || role !== 'superadmin')) {
     next('/login');
   } else {
     next();

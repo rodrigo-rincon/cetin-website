@@ -1,0 +1,91 @@
+import { execute, textParam } from './database.js';
+import { requireSuperadmin } from './auth.js';
+
+const allowedSections = new Set([
+  'hero', 'videosSection', 'stats', 'infoSection', 'laborAltruista',
+  'proximamente', 'sucursales', 'contact', 'footer',
+]);
+
+const response = (statusCode, body) => ({
+  statusCode,
+  headers: {
+    'content-type': 'application/json; charset=utf-8',
+    'access-control-allow-origin': process.env.WEB_ORIGIN || '*',
+    'access-control-allow-headers': 'authorization,content-type',
+    'access-control-allow-methods': 'GET,PUT,OPTIONS',
+  },
+  body: JSON.stringify(body),
+});
+
+function requestPath(event) {
+  return event.rawPath || event.path || '/';
+}
+
+function method(event) {
+  return event.requestContext?.http?.method || event.httpMethod || 'GET';
+}
+
+async function getContent() {
+  const rows = await execute(`
+    select section_key, content
+    from web_content_sections
+    where published = true
+    order by section_key
+  `);
+  return Object.fromEntries(rows.map((row) => [row.section_key, row.content]));
+}
+
+async function updateSection(section, content, actor, event) {
+  await execute(`
+    insert into web_content_sections (section_key, content, published, updated_by)
+    values (:section, cast(:content as jsonb), true, nullif(:actor, '')::uuid)
+    on conflict (section_key) do update
+      set content = excluded.content,
+          published = excluded.published,
+          updated_by = excluded.updated_by,
+          updated_at = now()
+  `, [
+    textParam('section', section),
+    textParam('content', JSON.stringify(content)),
+    textParam('actor', actor.id),
+  ]);
+
+  await execute(`
+    insert into web_content_audit (actor_id, actor_email, action, section_key, new_data, source_ip)
+    values (nullif(:actor, '')::uuid, :email, 'update', :section, cast(:content as jsonb), nullif(:ip, '')::inet)
+  `, [
+    textParam('actor', actor.id),
+    textParam('email', actor.email),
+    textParam('section', section),
+    textParam('content', JSON.stringify(content)),
+    textParam('ip', event.requestContext?.http?.sourceIp || event.requestContext?.identity?.sourceIp || ''),
+  ]);
+}
+
+export async function handler(event) {
+  try {
+    const verb = method(event);
+    const path = requestPath(event).replace(/\/$/, '') || '/';
+    if (verb === 'OPTIONS') return response(204, {});
+    if (verb === 'GET' && (path === '/api/content' || path === '/api/web/content')) {
+      return response(200, await getContent());
+    }
+
+    const match = path.match(/^\/api\/(?:web\/admin\/)?content\/([^/]+)$/);
+    if (verb === 'PUT' && match) {
+      const section = decodeURIComponent(match[1]);
+      if (!allowedSections.has(section)) return response(400, { message: 'Unknown content section' });
+      const actor = await requireSuperadmin(event.headers, process.env.JWT_SECRET);
+      const body = JSON.parse(event.body || '{}');
+      await updateSection(section, body, actor, event);
+      return response(200, { section, updated: true });
+    }
+
+    return response(404, { message: 'Route not found' });
+  } catch (error) {
+    console.error(error);
+    return response(error.statusCode || 500, {
+      message: error.statusCode ? error.message : 'Internal server error',
+    });
+  }
+}

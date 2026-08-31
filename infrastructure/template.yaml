@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Isolated content API for cetin-website
+
+Parameters:
+  AuroraClusterArn:
+    Type: String
+  DatabaseSecretArn:
+    Type: String
+  DatabaseName:
+    Type: String
+  JwtSecret:
+    Type: String
+    NoEcho: true
+  WebOrigin:
+    Type: String
+
+Resources:
+  ContentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: cetin-website-content-api
+      Description: Public content and superadmin-only editing for cetin-website
+      CodeUri: ../backend
+      Handler: src/index.handler
+      Runtime: nodejs22.x
+      Architectures: [arm64]
+      MemorySize: 256
+      Timeout: 15
+      Environment:
+        Variables:
+          DB_CLUSTER_ARN: !Ref AuroraClusterArn
+          DB_SECRET_ARN: !Ref DatabaseSecretArn
+          DB_NAME: !Ref DatabaseName
+          JWT_SECRET: !Ref JwtSecret
+          WEB_ORIGIN: !Ref WebOrigin
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: rds-data:ExecuteStatement
+              Resource: !Ref AuroraClusterArn
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref DatabaseSecretArn
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - !Ref WebOrigin
+          AllowHeaders:
+            - authorization
+            - content-type
+          AllowMethods:
+            - GET
+            - PUT
+          MaxAge: 600
+
+Outputs:
+  ContentApiUrl:
+    Description: URL for VITE_CONTENT_API_URL (append /api)
+    Value: !GetAtt ContentFunctionUrl.FunctionUrl

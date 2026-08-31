@@ -3,18 +3,18 @@
  */
 
 export const API_CONFIG = {
-  // URL base del API (se puede configurar via VITE_API_URL)
-  baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  authBaseUrl: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:3000/api',
+  contentBaseUrl: import.meta.env.VITE_CONTENT_API_URL || 'http://localhost:3001/api',
   
   // Endpoints
   endpoints: {
     auth: {
-      login: '/api/auth/login',
+      login: '/auth/login',
     },
     content: {
-      getAll: '/api/content',
-      getSection: (section: string) => `/api/content/${section}`,
-      updateSection: (section: string) => `/api/content/${section}`,
+      getAll: '/content',
+      getSection: (section: string) => `/content/${section}`,
+      updateSection: (section: string) => `/content/${section}`,
     },
   },
 } as const;
@@ -23,7 +23,7 @@ export const API_CONFIG = {
  * Obtener la URL completa de un endpoint
  */
 export function getEndpointUrl(endpoint: string): string {
-  return `${API_CONFIG.baseUrl}${endpoint}`;
+  return `${API_CONFIG.contentBaseUrl}${endpoint}`;
 }
 
 /**

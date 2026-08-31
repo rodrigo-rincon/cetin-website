@@ -5,6 +5,7 @@ const token = ref<string | null>(localStorage.getItem('cetin_jwt_token'));
 const isAuthenticated = ref<boolean>(!!token.value);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
+const ROLE_KEY = 'cetin_user_role';
 
 export function useAuth() {
   /**
@@ -16,13 +17,13 @@ export function useAuth() {
 
     try {
       const response = await fetch(
-        `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.login}`,
+        `${API_CONFIG.authBaseUrl}${API_CONFIG.endpoints.auth.login}`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ correo: email, contrasena: password }),
         }
       );
 
@@ -30,15 +31,21 @@ export function useAuth() {
         throw new Error('Login failed: ' + response.statusText);
       }
 
-      const data = await response.json();
+      const responseBody = await response.json();
+      const data = responseBody.data || responseBody;
       const jwtToken = data.token;
+      const role = data.user?.rol || data.user?.role;
 
       if (!jwtToken) {
         throw new Error('No token received from server');
       }
+      if (role !== 'superadmin') {
+        throw new Error('Solo los superadministradores pueden acceder al gestor');
+      }
 
       // Guardar token
       localStorage.setItem('cetin_jwt_token', jwtToken);
+      localStorage.setItem(ROLE_KEY, role);
       token.value = jwtToken;
       isAuthenticated.value = true;
 
@@ -57,6 +64,7 @@ export function useAuth() {
    */
   function logout(): void {
     localStorage.removeItem('cetin_jwt_token');
+    localStorage.removeItem(ROLE_KEY);
     token.value = null;
     isAuthenticated.value = false;
   }
@@ -73,7 +81,7 @@ export function useAuth() {
    */
   function checkAuth(): boolean {
     const stored = localStorage.getItem('cetin_jwt_token');
-    if (stored) {
+    if (stored && localStorage.getItem(ROLE_KEY) === 'superadmin') {
       token.value = stored;
       isAuthenticated.value = true;
       return true;
