@@ -15,16 +15,9 @@ const MAP_TILE_DOMAINS = [
   'tile.openstreetmap.org'
 ];
 
-// Instalar Service Worker
+// Desactivar el Service Worker eliminando su contenido
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Cache abierto');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
 // Activar y limpiar caches antiguos
@@ -43,38 +36,52 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Validar respuestas antes de usarlas
+function isValidResponse(response) {
+  return response && response.ok;
+}
+
+// Manejo de errores global
+function handleFetchError() {
+  return new Response('Error al procesar la solicitud', { status: 500 });
+}
+
 // Interceptar requests
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
+
+  // Ignorar esquemas que Cache API y fetch no pueden manejar.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return;
+  }
+
   // Cachear tiles del mapa con estrategia Cache First
   if (MAP_TILE_DOMAINS.some(domain => url.hostname.includes(domain))) {
     event.respondWith(
       caches.open(MAP_CACHE_NAME).then((cache) => {
         return cache.match(event.request).then((cachedResponse) => {
           if (cachedResponse) {
-            // Devolver desde cache y actualizar en background
             fetch(event.request).then((networkResponse) => {
-              if (networkResponse.ok) {
+              if (isValidResponse(networkResponse)) {
                 cache.put(event.request, networkResponse.clone());
               }
             }).catch(() => {});
             return cachedResponse;
           }
-          
-          // No está en cache, buscar en red y cachear
+
           return fetch(event.request).then((networkResponse) => {
-            if (networkResponse.ok) {
+            if (isValidResponse(networkResponse)) {
               cache.put(event.request, networkResponse.clone());
+              return networkResponse;
             }
-            return networkResponse;
-          });
+            return handleFetchError();
+          }).catch(handleFetchError);
         });
       })
     );
     return;
   }
-  
+
   // Para Google Fonts - Cache First
   if (url.hostname.includes('fonts.googleapis.com') || 
       url.hostname.includes('fonts.gstatic.com')) {
@@ -93,7 +100,7 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
+
   // Para imágenes - Cache First con fallback
   if (event.request.destination === 'image') {
     event.respondWith(
@@ -114,23 +121,24 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
+
   // Para otros recursos - Network First con fallback a cache
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Cachear respuestas exitosas
-        if (networkResponse.ok && event.request.method === 'GET') {
+        if (isValidResponse(networkResponse)) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
           });
+          return networkResponse;
         }
-        return networkResponse;
+        return handleFetchError();
       })
       .catch(() => {
-        // Si falla la red, buscar en cache
-        return caches.match(event.request);
+        return caches.match(event.request).then((cachedResponse) => {
+          return cachedResponse || handleFetchError();
+        });
       })
   );
 });

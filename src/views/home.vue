@@ -3,12 +3,15 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import Carousel from '../components/carousel.vue';
 import HeroSection from '../components/HeroSection.vue';
 import InfoSection from '../components/InfoSection.vue';
+import { useReadonlyContent } from '../composables/useContent';
 import {
 	vFadeUp,
 	vSlideLeft,
 	vSlideRight,
 	vScaleUp,
 } from '../directives/scrollReveal';
+
+const { content } = useReadonlyContent();
 
 // Parallax refs
 const parallaxSucursal = ref<HTMLElement | null>(null);
@@ -38,9 +41,19 @@ onUnmounted(() => {
 	window.removeEventListener('scroll', handleParallax);
 });
 
-// Declaraciones para MapLibre y OpenLocationCode
-declare const maplibregl: any;
-declare const OpenLocationCode: any;
+// MapLibre types
+declare const maplibregl: {
+	Map: new (options: { container: string; style: string; bounds?: any; fitBoundsOptions?: any; scrollZoom?: boolean }) => any;
+	NavigationControl: new () => any;
+	Marker: new (options?: { element?: HTMLElement }) => any;
+	Popup: new (options?: { offset?: number }) => any;
+	LngLatBounds: new () => { extend: (coord: [number, number]) => void };
+};
+declare const OpenLocationCode: {
+	encode(lat: number, lng: number, codeLength?: number): string;
+	decode(code: string): { latitudeCenter: number; longitudeCenter: number };
+	recoverNearest(code: string, lat: number, lng: number): string;
+};
 
 // Inicializar mapa de sucursales
 const initMap = () => {
@@ -90,7 +103,12 @@ const initMap = () => {
 	];
 
 	const elementoMapa = document.getElementById('cetin-map');
-	if (!elementoMapa) return;
+	if (!elementoMapa) {
+		console.warn('Map container not found');
+		return;
+	}
+
+	console.log('Initializing map, maplibregl:', typeof window.maplibregl, 'OpenLocationCode:', typeof window.OpenLocationCode);
 
 	// Calcular límites del mapa
 	const limites = new maplibregl.LngLatBounds();
@@ -188,9 +206,35 @@ const initMap = () => {
 	});
 };
 
+const loadMapLibre = async (): Promise<void> => {
+  if (typeof window.maplibregl !== 'undefined') {
+    initMap();
+    return;
+  }
+
+  const loadScript = (src: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => resolve();
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  };
+
+  try {
+    await Promise.all([
+      loadScript('https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/openlocationcode/1.0.4/openlocationcode.min.js'),
+    ]);
+    initMap();
+  } catch (e) {
+    console.error('Failed to load map libraries:', e);
+  }
+};
+
 onMounted(() => {
-	// Esperar a que MapLibre esté disponible
-	setTimeout(initMap, 100);
+  loadMapLibre();
 });
 </script>
 
@@ -227,14 +271,12 @@ onMounted(() => {
 				<h2
 					class="text-3xl lg:text-5xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-6"
 				>
-					Realizar los tamices es el primer paso para el cuidado de tu
-					bebé
+					{{ content.videosSection.title }}
 				</h2>
 				<p
 					class="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-5xl mx-auto"
 				>
-					En CETIN, nos aseguramos de que tu pequeño esté siempre sano
-					y feliz.
+					{{ content.videosSection.subtitle }}
 				</p>
 			</div>
 
@@ -244,8 +286,8 @@ onMounted(() => {
 				class="max-w-7xl mx-auto px-6 lg:px-12 mt-16"
 			>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-					<!-- Video 1 -->
-					<div class="group">
+					<!-- Dynamic Videos -->
+					<div v-for="video in content.videosSection.videos" :key="video.id" class="group">
 						<div
 							class="rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
 						>
@@ -253,17 +295,10 @@ onMounted(() => {
 							<div class="aspect-video">
 								<iframe
 									class="w-full h-full"
-									src="https://www.youtube.com/embed/3DTLMranvUk"
-									title="CETIN en la comunidad - Oriental"
+									:src="video.youtubeUrl"
+									:title="video.title"
 									frameborder="0"
-									allow="
-										accelerometer;
-										autoplay;
-										clipboard-write;
-										encrypted-media;
-										gyroscope;
-										picture-in-picture;
-									"
+									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
 									allowfullscreen
 								></iframe>
 							</div>
@@ -321,260 +356,7 @@ onMounted(() => {
 									</div>
 								</div>
 								<p class="text-white text-sm leading-relaxed">
-									"Llevando salud y bienestar a las
-									comunidades que más lo necesitan."
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<!-- Video 2 -->
-					<div class="group">
-						<div
-							class="rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-						>
-							<!-- Video -->
-							<div class="aspect-video">
-								<iframe
-									class="w-full h-full"
-									src="https://www.youtube.com/embed/3DTLMranvUk"
-									title="Conoce nuestros servicios"
-									frameborder="0"
-									allow="
-										accelerometer;
-										autoplay;
-										clipboard-write;
-										encrypted-media;
-										gyroscope;
-										picture-in-picture;
-									"
-									allowfullscreen
-								></iframe>
-							</div>
-							<!-- Caption -->
-							<div
-								class="p-5 bg-[#0f2a5c] flex items-start gap-4"
-							>
-								<div class="flex -space-x-2 shrink-0">
-									<div
-										class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-								</div>
-								<p class="text-white text-sm leading-relaxed">
-									"Cada tamiz es una oportunidad para detectar
-									a tiempo y cuidar mejor."
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<!-- Video 3 -->
-					<div class="group">
-						<div
-							class="rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-						>
-							<!-- Video -->
-							<div class="aspect-video">
-								<iframe
-									class="w-full h-full"
-									src="https://www.youtube.com/embed/3DTLMranvUk"
-									title="Instalaciones CETIN"
-									frameborder="0"
-									allow="
-										accelerometer;
-										autoplay;
-										clipboard-write;
-										encrypted-media;
-										gyroscope;
-										picture-in-picture;
-									"
-									allowfullscreen
-								></iframe>
-							</div>
-							<!-- Caption -->
-							<div
-								class="p-5 bg-[#0f2a5c] flex items-start gap-4"
-							>
-								<div class="flex -space-x-2 shrink-0">
-									<div
-										class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-								</div>
-								<p class="text-white text-sm leading-relaxed">
-									"Un espacio pensado para la comodidad de tu
-									bebé y tu tranquilidad."
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<!-- Video 4 -->
-					<div class="group">
-						<div
-							class="rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-						>
-							<!-- Video -->
-							<div class="aspect-video">
-								<iframe
-									class="w-full h-full"
-									src="https://www.youtube.com/embed/3DTLMranvUk"
-									title="Testimonios de padres"
-									frameborder="0"
-									allow="
-										accelerometer;
-										autoplay;
-										clipboard-write;
-										encrypted-media;
-										gyroscope;
-										picture-in-picture;
-									"
-									allowfullscreen
-								></iframe>
-							</div>
-							<!-- Caption -->
-							<div
-								class="p-5 bg-[#0f2a5c] flex items-start gap-4"
-							>
-								<div class="flex -space-x-2 shrink-0">
-									<div
-										class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-								</div>
-								<p class="text-white text-sm leading-relaxed">
-									"La confianza de las familias es nuestro
-									mayor reconocimiento."
+									"{{ video.description }}"
 								</p>
 							</div>
 						</div>
@@ -800,12 +582,12 @@ onMounted(() => {
 									<p
 										class="text-3xl lg:text-4xl font-bold text-pink-500 mb-2"
 									>
-										+10,000
+										{{ content.stats.bebesAtendidos }}
 									</p>
 									<p
 										class="text-gray-600 dark:text-gray-400 font-medium text-sm"
 									>
-										Bebés atendidos
+										{{ content.stats.bebesAtendidosLabel }}
 									</p>
 								</div>
 								<div
@@ -814,12 +596,12 @@ onMounted(() => {
 									<p
 										class="text-3xl lg:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2"
 									>
-										+10,000
+										{{ content.stats.citasAgendadas }}
 									</p>
 									<p
 										class="text-gray-600 dark:text-gray-400 font-medium text-sm"
 									>
-										Citas agendadas
+										{{ content.stats.citasAgendadasLabel }}
 									</p>
 								</div>
 							</div>
@@ -903,7 +685,7 @@ onMounted(() => {
 							</span>
 							<span
 								class="text-sm font-semibold text-white uppercase tracking-wider"
-								>Labor Altruista</span
+								>{{ content.laborAltruista.badge }}</span
 							>
 						</div>
 
@@ -911,30 +693,16 @@ onMounted(() => {
 						<h2
 							class="text-3xl lg:text-5xl font-bold text-blue-50 leading-tight mb-6"
 						>
-							Nos llena de felicidad ir
-							<span class="text-pink-400">más allá</span>
+							{{ content.laborAltruista.title }}
+							<span class="text-pink-400">{{ content.laborAltruista.titleHighlight }}</span>
 						</h2>
 
 						<!-- Description -->
 						<div
 							class="space-y-5 text-lg text-blue-100 leading-relaxed"
 						>
-							<p>
-								Realizamos
-								<strong class="text-white"
-									>jornadas gratuitas de salud</strong
-								>
-								llevando consulta pediátrica y tamices sin costo
-								a comunidades que no cuentan con este tipo de
-								apoyo.
-							</p>
-							<p>
-								Cada acción nace del compromiso, la empatía y el
-								amor por ayudar, con un solo propósito:
-								<strong class="text-pink-300"
-									>cuidar a quienes más lo necesitan</strong
-								>.
-							</p>
+							<p>{{ content.laborAltruista.description1 }}</p>
+							<p>{{ content.laborAltruista.description2 }}</p>
 						</div>
 					</div>
 
@@ -954,18 +722,10 @@ onMounted(() => {
 							>
 								<iframe
 									class="w-full h-full"
-									src="https://www.youtube.com/embed/3DTLMranvUk"
+									:src="content.laborAltruista.videoUrl"
 									title="Labor Altruista CETIN"
 									frameborder="0"
-									allow="
-										accelerometer;
-										autoplay;
-										clipboard-write;
-										encrypted-media;
-										gyroscope;
-										picture-in-picture;
-										web-share;
-									"
+									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share;"
 									allowfullscreen
 								></iframe>
 							</div>
@@ -1024,9 +784,7 @@ onMounted(() => {
 								<p
 									class="text-[#0f2a5c] font-medium leading-snug"
 								>
-									"Aún no sabemos cuál será nuestro próximo
-									destino, pero tenemos la certeza de que ahí
-									estaremos, listos para ayudar."
+									"{{ content.laborAltruista.videoCaption }}"
 								</p>
 							</div>
 						</div>
@@ -1309,18 +1067,18 @@ onMounted(() => {
 					</span>
 					<span
 						class="text-sm font-semibold text-white uppercase tracking-wider"
-						>Próximamente</span
+						>{{ content.proximamente.badge }}</span
 					>
 				</div>
 
 				<h2
 					class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-100 leading-tight mb-4"
 				>
-					Crecemos para estar cada vez más
-					<span class="text-pink-400">cerca de ti</span>
+					{{ content.proximamente.title }}
+					<span class="text-pink-400">{{ content.proximamente.titleHighlight }}</span>
 				</h2>
 				<p class="text-xl lg:text-2xl text-slate-300">
-					Una nueva sucursal está por llegar.
+					{{ content.proximamente.subtitle }}
 				</p>
 			</div>
 		</section>
@@ -1947,8 +1705,11 @@ onMounted(() => {
 				<div class="relative">
 					<div
 						class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden"
+						style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.1);"
 					>
-						<div id="cetin-map" class="w-full h-[450px]"></div>
+						<div id="cetin-map" style="width:100%;height:450px;min-height:400px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
+							<p style="color:#64748b;font-size:14px;">Cargando mapa...</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -2102,3 +1863,6 @@ onMounted(() => {
 	animation-play-state: paused;
 }
 </style>
+
+<!-- Adding the MapLibre CSS from jsdelivr as an alternative CDN -->
+<link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.0.0/dist/maplibre-gl.css" rel="stylesheet" />

@@ -39,7 +39,7 @@
 						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 uppercase tracking-wider"
 					>
 						<span class="w-8 h-[2px] bg-pink-500"></span>
-						Nuestros Servicios
+						{{ content.infoSection.badge }}
 						<span class="w-8 h-[2px] bg-pink-500"></span>
 					</span>
 				</div>
@@ -64,21 +64,13 @@
 						<h2
 							class="text-3xl lg:text-5xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-6"
 						>
-							Los 5 tamices esenciales para tu
-							<span class="text-pink-500"> recién nacido</span>
+							{{ content.infoSection.title }}
+							<span class="text-pink-500"> {{ content.infoSection.titleHighlight }}</span>
 						</h2>
 						<p
 							class="text-base lg:text-lg text-gray-500 dark:text-gray-400 leading-relaxed lg:text-justify max-w-3xl"
 						>
-							CETIN es un espacio especializado, diseñado para la
-							realización de los cinco tamices del recién nacido,
-							bajo los más altos estándares de calidad. Nuestro
-							trabajo se distingue por el amor, la capacitación
-							continua, la constancia y el profesionalismo que
-							caracterizan a cada integrante del equipo. Contamos
-							con el respaldo y la validación de médicos pediatras
-							subespecialistas en cada área del tamiz, quienes
-							avalan e interpretan nuestros resultados.
+							{{ content.infoSection.description }}
 						</p>
 					</div>
 				</div>
@@ -360,5 +352,7 @@
 
 <script setup lang="ts">
 import { vFadeUp, vScaleUp } from '../directives/scrollReveal';
-// Info Section - Services
+import { useReadonlyContent } from '../composables/useContent';
+
+const { content } = useReadonlyContent();
 </script>

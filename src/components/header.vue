@@ -4,7 +4,6 @@ import { onMounted, onUnmounted, ref } from 'vue';
 const currentTab = ref('home');
 const showModal = ref(false);
 const showShadow = ref(false);
-const pageSize = ref(0);
 const isDark = ref(false);
 
 // Dark mode toggle

@@ -49,7 +49,7 @@
 							<span
 								class="w-2 h-2 bg-pink-500 rounded-full"
 							></span>
-							Centro de Tamizaje Infantil
+							{{ content.hero.badge }}
 						</span>
 					</div>
 
@@ -57,17 +57,15 @@
 					<h1
 						class="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
 					>
-						Cuidamos la salud de
-						<span class="text-pink-500"> tu bebé</span>
+						{{ content.hero.title }}
+						<span class="text-pink-500"> {{ content.hero.titleHighlight }}</span>
 					</h1>
 
 					<!-- Subtitle -->
 					<p
 						class="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0"
 					>
-						Primer centro especializado en los 5 tamices del recién
-						nacido. Resultados confiables avalados por
-						subespecialistas.
+						{{ content.hero.subtitle }}
 					</p>
 
 					<!-- CTA Buttons -->
@@ -91,13 +89,13 @@
 									d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
 								/>
 							</svg>
-							Agendar Cita
+							{{ content.hero.ctaPrimary }}
 						</a>
 						<a
 							href="#services"
 							class="group inline-flex items-center justify-center bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
 						>
-							Ver Servicios
+							{{ content.hero.ctaSecondary }}
 							<svg
 								class="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1"
 								fill="none"
@@ -122,7 +120,7 @@
 							<p
 								class="text-2xl lg:text-3xl font-bold text-[#0f2a5c] dark:text-white"
 							>
-								+10,000
+								{{ content.stats.bebesAtendidos }}
 							</p>
 							<p
 								class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center justify-center gap-1.5"
@@ -135,7 +133,7 @@
 										class="relative inline-flex rounded-full h-2 w-2 bg-pink-500"
 									></span>
 								</span>
-								Bebés atendidos
+								{{ content.stats.bebesAtendidosLabel }}
 							</p>
 						</div>
 						<div
@@ -145,7 +143,7 @@
 							<p
 								class="text-2xl lg:text-3xl font-bold text-[#0f2a5c] dark:text-white"
 							>
-								5
+								{{ content.stats.tamicesEspecializados }}
 							</p>
 							<p
 								class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center justify-center gap-1.5"
@@ -158,7 +156,7 @@
 										class="relative inline-flex rounded-full h-2 w-2 bg-yellow-400"
 									></span>
 								</span>
-								Tamices especializados
+								{{ content.stats.tamicesEspecializadosLabel }}
 							</p>
 						</div>
 						<div
@@ -168,7 +166,7 @@
 							<p
 								class="text-2xl lg:text-3xl font-bold text-[#0f2a5c] dark:text-white"
 							>
-								100%
+								{{ content.stats.confiabilidad }}
 							</p>
 							<p
 								class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center justify-center gap-1.5"
@@ -181,7 +179,7 @@
 										class="relative inline-flex rounded-full h-2 w-2 bg-[#4577d5]"
 									></span>
 								</span>
-								Confiabilidad
+								{{ content.stats.confiabilidadLabel }}
 							</p>
 						</div>
 					</div>
@@ -237,6 +235,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useReadonlyContent } from '../composables/useContent';
+
+const { content } = useReadonlyContent();
 
 // Parallax refs
 const parallaxBg = ref<HTMLElement | null>(null);
