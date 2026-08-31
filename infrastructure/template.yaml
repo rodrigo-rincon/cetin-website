@@ -8,7 +8,7 @@ Parameters:
     Default: vpc-0848873ae9c755fd8
   LambdaSubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
-    Default: subnet-0872c7eb35b753e62,subnet-0db00de5404a89b5b
+    Default: subnet-0f6996a3d488917af,subnet-0bbfc9f0c259bda9b
   DatabaseSecurityGroupId:
     Type: AWS::EC2::SecurityGroup::Id
     Default: sg-01a79910b3804c080
@@ -20,7 +20,7 @@ Parameters:
     Default: arn:aws:secretsmanager:us-east-1:011528289560:secret:rds!db-3a8d6a9c-991a-4935-a5fb-1932f71d83b4-y8JStf
   DatabaseName:
     Type: String
-    Default: cetin_dev
+    Default: cetin_test
   JwtSecret:
     Type: String
     NoEcho: true

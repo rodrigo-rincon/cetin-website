@@ -32,6 +32,11 @@ The selected RDS subnets are private. Before deployment, verify that they can re
 Secrets Manager through a NAT gateway or an interface VPC endpoint. The current deploy
 user cannot inspect route tables, so this prerequisite has not yet been confirmed.
 
+The existing `cetin-test-api` configuration confirms the test target: RDS instance
+`cetin-test-db`, database `cetin_test`, VPC `vpc-0848873ae9c755fd8`, and subnets
+`subnet-0f6996a3d488917af` / `subnet-0bbfc9f0c259bda9b`. The website uses that Lambda
+only for `/api/auth/login`; no production Lambda is involved.
+
 Run `database/migrations/001_web_content.sql` against a non-production environment
 first. The tables use the `web_` prefix and do not alter operational CETIN tables.
 
