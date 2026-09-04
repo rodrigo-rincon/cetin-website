@@ -221,7 +221,7 @@ onUnmounted(() => {
 
 		<!-- Copy Section -->
 		<section
-			class="order-4 py-14 lg:py-16 bg-white dark:bg-slate-900 relative overflow-hidden"
+			class="editorial-section order-4 relative overflow-hidden bg-white py-14 dark:bg-slate-900 lg:py-16"
 		>
 			<!-- Decorative elements with secondary colors -->
 			<div
@@ -360,7 +360,7 @@ onUnmounted(() => {
 		<!-- US Section - Why Choose Us (Nosotros) -->
 		<section
 			id="us"
-			class="order-2 relative overflow-hidden bg-gray-50 py-16 transition-colors duration-500 dark:bg-slate-800 lg:py-24"
+			class="editorial-section order-2 relative overflow-hidden bg-gray-50 py-16 transition-colors duration-500 dark:bg-slate-800 lg:py-24"
 		>
 			<!-- Decorative shapes -->
 			<div
@@ -789,7 +789,7 @@ onUnmounted(() => {
 		<!-- How to Book Section -->
 		<section
 			id="services"
-			class="order-5 py-16 lg:py-24 bg-gradient-to-b from-pink-500 via-pink-500 to-pink-600 relative overflow-hidden"
+			class="editorial-section order-5 relative overflow-hidden bg-gradient-to-br from-[#0f2a5c] via-[#14386f] to-[#0b234c] py-16 lg:py-24"
 		>
 			<!-- Subtle floating shapes with secondary colors -->
 			<div
@@ -839,7 +839,7 @@ onUnmounted(() => {
 					<h2 class="text-3xl lg:text-4xl font-bold text-slate-100 mb-3">
 						¿Cómo agendar una cita?
 					</h2>
-					<p class="text-slate-300 text-lg">
+					<p class="text-blue-100/80 text-lg">
 						Solo sigue estos simples pasos
 					</p>
 				</div>
@@ -966,7 +966,7 @@ onUnmounted(() => {
 				<div class="mt-12 text-center">
 					<a
 						href="#contact"
-						class="group inline-flex items-center gap-3 bg-[#0f2a5c] hover:bg-[#1a3d6e] text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-[#0f2a5c]/25 hover:scale-105"
+						class="group inline-flex items-center gap-3 rounded-full bg-pink-500 px-8 py-4 font-semibold text-white shadow-lg shadow-pink-950/20 transition-all duration-300 hover:bg-pink-600 hover:shadow-xl active:scale-[0.98]"
 					>
 						Agendar mi cita
 						<svg
@@ -1073,7 +1073,7 @@ onUnmounted(() => {
 		<!-- Testimonials Section -->
 		<section
 			id="clients"
-			class="order-6 py-16 lg:py-20 bg-white dark:bg-slate-900 relative overflow-hidden"
+			class="editorial-section order-6 relative overflow-hidden bg-white py-16 dark:bg-slate-900 lg:py-20"
 		>
 			<!-- Decorative shapes -->
 			<div
@@ -1130,7 +1130,7 @@ onUnmounted(() => {
 		<!-- Contact Section -->
 		<section
 			id="contact"
-			class="order-7 py-16 lg:py-20 bg-gray-50 dark:bg-slate-800 relative overflow-hidden"
+			class="editorial-section order-7 relative overflow-hidden bg-gray-50 py-16 dark:bg-slate-800 lg:py-20"
 		>
 			<!-- Decorative shapes -->
 			<div
@@ -1461,7 +1461,7 @@ onUnmounted(() => {
 
 		<!-- Footer Values -->
 		<section
-			class="order-11 relative overflow-hidden border-t border-gray-100 bg-white py-16 transition-colors duration-500 dark:border-slate-800 dark:bg-slate-900 lg:py-20"
+			class="editorial-section order-11 relative overflow-hidden border-t border-gray-100 bg-white py-16 transition-colors duration-500 dark:border-slate-800 dark:bg-slate-900 lg:py-20"
 		>
 			<!-- Decorative elements with secondary colors -->
 			<div
@@ -1580,6 +1580,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.editorial-section > div.absolute {
+	display: none;
+}
+
 .map-panel-enter-active,
 .map-panel-leave-active {
 	transition:
