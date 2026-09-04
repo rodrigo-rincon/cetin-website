@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useContent } from '../composables/useContent';
 import { useRouter } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
+import cetinLogo from '../assets/images/cetin_logo.png';
+import type { VideoItem } from '../data/content';
+import { API_CONFIG } from '../config/api';
 
 const router = useRouter();
+const { logout } = useAuth();
 const { 
   content, 
   updateHero, 
@@ -67,6 +72,7 @@ const infoForm = reactive({
 
 // Labor Altruista Form
 const altruistaForm = reactive({
+  active: true,
   badge: '',
   title: '',
   titleHighlight: '',
@@ -78,12 +84,17 @@ const altruistaForm = reactive({
 
 // Proximamente Form
 const proximamenteForm = reactive({
+  active: true,
   badge: '',
   title: '',
   titleHighlight: '',
   subtitle: '',
   backgroundImage: '',
+  backgroundImageKey: '',
 });
+const originalProximamenteImageKey = ref('');
+const uploadingProximamenteImage = ref(false);
+const isDraggingProximamenteImage = ref(false);
 
 // Contact Form
 const contactForm = reactive({
@@ -132,6 +143,7 @@ const loadFormData = () => {
   infoForm.description = content.value.infoSection.description;
 
   // Labor Altruista
+  altruistaForm.active = content.value.laborAltruista.active;
   altruistaForm.badge = content.value.laborAltruista.badge;
   altruistaForm.title = content.value.laborAltruista.title;
   altruistaForm.titleHighlight = content.value.laborAltruista.titleHighlight;
@@ -141,11 +153,14 @@ const loadFormData = () => {
   altruistaForm.videoCaption = content.value.laborAltruista.videoCaption;
 
   // Proximamente
+  proximamenteForm.active = content.value.proximamente.active;
   proximamenteForm.badge = content.value.proximamente.badge;
   proximamenteForm.title = content.value.proximamente.title;
   proximamenteForm.titleHighlight = content.value.proximamente.titleHighlight;
   proximamenteForm.subtitle = content.value.proximamente.subtitle;
   proximamenteForm.backgroundImage = content.value.proximamente.backgroundImage;
+  proximamenteForm.backgroundImageKey = content.value.proximamente.backgroundImageKey || '';
+  originalProximamenteImageKey.value = content.value.proximamente.backgroundImageKey || '';
 
   // Contact
   contactForm.title = content.value.contact.title;
@@ -172,6 +187,46 @@ const showNotification = (message: string) => {
     notification.value = '';
   }, 3000);
 };
+
+// Confirmation modal
+const confirmation = reactive({
+  open: false,
+  title: '',
+  message: '',
+  confirmLabel: 'Eliminar',
+  action: null as (() => void) | null,
+});
+
+const requestConfirmation = (
+  title: string,
+  message: string,
+  action: () => void,
+  confirmLabel = 'Eliminar',
+) => {
+  confirmation.title = title;
+  confirmation.message = message;
+  confirmation.confirmLabel = confirmLabel;
+  confirmation.action = action;
+  confirmation.open = true;
+};
+
+const closeConfirmation = () => {
+  confirmation.open = false;
+  confirmation.action = null;
+};
+
+const confirmAction = () => {
+  const action = confirmation.action;
+  closeConfirmation();
+  action?.();
+};
+
+const handleConfirmationKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && confirmation.open) closeConfirmation();
+};
+
+onMounted(() => document.addEventListener('keydown', handleConfirmationKeydown));
+onUnmounted(() => document.removeEventListener('keydown', handleConfirmationKeydown));
 
 // Save functions
 const saveHero = () => {
@@ -207,8 +262,47 @@ const saveLaborAltruista = () => {
   showNotification('Labor Altruista guardada');
 };
 
-const saveProximamente = () => {
+const uploadProximamenteImage = async (event: Event) => {
+  const file = event instanceof DragEvent
+    ? event.dataTransfer?.files?.[0]
+    : (event.target as HTMLInputElement).files?.[0];
+  isDraggingProximamenteImage.value = false;
+  if (!file) return;
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+    showNotification('Usa una imagen JPG, PNG, WebP o AVIF de máximo 5 MB.');
+    return;
+  }
+  try {
+    uploadingProximamenteImage.value = true;
+    const token = localStorage.getItem('cetin_jwt_token');
+    const signedResponse = await fetch(`${API_CONFIG.contentBaseUrl}${API_CONFIG.endpoints.media.createUploadUrl}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ scope: 'upcoming', fileName: file.name, contentType: file.type }),
+    });
+    if (!signedResponse.ok) throw new Error('No se pudo autorizar la carga');
+    const { uploadUrl, publicUrl, key } = await signedResponse.json();
+    const uploadResponse = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+    if (!uploadResponse.ok) throw new Error('No se pudo subir la imagen');
+    proximamenteForm.backgroundImage = publicUrl;
+    proximamenteForm.backgroundImageKey = key;
+    showNotification('Imagen cargada. Guarda los cambios para aplicarla.');
+  } catch (error) {
+    console.error(error);
+    showNotification('No fue posible cargar la imagen');
+  } finally {
+    uploadingProximamenteImage.value = false;
+    if (event.target instanceof HTMLInputElement) event.target.value = '';
+  }
+};
+
+const saveProximamente = async () => {
+  const previousKey = originalProximamenteImageKey.value;
   updateProximamente({ ...proximamenteForm });
+  if (previousKey && previousKey !== proximamenteForm.backgroundImageKey) {
+    try { await removeMediaObject(previousKey); } catch (error) { console.error(error); }
+  }
+  originalProximamenteImageKey.value = proximamenteForm.backgroundImageKey;
   showNotification('Sección Próximamente guardada');
 };
 
@@ -231,6 +325,8 @@ const saveFooter = () => {
 
 // Videos editing
 const editingVideo = ref<string | null>(null);
+const draggedVideoId = ref<string | null>(null);
+const dragOverVideoId = ref<string | null>(null);
 const videoForm = reactive({
   title: '',
   description: '',
@@ -271,10 +367,65 @@ const handleAddVideo = () => {
 };
 
 const handleRemoveVideo = (videoId: string) => {
-  if (confirm('¿Estás seguro de eliminar este video?')) {
+  const video = content.value.videosSection.videos.find(item => item.id === videoId);
+  requestConfirmation(
+    'Eliminar video',
+    `¿Deseas eliminar “${video?.title || 'este video'}”? Esta acción no se puede deshacer.`,
+    () => {
     removeVideo(videoId);
     showNotification('Video eliminado');
+    },
+  );
+};
+
+const persistVideoOrder = (videos: VideoItem[]) => {
+  updateVideosSection({ videos });
+  showNotification('Orden de videos actualizado');
+};
+
+const moveVideo = (videoId: string, direction: -1 | 1) => {
+  const videos = [...content.value.videosSection.videos];
+  const currentIndex = videos.findIndex(video => video.id === videoId);
+  const targetIndex = currentIndex + direction;
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= videos.length) return;
+  const [video] = videos.splice(currentIndex, 1);
+  videos.splice(targetIndex, 0, video);
+  persistVideoOrder(videos);
+};
+
+const handleVideoDragStart = (event: DragEvent, videoId: string) => {
+  draggedVideoId.value = videoId;
+  event.dataTransfer?.setData('text/plain', videoId);
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+};
+
+const handleVideoDragOver = (videoId: string) => {
+  if (draggedVideoId.value && draggedVideoId.value !== videoId) {
+    dragOverVideoId.value = videoId;
   }
+};
+
+const handleVideoDrop = (targetVideoId: string) => {
+  const sourceVideoId = draggedVideoId.value;
+  if (!sourceVideoId || sourceVideoId === targetVideoId) {
+    handleVideoDragEnd();
+    return;
+  }
+
+  const videos = [...content.value.videosSection.videos];
+  const sourceIndex = videos.findIndex(video => video.id === sourceVideoId);
+  const targetIndex = videos.findIndex(video => video.id === targetVideoId);
+  if (sourceIndex >= 0 && targetIndex >= 0) {
+    const [video] = videos.splice(sourceIndex, 1);
+    videos.splice(targetIndex, 0, video);
+    persistVideoOrder(videos);
+  }
+  handleVideoDragEnd();
+};
+
+const handleVideoDragEnd = () => {
+  draggedVideoId.value = null;
+  dragOverVideoId.value = null;
 };
 
 // Services editing
@@ -318,18 +469,34 @@ const handleAddService = () => {
 };
 
 const handleRemoveService = (serviceId: string) => {
-  if (confirm('¿Estás seguro de eliminar este servicio?')) {
+  const service = content.value.infoSection.services.find(item => item.id === serviceId);
+  requestConfirmation(
+    'Eliminar servicio',
+    `¿Deseas eliminar “${service?.name || 'este servicio'}”? Esta acción no se puede deshacer.`,
+    () => {
     removeService(serviceId);
     showNotification('Servicio eliminado');
-  }
+    },
+  );
 };
 
 // Sucursales editing
 const editingSucursal = ref<string | null>(null);
+const originalSucursalImageKey = ref('');
+const uploadingSucursalImage = ref(false);
+const isDraggingSucursalImage = ref(false);
 const sucursalForm = reactive({
   name: '',
+  image: '',
+  imageKey: '',
   city: '',
+  address: '',
   phone: '',
+  email: '',
+  facebook: '',
+  mapsUrl: '',
+  latitude: 19.4326,
+  longitude: -99.1332,
   plus: '',
   refKey: 'CDMX' as 'CDMX' | 'SAN_ANDRES_CHOLULA' | 'CUAUTITLAN_IZCALLI' | 'EMILIANO_ZAPATA',
 });
@@ -338,26 +505,92 @@ const startEditSucursal = (sucursalId: string) => {
   const sucursal = content.value.sucursales.find(s => s.id === sucursalId);
   if (sucursal) {
     sucursalForm.name = sucursal.name;
+    sucursalForm.image = sucursal.image || '';
+    sucursalForm.imageKey = sucursal.imageKey || '';
+    originalSucursalImageKey.value = sucursal.imageKey || '';
     sucursalForm.city = sucursal.city;
+    sucursalForm.address = sucursal.address || '';
     sucursalForm.phone = sucursal.phone;
+    sucursalForm.email = sucursal.email || '';
+    sucursalForm.facebook = sucursal.facebook || '';
+    sucursalForm.mapsUrl = sucursal.mapsUrl || '';
+    sucursalForm.latitude = sucursal.latitude;
+    sucursalForm.longitude = sucursal.longitude;
     sucursalForm.plus = sucursal.plus;
     sucursalForm.refKey = sucursal.refKey;
     editingSucursal.value = sucursalId;
   }
 };
 
-const saveSucursalEdit = () => {
+const removeMediaObject = async (key: string) => {
+  if (!key) return;
+  const token = localStorage.getItem('cetin_jwt_token');
+  const response = await fetch(`${API_CONFIG.contentBaseUrl}${API_CONFIG.endpoints.media.remove}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ key }),
+  });
+  if (!response.ok) throw new Error('No se pudo eliminar la imagen de S3');
+};
+
+const uploadSucursalCover = async (event: Event) => {
+  const file = event instanceof DragEvent
+    ? event.dataTransfer?.files?.[0]
+    : (event.target as HTMLInputElement).files?.[0];
+  isDraggingSucursalImage.value = false;
+  if (!file || !editingSucursal.value) return;
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type)) {
+    showNotification('Formato no permitido. Usa JPG, PNG, WebP o AVIF.');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showNotification('La imagen no debe superar 5 MB.');
+    return;
+  }
+
+  try {
+    uploadingSucursalImage.value = true;
+    const token = localStorage.getItem('cetin_jwt_token');
+    const signedResponse = await fetch(`${API_CONFIG.contentBaseUrl}${API_CONFIG.endpoints.media.createUploadUrl}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ branchId: editingSucursal.value, fileName: file.name, contentType: file.type }),
+    });
+    if (!signedResponse.ok) throw new Error('No se pudo autorizar la carga');
+    const { uploadUrl, publicUrl, key } = await signedResponse.json();
+    const uploadResponse = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+    if (!uploadResponse.ok) throw new Error('No se pudo subir la imagen');
+    sucursalForm.image = publicUrl;
+    sucursalForm.imageKey = key;
+    showNotification('Portada cargada. Guarda los cambios para aplicarla.');
+  } catch (error) {
+    console.error(error);
+    showNotification('No fue posible cargar la portada');
+  } finally {
+    uploadingSucursalImage.value = false;
+    if (event.target instanceof HTMLInputElement) event.target.value = '';
+  }
+};
+
+const saveSucursalEdit = async () => {
   if (editingSucursal.value) {
+    const previousKey = originalSucursalImageKey.value;
     const updated = content.value.sucursales.map(s => 
       s.id === editingSucursal.value ? { ...s, ...sucursalForm } : s
     );
     updateSucursales(updated);
+    if (previousKey && previousKey !== sucursalForm.imageKey) {
+      try { await removeMediaObject(previousKey); } catch (error) { console.error(error); }
+    }
     editingSucursal.value = null;
     showNotification('Sucursal actualizada');
   }
 };
 
-const cancelEditSucursal = () => {
+const cancelEditSucursal = async () => {
+  if (sucursalForm.imageKey && sucursalForm.imageKey !== originalSucursalImageKey.value) {
+    try { await removeMediaObject(sucursalForm.imageKey); } catch (error) { console.error(error); }
+  }
   editingSucursal.value = null;
 };
 
@@ -366,8 +599,16 @@ const handleAddSucursal = () => {
   addSucursal({
     id: newId,
     name: 'Nueva Sucursal',
+    image: '',
+    imageKey: '',
     city: 'Ciudad',
+    address: 'Dirección completa',
     phone: '55 0000 0000',
+    email: 'sucursal@cetin.mx',
+    facebook: '',
+    mapsUrl: '',
+    latitude: 19.4326,
+    longitude: -99.1332,
     plus: 'XXXX+XX',
     refKey: 'CDMX',
   });
@@ -375,23 +616,37 @@ const handleAddSucursal = () => {
 };
 
 const handleRemoveSucursal = (sucursalId: string) => {
-  if (confirm('¿Estás seguro de eliminar esta sucursal?')) {
-    removeSucursal(sucursalId);
-    showNotification('Sucursal eliminada');
-  }
+  const sucursal = content.value.sucursales.find(item => item.id === sucursalId);
+  requestConfirmation(
+    'Eliminar sucursal',
+    `¿Deseas eliminar “${sucursal?.name || 'esta sucursal'}”? Esta acción no se puede deshacer.`,
+    async () => {
+      if (sucursal?.imageKey) {
+        try { await removeMediaObject(sucursal.imageKey); } catch (error) { console.error(error); }
+      }
+      removeSucursal(sucursalId);
+      showNotification('Sucursal eliminada');
+    },
+  );
 };
 
 // Reset
 const handleReset = () => {
-  if (confirm('¿Estás seguro de que quieres restaurar todo el contenido a los valores por defecto?')) {
+  requestConfirmation(
+    'Restaurar contenido',
+    'Se reemplazará toda la información del gestor por los valores predeterminados. Esta acción no se puede deshacer.',
+    () => {
     resetContent();
     loadFormData();
     showNotification('Contenido restaurado');
-  }
+    },
+    'Restaurar todo',
+  );
 };
 
-const goToHome = () => {
-  router.push('/');
+const handleLogout = () => {
+  logout();
+  router.replace('/login');
 };
 
 const tabs = [
@@ -408,27 +663,35 @@ const tabs = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="admin-page min-h-screen bg-gray-100">
     <!-- Header -->
     <header class="bg-[#0f2a5c] text-white shadow-lg sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-4">
-          <button 
-            @click="goToHome"
-            class="p-2 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
+          <img
+            :src="cetinLogo"
+            alt="CETIN"
+            class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-white object-contain p-1"
+          />
           <h1 class="text-2xl font-bold">Gestor de Contenido</h1>
         </div>
-        <button 
-          @click="handleReset"
-          class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors text-sm font-medium"
-        >
-          Restaurar Todo
-        </button>
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button 
+            @click="handleReset"
+            class="px-3 sm:px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors text-sm font-medium"
+          >
+            Restaurar Todo
+          </button>
+          <button
+            @click="handleLogout"
+            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 border border-white/40 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+            </svg>
+            <span class="hidden sm:inline">Cerrar sesión</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -547,9 +810,27 @@ const tabs = [
               Agregar Video
             </button>
           </div>
+
+          <p class="text-sm text-gray-500 mb-4">
+            Arrastra los videos para definir el orden en que aparecerán en la página.
+          </p>
           
           <div class="grid gap-4">
-            <div v-for="video in content.videosSection.videos" :key="video.id" class="border border-gray-200 rounded-xl p-6 hover:border-pink-300 transition-colors">
+            <div
+              v-for="(video, videoIndex) in content.videosSection.videos"
+              :key="video.id"
+              :draggable="editingVideo !== video.id"
+              class="border rounded-xl p-6 transition-all"
+              :class="[
+                dragOverVideoId === video.id ? 'border-pink-500 ring-2 ring-pink-100' : 'border-gray-200 hover:border-pink-300',
+                draggedVideoId === video.id ? 'opacity-40' : 'opacity-100',
+                editingVideo === video.id ? '' : 'cursor-grab active:cursor-grabbing',
+              ]"
+              @dragstart="handleVideoDragStart($event, video.id)"
+              @dragover.prevent="handleVideoDragOver(video.id)"
+              @drop.prevent="handleVideoDrop(video.id)"
+              @dragend="handleVideoDragEnd"
+            >
               <div v-if="editingVideo === video.id" class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
@@ -569,12 +850,38 @@ const tabs = [
                 </div>
               </div>
               <div v-else class="flex items-start justify-between">
-                <div>
-                  <h3 class="font-semibold text-gray-800">{{ video.title }}</h3>
-                  <p class="text-gray-500 text-sm mt-1">{{ video.description }}</p>
-                  <p class="text-gray-400 text-xs mt-2 font-mono">{{ video.youtubeUrl }}</p>
+                <div class="flex items-start gap-4 min-w-0">
+                  <div class="flex flex-col items-center gap-1 text-gray-400 shrink-0" title="Arrastrar para ordenar">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h8M8 15h8" />
+                    </svg>
+                    <span class="text-xs font-semibold">{{ videoIndex + 1 }}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="font-semibold text-gray-800">{{ video.title }}</h3>
+                    <p class="text-gray-500 text-sm mt-1">{{ video.description }}</p>
+                    <p class="text-gray-400 text-xs mt-2 font-mono break-all">{{ video.youtubeUrl }}</p>
+                  </div>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-1 sm:gap-2 shrink-0 ml-3">
+                  <button
+                    @click="moveVideo(video.id, -1)"
+                    :disabled="videoIndex === 0"
+                    class="p-2 text-gray-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    aria-label="Mover video hacia arriba"
+                    title="Mover arriba"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+                  </button>
+                  <button
+                    @click="moveVideo(video.id, 1)"
+                    :disabled="videoIndex === content.videosSection.videos.length - 1"
+                    class="p-2 text-gray-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    aria-label="Mover video hacia abajo"
+                    title="Mover abajo"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                  </button>
                   <button @click="startEditVideo(video.id)" class="p-2 text-gray-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -739,6 +1046,19 @@ const tabs = [
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Labor Altruista</h2>
         
         <div class="grid gap-6">
+          <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="font-semibold text-gray-800">Visibilidad de la sección</p>
+              <p class="mt-1 text-sm text-gray-500">Puedes ocultarla de la página pública sin perder el texto ni el video configurados.</p>
+            </div>
+            <label class="flex cursor-pointer items-center gap-3">
+              <input v-model="altruistaForm.active" type="checkbox" class="peer sr-only" />
+              <span class="relative h-7 w-12 rounded-full bg-gray-300 transition-colors after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-green-500 peer-checked:after:translate-x-5"></span>
+              <span class="min-w-16 text-sm font-semibold" :class="altruistaForm.active ? 'text-green-700' : 'text-gray-500'">
+                {{ altruistaForm.active ? 'Visible' : 'Oculta' }}
+              </span>
+            </label>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Badge/Etiqueta</label>
             <input v-model="altruistaForm.badge" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" />
@@ -788,6 +1108,20 @@ const tabs = [
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Sección Próximamente</h2>
         
         <div class="grid gap-6">
+          <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="font-semibold text-gray-800">Visibilidad de la sección</p>
+              <p class="mt-1 text-sm text-gray-500">Al desactivarla, la sección se oculta de la página pública sin borrar su información.</p>
+            </div>
+            <label class="flex cursor-pointer items-center gap-3">
+              <input v-model="proximamenteForm.active" type="checkbox" class="peer sr-only" />
+              <span class="relative h-7 w-12 rounded-full bg-gray-300 transition-colors after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-green-500 peer-checked:after:translate-x-5"></span>
+              <span class="min-w-16 text-sm font-semibold" :class="proximamenteForm.active ? 'text-green-700' : 'text-gray-500'">
+                {{ proximamenteForm.active ? 'Activa' : 'Inactiva' }}
+              </span>
+            </label>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Badge/Etiqueta</label>
             <input v-model="proximamenteForm.badge" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" />
@@ -810,9 +1144,32 @@ const tabs = [
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Imagen de Fondo (ruta)</label>
-            <input v-model="proximamenteForm.backgroundImage" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="/src/assets/images/..." />
-            <p class="text-xs text-gray-500 mt-1">Ejemplo: /src/assets/images/cetin_ciudad_de_mexico.jpg</p>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Imagen de fondo</label>
+            <div class="relative">
+              <label
+                class="group relative flex min-h-64 w-full cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-200"
+                :class="isDraggingProximamenteImage ? 'border-pink-500 bg-pink-50 ring-4 ring-pink-100' : 'border-slate-300 bg-slate-50 hover:border-pink-400'"
+                @dragenter.prevent="isDraggingProximamenteImage = true"
+                @dragover.prevent="isDraggingProximamenteImage = true"
+                @dragleave.prevent="isDraggingProximamenteImage = false"
+                @drop.prevent="uploadProximamenteImage"
+              >
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="sr-only" :disabled="uploadingProximamenteImage" @change="uploadProximamenteImage" />
+                <img v-if="proximamenteForm.backgroundImage" :src="proximamenteForm.backgroundImage" alt="Vista previa de la sección Próximamente" class="absolute inset-0 h-full w-full object-cover" />
+                <div v-if="proximamenteForm.backgroundImage" class="absolute inset-0 bg-slate-950/45 transition group-hover:bg-slate-950/55"></div>
+                <div class="relative z-10 m-auto flex flex-col items-center px-6 py-8 text-center" :class="proximamenteForm.backgroundImage ? 'text-white' : 'text-slate-600'">
+                  <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-pink-500 shadow-md">
+                    <svg v-if="!uploadingProximamenteImage" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <svg v-else class="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                  </div>
+                  <p class="font-semibold">{{ uploadingProximamenteImage ? 'Subiendo imagen…' : proximamenteForm.backgroundImage ? 'Cambiar imagen de fondo' : 'Arrastra una imagen aquí' }}</p>
+                  <p class="mt-1 text-xs" :class="proximamenteForm.backgroundImage ? 'text-white/80' : 'text-slate-500'">Haz clic para seleccionar · JPG, PNG, WebP o AVIF</p>
+                  <span class="mt-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-slate-600">1920 × 1080 px recomendado · máx. 5 MB</span>
+                </div>
+              </label>
+              <button v-if="proximamenteForm.backgroundImageKey" type="button" class="absolute right-3 top-3 z-20 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold text-red-600 shadow-lg hover:bg-red-50" @click="proximamenteForm.backgroundImage = ''; proximamenteForm.backgroundImageKey = ''">Eliminar</button>
+            </div>
+            <p class="mt-2 text-xs text-slate-500">Mantén el punto de interés al centro; la imagen se adapta y puede recortarse en pantallas estrechas.</p>
           </div>
 
           <div class="flex justify-end pt-4">
@@ -848,6 +1205,52 @@ const tabs = [
                   <input v-model="sucursalForm.city" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" />
                 </div>
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Imagen de portada</label>
+                <div class="relative">
+                  <label
+                    class="group relative flex min-h-52 w-full cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-200"
+                    :class="isDraggingSucursalImage ? 'border-pink-500 bg-pink-50 ring-4 ring-pink-100' : 'border-slate-300 bg-slate-50 hover:border-pink-400 hover:bg-pink-50/40'"
+                    @dragenter.prevent="isDraggingSucursalImage = true"
+                    @dragover.prevent="isDraggingSucursalImage = true"
+                    @dragleave.prevent="isDraggingSucursalImage = false"
+                    @drop.prevent="uploadSucursalCover"
+                  >
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" class="sr-only" :disabled="uploadingSucursalImage" @change="uploadSucursalCover" />
+
+                    <img v-if="sucursalForm.image" :src="sucursalForm.image" alt="Vista previa de la portada" class="absolute inset-0 h-full w-full object-cover" />
+                    <div v-if="sucursalForm.image" class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/10 to-transparent transition group-hover:from-slate-950/85"></div>
+
+                    <div class="relative z-10 m-auto flex flex-col items-center px-6 py-8 text-center" :class="sucursalForm.image ? 'mt-auto text-white' : 'text-slate-600'">
+                      <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full shadow-sm" :class="sucursalForm.image ? 'bg-white/20 backdrop-blur-sm' : 'bg-white text-pink-500 ring-1 ring-slate-200'">
+                        <svg v-if="!uploadingSucursalImage" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14m-6-6h.01M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <svg v-else class="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                      </div>
+                      <p class="font-semibold">{{ uploadingSucursalImage ? 'Subiendo portada…' : sucursalForm.image ? 'Cambiar imagen' : 'Arrastra una imagen aquí' }}</p>
+                      <p class="mt-1 text-xs" :class="sucursalForm.image ? 'text-white/80' : 'text-slate-500'">{{ sucursalForm.image ? 'Haz clic o suelta otra imagen para reemplazarla' : 'o haz clic para seleccionar un archivo' }}</p>
+                      <div class="mt-3 flex flex-wrap justify-center gap-2">
+                        <span class="rounded-full px-3 py-1 text-[11px] font-medium" :class="sucursalForm.image ? 'bg-white/15 text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'">1600 × 1200 px · proporción 4:3</span>
+                        <span class="rounded-full px-3 py-1 text-[11px] font-medium" :class="sucursalForm.image ? 'bg-white/15 text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'">JPG, PNG, WebP o AVIF · máx. 5 MB</span>
+                      </div>
+                    </div>
+                  </label>
+                  <button v-if="sucursalForm.imageKey" type="button" class="absolute right-3 top-3 z-20 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold text-red-600 shadow-lg transition hover:bg-red-50" @click="sucursalForm.image = ''; sucursalForm.imageKey = ''">Eliminar</button>
+                </div>
+                <p class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+                  <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                  La portada se almacena de forma segura en S3 al seleccionarla.
+                </p>
+                <p class="mt-1 text-xs text-slate-500">Mantén la fachada o elemento principal en el centro y evita incluir texto en la imagen, ya que los bordes pueden recortarse según el tamaño de pantalla.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Dirección completa</label>
+                <textarea v-model="sucursalForm.address" rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"></textarea>
+              </div>
               <div class="grid md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
@@ -856,6 +1259,30 @@ const tabs = [
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Plus Code</label>
                   <input v-model="sucursalForm.plus" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Enlace de Google Maps</label>
+                <input v-model="sucursalForm.mapsUrl" type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="https://www.google.com/maps/..." />
+              </div>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Latitud</label>
+                  <input v-model.number="sucursalForm.latitude" type="number" step="any" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Longitud</label>
+                  <input v-model.number="sucursalForm.longitude" type="number" step="any" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" />
+                </div>
+              </div>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
+                  <input v-model="sucursalForm.email" type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="sucursal@cetin.mx" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
+                  <input v-model="sucursalForm.facebook" type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="https://facebook.com/..." />
                 </div>
               </div>
               <div>
@@ -872,13 +1299,27 @@ const tabs = [
                 <button @click="saveSucursalEdit" class="px-5 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors">Guardar</button>
               </div>
             </div>
-            <div v-else class="flex items-start justify-between">
-              <div>
-                <h3 class="font-semibold text-gray-800">{{ sucursal.name }}</h3>
-                <p class="text-gray-500 text-sm mt-1">{{ sucursal.city }}</p>
-                <p class="text-pink-500 text-sm mt-1">{{ sucursal.phone }}</p>
+            <div v-else class="grid gap-5 lg:grid-cols-[160px_minmax(0,1fr)_auto]">
+              <div class="h-32 overflow-hidden rounded-xl bg-gradient-to-br from-slate-100 to-slate-200">
+                <img v-if="sucursal.image" :src="sucursal.image" :alt="`Portada de ${sucursal.name}`" class="h-full w-full object-cover" />
+                <div v-else class="flex h-full items-center justify-center px-4 text-center text-xs font-medium text-slate-500">Portada predeterminada</div>
               </div>
-              <div class="flex gap-2">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-lg font-semibold text-gray-800">{{ sucursal.name }}</h3>
+                  <span class="rounded-full bg-pink-50 px-2.5 py-1 text-xs font-medium text-pink-600">{{ sucursal.city || 'Ciudad pendiente' }}</span>
+                </div>
+                <p class="mt-2 text-sm leading-6 text-gray-600">{{ sucursal.address || 'Dirección pendiente' }}</p>
+                <div class="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2 xl:grid-cols-3">
+                  <p><span class="font-medium text-gray-500">Teléfono:</span> <span class="text-gray-800">{{ sucursal.phone || 'Pendiente' }}</span></p>
+                  <p class="truncate"><span class="font-medium text-gray-500">Correo:</span> <span class="text-gray-800">{{ sucursal.email || 'Pendiente' }}</span></p>
+                  <p><span class="font-medium text-gray-500">Facebook:</span> <span class="text-gray-800">{{ sucursal.facebook ? 'Configurado' : 'Pendiente' }}</span></p>
+                  <p><span class="font-medium text-gray-500">Google Maps:</span> <span class="text-gray-800">{{ sucursal.mapsUrl ? 'Configurado' : 'Pendiente' }}</span></p>
+                  <p><span class="font-medium text-gray-500">Coordenadas:</span> <span class="text-gray-800">{{ sucursal.latitude }}, {{ sucursal.longitude }}</span></p>
+                  <p><span class="font-medium text-gray-500">Plus Code:</span> <span class="text-gray-800">{{ sucursal.plus || 'Pendiente' }}</span></p>
+                </div>
+              </div>
+              <div class="flex gap-2 lg:justify-self-end">
                 <button @click="startEditSucursal(sucursal.id)" class="p-2 text-gray-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -966,5 +1407,79 @@ const tabs = [
         </div>
       </div>
     </div>
+
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="confirmation.open"
+          class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          role="presentation"
+          @click.self="closeConfirmation"
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirmation-title"
+            aria-describedby="confirmation-description"
+            class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
+          >
+            <div class="p-6 sm:p-7">
+              <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600 ring-8 ring-red-50/60">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                </svg>
+              </div>
+              <h2 id="confirmation-title" class="text-xl font-bold text-slate-900">{{ confirmation.title }}</h2>
+              <p id="confirmation-description" class="mt-2 text-sm leading-6 text-slate-600">{{ confirmation.message }}</p>
+            </div>
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                class="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                @click="closeConfirmation"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                @click="confirmAction"
+              >
+                {{ confirmation.confirmLabel }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.admin-page input:not([type='checkbox']),
+.admin-page textarea,
+.admin-page select {
+	background-color: #ffffff;
+	color: #1f2937;
+	color-scheme: light;
+}
+
+.admin-page input:not([type='checkbox']):-webkit-autofill,
+.admin-page input:not([type='checkbox']):-webkit-autofill:hover,
+.admin-page input:not([type='checkbox']):-webkit-autofill:focus,
+.admin-page textarea:-webkit-autofill,
+.admin-page select:-webkit-autofill {
+	-webkit-text-fill-color: #1f2937;
+	-webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+	box-shadow: 0 0 0 1000px #ffffff inset;
+	caret-color: #1f2937;
+	transition: background-color 9999s ease-out 0s;
+}
+</style>

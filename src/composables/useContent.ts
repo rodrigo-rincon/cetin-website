@@ -15,12 +15,53 @@ function loadContent(): SiteContent {
     if (stored) {
       const parsed = JSON.parse(stored);
       // Merge con defaultContent para asegurar que tenemos todas las propiedades
-      return deepMerge(defaultContent, parsed);
+      return mergeSiteContent(parsed);
     }
   } catch (error) {
     console.error('Error loading content from localStorage:', error);
   }
   return { ...defaultContent };
+}
+
+function mergeSiteContent(source: Partial<SiteContent>): SiteContent {
+  const merged = deepMerge(defaultContent, source);
+  if (Array.isArray(source.sucursales)) {
+    const storedBranches = source.sucursales as Array<
+      Partial<SiteContent['sucursales'][number]> & Pick<SiteContent['sucursales'][number], 'id'>
+    >;
+    merged.sucursales = storedBranches.map((branch) => {
+      const fallback = defaultContent.sucursales.find(item => item.id === branch.id);
+      const normalized: SiteContent['sucursales'][number] = {
+        name: branch.name || 'Sucursal CETIN',
+        image: '',
+        imageKey: '',
+        city: '',
+        address: '',
+        phone: '',
+        email: defaultContent.contact.email,
+        facebook: defaultContent.footer.socialLinks.facebook || '',
+        mapsUrl: '',
+        latitude: 19.4326,
+        longitude: -99.1332,
+        plus: '',
+        refKey: 'CDMX',
+        ...(fallback || {}),
+        ...branch,
+        id: branch.id,
+      };
+
+      // Mantiene los datos originales publicados en la página como fuente principal.
+      if (normalized.id === 'puebla' && normalized.phone === '221 662 6318') {
+        normalized.phone = '221 191 1419';
+      }
+      if (normalized.id === 'roma-sur' && normalized.phone === '55 3447 6352') {
+        normalized.phone = '55 3459 9088';
+      }
+
+      return normalized;
+    });
+  }
+  return merged;
 }
 
 function deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
@@ -76,7 +117,7 @@ async function loadFromBackend(): Promise<void> {
     const response = await fetch(`${API_CONFIG.contentBaseUrl}${endpoint}`);
     if (response.ok) {
       const backendContent = await response.json();
-      const merged = deepMerge(defaultContent, backendContent);
+      const merged = mergeSiteContent(backendContent);
       content.value = merged;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
       console.log('✓ Content loaded from backend');

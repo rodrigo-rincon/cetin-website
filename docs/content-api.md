@@ -10,6 +10,10 @@ Lambda used by `cetin-app`.
   `rol` (or `role`) claim is `superadmin`. The Lambda then reads the current
   `usuario` row from Aurora and requires `estatus = 'activo'` and
   `rol = 'superadmin'`, matching the authorization behavior of `cetin-be`.
+- `POST /api/media/upload-url`: creates a five-minute presigned S3 upload URL for
+  a branch cover image; requires an active `superadmin`.
+- `DELETE /api/media`: deletes an image using its `branches/...` object key;
+  requires an active `superadmin`.
 
 Supported sections are `hero`, `videosSection`, `stats`, `infoSection`,
 `laborAltruista`, `proximamente`, `sucursales`, `contact`, and `footer`.
@@ -22,6 +26,8 @@ Supported sections are `hero`, `videosSection`, `stats`, `infoSection`,
 - `DB_NAME`: PostgreSQL database name.
 - `JWT_SECRET`: secret used to verify the existing CETIN HS256 tokens.
 - `WEB_ORIGIN`: allowed website origin. Use the real site URL outside local development.
+- `MEDIA_BUCKET`: S3 bucket used for editable website images.
+- `MEDIA_PUBLIC_URL`: public base URL used to render uploaded images.
 
 The Lambda runs inside the test database VPC. Its dedicated security group is the
 only source added to the database security group on port 5432. The Lambda role needs

@@ -1,18 +1,35 @@
 <template>
 	<section
 		id="home"
-		class="relative bg-white dark:bg-slate-900 overflow-hidden"
+		class="relative min-h-[720px] overflow-hidden bg-white transition-colors duration-700 ease-in-out dark:bg-slate-900 lg:min-h-[min(820px,calc(100vh-2rem))]"
 	>
-		<!-- Parallax background gradient -->
+		<!-- Fondos optimizados para cada tema -->
+		<div class="absolute inset-0">
+			<img
+				src="../assets/images/hero-cetin-light.png"
+				alt=""
+				class="absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-100 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-0 sm:object-center"
+				aria-hidden="true"
+			/>
+			<img
+				src="../assets/images/hero-cetin-dark.png"
+				alt=""
+				class="absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-0 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-100 sm:object-center"
+				aria-hidden="true"
+			/>
+		</div>
+		<div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/5 opacity-100 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-0 sm:via-white/55 lg:via-white/20"></div>
+		<div class="absolute inset-0 bg-gradient-to-r from-[#061a3a]/95 via-[#061a3a]/78 to-transparent opacity-0 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-100 sm:via-[#061a3a]/50 lg:via-[#061a3a]/15"></div>
+		<!-- Mezcla visual con la siguiente sección para evitar un corte rígido -->
 		<div
-			ref="parallaxBg"
-			class="absolute inset-0 bg-gradient-to-br from-pink-50/50 via-white to-blue-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 will-change-transform"
+			class="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-28 bg-gradient-to-b from-transparent via-gray-50/35 to-gray-50 transition-colors duration-700 motion-reduce:duration-0 dark:via-slate-800/35 dark:to-slate-800 sm:h-36"
+			aria-hidden="true"
 		></div>
 
 		<!-- Yellow decorative elements with parallax -->
 		<div
 			ref="parallaxElements"
-			class="absolute inset-0 will-change-transform"
+			class="absolute inset-0 hidden will-change-transform"
 		>
 			<div
 				class="absolute top-32 right-1/4 w-5 h-5 bg-yellow-400/30 rounded-full"
@@ -32,19 +49,19 @@
 		</div>
 
 		<div
-			class="max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-16 lg:pt-32 lg:pb-20 relative z-10 w-full"
+			class="relative z-10 mx-auto flex min-h-[720px] w-full max-w-7xl items-center px-6 pb-28 pt-24 lg:min-h-[min(820px,calc(100vh-2rem))] lg:px-12 lg:pb-36 lg:pt-32"
 		>
 			<div
-				class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20"
+				class="w-full"
 			>
 				<!-- Left Column: Content -->
 				<div
-					class="flex-1 flex flex-col gap-6 text-center lg:text-left hero-content"
+					class="hero-content mx-auto flex max-w-xl flex-col gap-6 text-center transition-colors duration-500 ease-in-out sm:mx-0 sm:text-left lg:max-w-[52%]"
 				>
 					<!-- Badge -->
-					<div class="flex justify-center lg:justify-start">
+					<div class="flex justify-center sm:justify-start">
 						<span
-							class="inline-flex items-center gap-2 bg-pink-50 dark:bg-pink-900/30 border border-pink-100 dark:border-pink-800 rounded-full px-4 py-2 text-sm font-medium text-pink-600 dark:text-pink-400 animate-float"
+							class="animate-float inline-flex items-center gap-2 rounded-full border border-pink-100 bg-pink-50 px-4 py-2 text-sm font-medium text-pink-600 transition-colors duration-500 dark:border-pink-800 dark:bg-pink-900/30 dark:text-pink-400"
 						>
 							<span
 								class="w-2 h-2 bg-pink-500 rounded-full"
@@ -55,7 +72,7 @@
 
 					<!-- Main heading -->
 					<h1
-						class="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
+						class="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#0f2a5c] dark:text-white leading-tight transition-colors duration-500"
 					>
 						{{ content.hero.title }}
 						<span class="text-pink-500"> {{ content.hero.titleHighlight }}</span>
@@ -63,14 +80,14 @@
 
 					<!-- Subtitle -->
 					<p
-						class="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0"
+						class="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0 transition-colors duration-500"
 					>
 						{{ content.hero.subtitle }}
 					</p>
 
 					<!-- CTA Buttons -->
 					<div
-						class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mt-2"
+						class="mt-2 flex flex-col justify-center gap-3 sm:flex-row sm:justify-start"
 					>
 						<a
 							href="#contact"
@@ -92,7 +109,7 @@
 							{{ content.hero.ctaPrimary }}
 						</a>
 						<a
-							href="#services"
+							href="#services-info"
 							class="group inline-flex items-center justify-center bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
 						>
 							{{ content.hero.ctaSecondary }}
@@ -114,7 +131,7 @@
 
 					<!-- Stats - Subtle Design -->
 					<div
-						class="flex flex-wrap justify-center lg:justify-start gap-6 lg:gap-8 mt-8 pt-8 border-t border-gray-100 dark:border-slate-700"
+						class="mt-6 flex flex-wrap justify-center gap-4 border-t border-slate-300/60 pt-6 transition-colors duration-500 dark:border-white/15 sm:justify-start lg:mt-8 lg:gap-8 lg:pt-8"
 					>
 						<div class="text-center">
 							<p
@@ -186,12 +203,12 @@
 				</div>
 
 				<!-- Right Column: Image -->
-				<div class="flex-1 relative hero-image">
+				<div class="hidden">
 					<div class="relative overflow-hidden shadow-xl hero-blob">
 						<img
 							src="../assets/images/banner.jpg"
 							alt="Bebé recibiendo atención médica en CETIN"
-							class="w-full h-[400px] lg:h-[520px] object-cover"
+							class="w-full h-[320px] sm:h-[380px] lg:h-[520px] object-cover"
 						/>
 					</div>
 

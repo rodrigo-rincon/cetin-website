@@ -52,6 +52,7 @@ export interface InfoSectionContent {
 
 // Labor Altruista
 export interface LaborAltruistaContent {
+  active: boolean;
   badge: string;
   title: string;
   titleHighlight: string;
@@ -63,18 +64,28 @@ export interface LaborAltruistaContent {
 
 // Sucursales Próximamente
 export interface ProximamentContent {
+  active: boolean;
   badge: string;
   title: string;
   titleHighlight: string;
   subtitle: string;
   backgroundImage: string;
+  backgroundImageKey: string;
 }
 
 export interface Sucursal {
   id: string;
   name: string;
+  image: string;
+  imageKey: string;
   city: string;
+  address: string;
   phone: string;
+  email: string;
+  facebook: string;
+  mapsUrl: string;
+  latitude: number;
+  longitude: number;
   plus: string;
   refKey: 'CDMX' | 'SAN_ANDRES_CHOLULA' | 'CUAUTITLAN_IZCALLI' | 'EMILIANO_ZAPATA';
 }
@@ -200,6 +211,7 @@ export const defaultContent: SiteContent = {
     ],
   },
   laborAltruista: {
+    active: true,
     badge: 'Labor Altruista',
     title: 'Nos llena de felicidad ir',
     titleHighlight: 'más allá',
@@ -209,50 +221,92 @@ export const defaultContent: SiteContent = {
     videoCaption: 'Aún no sabemos cuál será nuestro próximo destino, pero tenemos la certeza de que ahí estaremos, listos para ayudar.',
   },
   proximamente: {
+    active: true,
     badge: 'Próximamente',
     title: 'Crecemos para estar cada vez más',
     titleHighlight: 'cerca de ti',
     subtitle: 'Una nueva sucursal está por llegar.',
     backgroundImage: '/src/assets/images/cetin_ciudad_de_mexico.jpg',
+    backgroundImageKey: '',
   },
   sucursales: [
     {
       id: 'puebla',
       name: 'CETIN Puebla',
+      image: '',
+      imageKey: '',
       city: 'San Andrés Cholula, Puebla',
+      address: 'Blvrd del Niño Poblano 2501-B local 5-B, Reserva Territorial Atlixcáyotl, 72450 San Andrés Cholula, Pue.',
       phone: '221 191 1419',
+      email: 'cetincorporativo@gmail.com',
+      facebook: 'https://www.facebook.com/cetinmx',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=CETIN%20Puebla%2C%20Blvrd.%20del%20Ni%C3%B1o%20Poblano%202501-B%2C%20San%20Andr%C3%A9s%20Cholula',
+      latitude: 19.0278616,
+      longitude: -98.2348081,
       plus: '2QH8+43',
       refKey: 'SAN_ANDRES_CHOLULA',
     },
     {
       id: 'roma-sur',
       name: 'CETIN Roma Sur',
+      image: '',
+      imageKey: '',
       city: 'Ciudad de México',
+      address: 'Tepic 139, Roma Sur, Cuauhtémoc, 06760 Ciudad de México, CDMX.',
       phone: '55 3459 9088',
+      email: 'cetincorporativo@gmail.com',
+      facebook: 'https://www.facebook.com/cetinmx',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=CETIN%20Roma%20Sur%2C%20Tepic%20139%2C%20Ciudad%20de%20M%C3%A9xico',
+      latitude: 19.4063121,
+      longitude: -99.1672553,
       plus: 'CR4M+G3',
       refKey: 'CDMX',
     },
     {
       id: 'lindavista',
       name: 'CETIN Lindavista',
+      image: '',
+      imageKey: '',
       city: 'Ciudad de México',
+      address: 'Riobamba 758, Lindavista Sur, Gustavo A. Madero, 07300 Ciudad de México, CDMX.',
       phone: '55 3459 9088',
+      email: 'cetincorporativo@gmail.com',
+      facebook: 'https://www.facebook.com/cetinmx',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=CETIN%20Lindavista%2C%20Riobamba%20758%2C%20Ciudad%20de%20M%C3%A9xico',
+      latitude: 19.4906914,
+      longitude: -99.1274349,
       plus: 'FVRF+72',
       refKey: 'CDMX',
     },
     {
       id: 'los-reyes',
       name: 'CETIN Los Reyes',
+      image: '',
+      imageKey: '',
       city: 'Emiliano Zapata, Edo. de México',
+      address: 'Carr. Federal México-Puebla 62, Los Reyes, 56400 Emiliano Zapata, Méx.',
       phone: '55 1833 4557',
+      email: 'cetincorporativo@gmail.com',
+      facebook: 'https://www.facebook.com/cetinmx',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=CETIN%20Los%20Reyes%2C%20Carretera%20Federal%20M%C3%A9xico-Puebla%2062%2C%20La%20Paz%2C%20M%C3%A9xico',
+      latitude: 19.3549368,
+      longitude: -98.9787999,
       plus: '923C+XF',
       refKey: 'EMILIANO_ZAPATA',
     },
     {
       id: 'cuautitlan',
       name: 'CETIN Cuautitlán',
+      image: '',
+      imageKey: '',
       city: 'Cuautitlán Izcalli, Edo. de México',
+      address: 'And. París 24-Loc. 1, Centro Urbano, 54700 Cuautitlán Izcalli, Méx.',
       phone: '55 7223 2421',
+      email: 'cetincorporativo@gmail.com',
+      facebook: 'https://www.facebook.com/cetinmx',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=CETIN%20Cuautitl%C3%A1n%20Izcalli%2C%20Andador%20Par%C3%ADs%2024',
+      latitude: 19.6542518,
+      longitude: -99.2080879,
       plus: 'MQ3R+PQ',
       refKey: 'CUAUTITLAN_IZCALLI',
     },

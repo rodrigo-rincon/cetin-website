@@ -1,5 +1,11 @@
 import { execute } from './database.js';
 import { requireSuperadmin } from './auth.js';
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { randomUUID } from 'node:crypto';
+
+const s3 = new S3Client({});
+const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
 
 const allowedSections = new Set([
   'hero', 'videosSection', 'stats', 'infoSection', 'laborAltruista',
@@ -12,7 +18,7 @@ const response = (statusCode, body) => ({
     'content-type': 'application/json; charset=utf-8',
     'access-control-allow-origin': process.env.WEB_ORIGIN || '*',
     'access-control-allow-headers': 'authorization,content-type',
-    'access-control-allow-methods': 'GET,PUT,OPTIONS',
+    'access-control-allow-methods': 'GET,PUT,POST,DELETE,OPTIONS',
   },
   body: JSON.stringify(body),
 });
@@ -78,6 +84,40 @@ async function updateSection(section, content, actor, event) {
   ]);
 }
 
+function safeSegment(value, fallback) {
+  const normalized = String(value || '').toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  return normalized || fallback;
+}
+
+async function createUploadUrl(event) {
+  await authorizeSuperadmin(event);
+  const body = JSON.parse(event.body || '{}');
+  if (!allowedImageTypes.has(body.contentType)) {
+    throw Object.assign(new Error('Unsupported image type'), { statusCode: 400 });
+  }
+  const scope = body.scope === 'upcoming' ? 'upcoming' : 'branches';
+  const owner = scope === 'upcoming' ? 'section' : safeSegment(body.branchId, 'unassigned');
+  const extension = safeSegment(String(body.fileName || '').split('.').pop(), 'jpg');
+  const key = `${scope}/${owner}/${randomUUID()}.${extension}`;
+  const command = new PutObjectCommand({
+    Bucket: process.env.MEDIA_BUCKET,
+    Key: key,
+    ContentType: body.contentType,
+    CacheControl: 'public, max-age=31536000, immutable',
+  });
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+  return { uploadUrl, key, publicUrl: `${process.env.MEDIA_PUBLIC_URL}/${key}` };
+}
+
+async function removeMedia(event) {
+  await authorizeSuperadmin(event);
+  const { key } = JSON.parse(event.body || '{}');
+  if (!/^(branches|upcoming)\//.test(String(key || ''))) {
+    throw Object.assign(new Error('Invalid media key'), { statusCode: 400 });
+  }
+  await s3.send(new DeleteObjectCommand({ Bucket: process.env.MEDIA_BUCKET, Key: key }));
+}
+
 export async function handler(event) {
   try {
     const verb = method(event);
@@ -85,6 +125,14 @@ export async function handler(event) {
     if (verb === 'OPTIONS') return response(204, {});
     if (verb === 'GET' && (path === '/api/content' || path === '/api/web/content')) {
       return response(200, await getContent());
+    }
+
+    if (verb === 'POST' && path === '/api/media/upload-url') {
+      return response(200, await createUploadUrl(event));
+    }
+    if (verb === 'DELETE' && path === '/api/media') {
+      await removeMedia(event);
+      return response(200, { deleted: true });
     }
 
     const match = path.match(/^\/api\/(?:web\/admin\/)?content\/([^/]+)$/);

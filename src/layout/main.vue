@@ -6,7 +6,7 @@ import Footer from '../components/footer.vue';
 import Chatbot from '../components/Chatbot.vue';
 
 const route = useRoute();
-const showLayout = computed(() => !['/login'].includes(route.path));
+const showLayout = computed(() => route.path === '/');
 </script>
 
 <template>

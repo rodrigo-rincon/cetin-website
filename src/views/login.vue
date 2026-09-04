@@ -13,7 +13,7 @@
             <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
           </svg>
         </div>
-        <h1 style="font-size:36px;font-weight:800;color:#fff;margin:0 0 8px;font-family:'Outfit',sans-serif;">CETIN</h1>
+        <h1 style="font-size:36px;font-weight:800;color:#fff;margin:0 0 8px;font-family:'Nunito Sans',sans-serif;">CETIN</h1>
         <p style="color:rgba(255,255,255,0.7);font-size:16px;margin:0;">Centro de Tamizaje Infantil</p>
       </div>
     </div>
@@ -22,7 +22,7 @@
     <div style="flex:1;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:40px;">
       <div style="width:100%;max-width:400px;">
         <div style="margin-bottom:32px;">
-          <h2 style="font-size:28px;font-weight:700;color:#0f2a5c;margin:0 0 8px;font-family:'Outfit',sans-serif;">Bienvenido</h2>
+          <h2 style="font-size:28px;font-weight:700;color:#0f2a5c;margin:0 0 8px;font-family:'Nunito Sans',sans-serif;">Bienvenido</h2>
           <p style="color:#64748b;font-size:16px;margin:0;">Ingresa tus credenciales para continuar</p>
         </div>
 

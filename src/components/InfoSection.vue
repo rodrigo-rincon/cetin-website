@@ -1,7 +1,7 @@
 <template>
 	<section
 		id="services-info"
-		class="py-24 bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-800 relative overflow-hidden"
+		class="py-14 lg:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-800 relative overflow-hidden"
 	>
 		<!-- Decorative elements with secondary colors -->
 		<div
@@ -32,7 +32,7 @@
 
 		<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 			<!-- Section header with Dr. Blue -->
-			<div v-fade-up class="mb-20">
+			<div v-fade-up class="mb-12 lg:mb-16">
 				<!-- Header badge centered -->
 				<div class="text-center mb-6">
 					<span
@@ -62,7 +62,7 @@
 					<!-- Text content -->
 					<div class="flex-1 text-center lg:text-left">
 						<h2
-							class="text-3xl lg:text-5xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-6"
+							class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-5"
 						>
 							{{ content.infoSection.title }}
 							<span class="text-pink-500"> {{ content.infoSection.titleHighlight }}</span>
@@ -83,7 +83,7 @@
 			>
 				<!-- Service 1 - Metabólico (Featured - Large) -->
 				<div
-					class="lg:col-span-2 group relative bg-gradient-to-br from-pink-500 to-pink-600 rounded-3xl p-8 lg:p-10 overflow-hidden"
+					class="lg:col-span-2 group relative bg-gradient-to-br from-pink-500 to-pink-600 rounded-3xl p-6 lg:p-8 overflow-hidden"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -137,7 +137,7 @@
 
 				<!-- Service 2 - Cardiológico -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 border-2 border-pink-200 dark:border-red-500/50 hover:border-cetin-coral dark:hover:border-cetin-coral hover:shadow-2xl hover:shadow-pink-100/50 dark:hover:shadow-pink-900/30 transition-all duration-500"
+					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-pink-200 dark:border-red-500/50 hover:border-cetin-coral dark:hover:border-cetin-coral hover:shadow-lg transition-all duration-300"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
@@ -170,7 +170,7 @@
 
 				<!-- Service 3 - Auditivo -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 border-2 border-yellow-200 dark:border-yellow-900/50 hover:border-yellow-400 dark:hover:border-yellow-500 hover:shadow-2xl hover:shadow-yellow-100/50 dark:hover:shadow-yellow-900/30 transition-all duration-500"
+					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-yellow-200 dark:border-yellow-900/50 hover:border-yellow-400 dark:hover:border-yellow-500 hover:shadow-lg transition-all duration-300"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
@@ -203,7 +203,7 @@
 
 				<!-- Service 4 - Visual -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 border-2 border-blue-200 dark:border-blue-900/50 hover:border-blue-400 dark:hover:border-cetin-turquoise hover:shadow-2xl hover:shadow-blue-100/50 dark:hover:shadow-blue-900/30 transition-all duration-500"
+					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-blue-200 dark:border-blue-900/50 hover:border-blue-400 dark:hover:border-cetin-turquoise hover:shadow-lg transition-all duration-300"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
@@ -236,7 +236,7 @@
 
 				<!-- Service 5 - Cadera -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 border-2 border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400 dark:hover:border-cetin-lime hover:shadow-2xl hover:shadow-emerald-100/50 dark:hover:shadow-emerald-900/30 transition-all duration-500"
+					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400 dark:hover:border-cetin-lime hover:shadow-lg transition-all duration-300"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"

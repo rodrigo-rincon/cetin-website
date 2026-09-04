@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import type { Map as MapLibreMap } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import Carousel from '../components/carousel.vue';
 import HeroSection from '../components/HeroSection.vue';
 import InfoSection from '../components/InfoSection.vue';
 import { useReadonlyContent } from '../composables/useContent';
+import type { Sucursal } from '../data/content';
+import defaultSucursalCover from '../assets/images/cetin_ciudad_de_mexico.jpg';
 import {
 	vFadeUp,
 	vSlideLeft,
@@ -12,6 +16,63 @@ import {
 } from '../directives/scrollReveal';
 
 const { content } = useReadonlyContent();
+
+const activeVideoIds = ref<Set<string>>(new Set());
+
+const getYouTubeId = (url: string) => {
+	const match = url.match(/(?:embed\/|youtu\.be\/|watch\?v=)([\w-]{11})/);
+	return match?.[1] || '';
+};
+
+const getVideoThumbnail = (url: string) => {
+	const id = getYouTubeId(url);
+	return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : '';
+};
+
+const activateVideo = (id: string) => {
+	activeVideoIds.value = new Set(activeVideoIds.value).add(id);
+};
+
+const getSucursal = (id: string) =>
+	content.value.sucursales.find((sucursal) => sucursal.id === id);
+
+const getSucursalCover = (id: string) =>
+	getSucursal(id)?.image || defaultSucursalCover;
+
+const getBranchLayoutClass = (index: number, total: number) => {
+	const classes = ['md:col-span-3', 'lg:col-start-auto'];
+
+	if (total % 2 === 1 && index === total - 1) {
+		classes.push('md:col-span-4', 'md:col-start-2');
+	}
+
+	if (total === 1) {
+		classes.push('lg:col-span-6');
+	} else if (total === 2 || total === 4) {
+		classes.push('lg:col-span-3');
+	} else if (total === 5) {
+		classes.push(index < 2 ? 'lg:col-span-3' : 'lg:col-span-2');
+	} else {
+		const remainder = total % 3;
+		const balancedTailSize = remainder === 1 ? 4 : remainder;
+		classes.push(index >= total - balancedTailSize ? 'lg:col-span-3' : 'lg:col-span-2');
+	}
+
+	return classes;
+};
+
+const selectedMapBranch = ref<Sucursal | null>(null);
+const mapReady = ref(false);
+const mapError = ref(false);
+const mapMarkerElements = new Map<string, HTMLElement>();
+
+watch(selectedMapBranch, (selectedBranch) => {
+	mapMarkerElements.forEach((element, id) => {
+		const isActive = id === selectedBranch?.id;
+		element.classList.toggle('is-active', isActive);
+		element.setAttribute('aria-pressed', String(isActive));
+	});
+});
 
 // Parallax refs
 const parallaxSucursal = ref<HTMLElement | null>(null);
@@ -41,126 +102,58 @@ onUnmounted(() => {
 	window.removeEventListener('scroll', handleParallax);
 });
 
-// MapLibre types
-declare const maplibregl: {
-	Map: new (options: { container: string; style: string; bounds?: any; fitBoundsOptions?: any; scrollZoom?: boolean }) => any;
-	NavigationControl: new () => any;
-	Marker: new (options?: { element?: HTMLElement }) => any;
-	Popup: new (options?: { offset?: number }) => any;
-	LngLatBounds: new () => { extend: (coord: [number, number]) => void };
-};
-declare const OpenLocationCode: {
-	encode(lat: number, lng: number, codeLength?: number): string;
-	decode(code: string): { latitudeCenter: number; longitudeCenter: number };
-	recoverNearest(code: string, lat: number, lng: number): string;
-};
+let mapInstance: MapLibreMap | null = null;
 
 // Inicializar mapa de sucursales
-const initMap = () => {
-	const REF = {
-		CDMX: { lat: 19.4326077, lng: -99.133208 },
-		SAN_ANDRES_CHOLULA: { lat: 19.0528, lng: -98.2986 },
-		CUAUTITLAN_IZCALLI: { lat: 19.6727, lng: -99.2078 },
-		EMILIANO_ZAPATA: { lat: 19.3833, lng: -98.95 },
-	};
-
-	const places = [
-		{
-			name: 'CETIN Puebla',
-			plus: '2QH8+43',
-			ref: REF.SAN_ANDRES_CHOLULA,
-			phone: '221 191 1419',
-			city: 'San Andrés Cholula, Puebla',
-		},
-		{
-			name: 'CETIN Roma Sur',
-			plus: 'CR4M+G3',
-			ref: REF.CDMX,
-			phone: '55 3459 9088',
-			city: 'Ciudad de México',
-		},
-		{
-			name: 'CETIN Lindavista',
-			plus: 'FVRF+72',
-			ref: REF.CDMX,
-			phone: '55 3459 9088',
-			city: 'Ciudad de México',
-		},
-		{
-			name: 'CETIN Los Reyes',
-			plus: '923C+XF',
-			ref: REF.EMILIANO_ZAPATA,
-			phone: '55 1833 4557',
-			city: 'Emiliano Zapata, Edo. de México',
-		},
-		{
-			name: 'CETIN Cuautitlán',
-			plus: 'MQ3R+PQ',
-			ref: REF.CUAUTITLAN_IZCALLI,
-			phone: '55 7223 2421',
-			city: 'Cuautitlán Izcalli, Edo. de México',
-		},
-	];
+const initMap = async () => {
+	mapReady.value = false;
+	mapError.value = false;
+	mapInstance?.remove();
+	const maplibregl = await import('maplibre-gl');
+	const places = content.value.sucursales.filter(
+		(branch) => Number.isFinite(branch.latitude) && Number.isFinite(branch.longitude),
+	);
 
 	const elementoMapa = document.getElementById('cetin-map');
 	if (!elementoMapa) {
 		console.warn('Map container not found');
 		return;
 	}
-
-	console.log('Initializing map, maplibregl:', typeof window.maplibregl, 'OpenLocationCode:', typeof window.OpenLocationCode);
+	elementoMapa.replaceChildren();
 
 	// Calcular límites del mapa
 	const limites = new maplibregl.LngLatBounds();
-	const marcadores: { lat: number; lng: number; sucursal: any }[] = [];
-
-	places.forEach((p) => {
-		const codigoCompleto = OpenLocationCode.recoverNearest(
-			p.plus,
-			p.ref.lat,
-			p.ref.lng,
-		);
-		const area = OpenLocationCode.decode(codigoCompleto);
-		const lat = area.latitudeCenter;
-		const lng = area.longitudeCenter;
-		limites.extend([lng, lat]);
-		marcadores.push({ lat, lng, sucursal: p });
-	});
+	places.forEach(({ longitude, latitude }) => limites.extend([longitude, latitude]));
 
 	// Crear mapa con MapLibre - Estilo verde natural con labels en español
-	const mapa = new maplibregl.Map({
+	mapInstance = new maplibregl.Map({
 		container: 'cetin-map',
-		style: 'https://tiles.stadiamaps.com/styles/outdoors.json',
+		style: {
+			version: 8,
+			sources: {
+				osm: {
+					type: 'raster',
+					tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+					tileSize: 256,
+					attribution: '© OpenStreetMap contributors',
+				},
+			},
+			layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+		},
 		bounds: limites,
 		fitBoundsOptions: { padding: 60, maxZoom: 12 },
 		scrollZoom: false,
 	});
-
-	// Cambiar labels a español cuando el estilo cargue
-	mapa.on('styledata', () => {
-		const capas = mapa.getStyle()?.layers || [];
-		capas.forEach((capa: any) => {
-			if (capa.layout && capa.layout['text-field']) {
-				const campoTexto = capa.layout['text-field'];
-				// Si el campo usa coalesce con name:en, cambiarlo a español
-				if (Array.isArray(campoTexto) || typeof campoTexto === 'object') {
-					mapa.setLayoutProperty(capa.id, 'text-field', [
-						'coalesce',
-						['get', 'name:es'],
-						['get', 'name:latin'],
-						['get', 'name'],
-					]);
-				}
-			}
-		});
-	});
+	const mapa = mapInstance;
 
 	// Agregar controles de navegación
 	mapa.addControl(new maplibregl.NavigationControl(), 'top-right');
 
 	// Agregar marcadores cuando el mapa esté listo
 	mapa.on('load', () => {
-		marcadores.forEach(({ lat, lng, sucursal }) => {
+		mapReady.value = true;
+		places.forEach((sucursal) => {
+			const { latitude, longitude } = sucursal;
 			// Crear elemento del marcador personalizado
 			const el = document.createElement('div');
 			el.className = 'marcador-cetin';
@@ -183,68 +176,52 @@ const initMap = () => {
 					</svg>
 				</div>
 			`;
-
-			// Crear ventana emergente
-			const ventana = new maplibregl.Popup({ offset: 25 }).setHTML(`
-				<div style="text-align: center; min-width: 180px; padding: 8px;">
-					<b style="color: #0f2a5c; font-size: 14px;">${sucursal.name}</b>
-					<br/>
-					<span style="color: #666; font-size: 12px;">${sucursal.city}</span>
-					<br/>
-					<a href="tel:${sucursal.phone.replace(/\s/g, '')}" style="color: #E91E8C; font-weight: 500; font-size: 13px; text-decoration: none;">
-						📞 ${sucursal.phone}
-					</a>
-				</div>
-			`);
+			el.setAttribute('role', 'button');
+			el.setAttribute('aria-label', `Ver información de ${sucursal.name}`);
+			el.setAttribute('aria-pressed', 'false');
+			el.tabIndex = 0;
+			mapMarkerElements.set(sucursal.id, el);
+			const openBranchPanel = (event: Event) => {
+				event.stopPropagation();
+				selectedMapBranch.value = sucursal;
+			};
+			el.addEventListener('click', openBranchPanel);
+			el.addEventListener('keydown', (event) => {
+				if (event.key === 'Enter' || event.key === ' ') openBranchPanel(event);
+			});
 
 			// Agregar marcador al mapa
 			new maplibregl.Marker({ element: el })
-				.setLngLat([lng, lat])
-				.setPopup(ventana)
+				.setLngLat([longitude, latitude])
 				.addTo(mapa);
 		});
 	});
-};
-
-const loadMapLibre = async (): Promise<void> => {
-  if (typeof window.maplibregl !== 'undefined') {
-    initMap();
-    return;
-  }
-
-  const loadScript = (src: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = src;
-      script.onload = () => resolve();
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  };
-
-  try {
-    await Promise.all([
-      loadScript('https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js'),
-      loadScript('https://cdnjs.cloudflare.com/ajax/libs/openlocationcode/1.0.4/openlocationcode.min.js'),
-    ]);
-    initMap();
-  } catch (e) {
-    console.error('Failed to load map libraries:', e);
-  }
+	mapa.on('error', () => {
+		if (!mapReady.value) mapError.value = true;
+	});
+	mapa.on('click', () => {
+		selectedMapBranch.value = null;
+	});
 };
 
 onMounted(() => {
-  loadMapLibre();
+	void initMap();
+});
+
+onUnmounted(() => {
+	mapInstance?.remove();
+	mapInstance = null;
+	mapMarkerElements.clear();
 });
 </script>
 
 <template>
 	<div class="main flex flex-col w-full relative bg-white dark:bg-slate-900">
-		<HeroSection />
+		<HeroSection class="order-1" />
 
 		<!-- Copy Section -->
 		<section
-			class="py-20 bg-white dark:bg-slate-900 relative overflow-hidden"
+			class="order-4 py-14 lg:py-16 bg-white dark:bg-slate-900 relative overflow-hidden"
 		>
 			<!-- Decorative elements with secondary colors -->
 			<div
@@ -266,15 +243,15 @@ onMounted(() => {
 
 			<div
 				v-fade-up
-				class="max-w-7xl mx-auto px-6 lg:px-12 text-center relative z-10"
+				class="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10"
 			>
 				<h2
-					class="text-3xl lg:text-5xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-6"
+					class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-4"
 				>
 					{{ content.videosSection.title }}
 				</h2>
 				<p
-					class="text-lg lg:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-5xl mx-auto"
+					class="text-base lg:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto"
 				>
 					{{ content.videosSection.subtitle }}
 				</p>
@@ -283,30 +260,44 @@ onMounted(() => {
 			<!-- Videos Section -->
 			<div
 				v-fade-up="{ delay: 200 }"
-				class="max-w-7xl mx-auto px-6 lg:px-12 mt-16"
+				class="mx-auto mt-10 w-full px-6 lg:mt-12 lg:px-8 xl:px-12"
 			>
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 					<!-- Dynamic Videos -->
 					<div v-for="video in content.videosSection.videos" :key="video.id" class="group">
 						<div
-							class="rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+							class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
 						>
-							<!-- Video -->
-							<div class="aspect-video">
+							<!-- Video: el reproductor se carga solo cuando el usuario lo solicita -->
+							<div class="relative aspect-video overflow-hidden bg-slate-950">
 								<iframe
+									v-if="activeVideoIds.has(video.id)"
 									class="w-full h-full"
-									:src="video.youtubeUrl"
+									:src="`${video.youtubeUrl}${video.youtubeUrl.includes('?') ? '&' : '?'}autoplay=1`"
 									:title="video.title"
+									loading="lazy"
 									frameborder="0"
 									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
 									allowfullscreen
 								></iframe>
+								<button
+									v-else
+									type="button"
+									class="group/play absolute inset-0 flex w-full items-center justify-center overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-pink-400"
+									:aria-label="`Reproducir ${video.title}`"
+									@click="activateVideo(video.id)"
+								>
+									<img v-if="getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover/play:scale-105 group-hover/play:opacity-65" />
+									<span class="absolute flex h-14 w-14 items-center justify-center rounded-full bg-pink-500 text-white shadow-xl transition duration-300 group-hover/play:scale-110 group-hover/play:bg-pink-600" aria-hidden="true">
+										<svg class="ml-1 h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+									</span>
+								</button>
 							</div>
 							<!-- Caption -->
 							<div
-								class="p-5 bg-[#0f2a5c] flex items-start gap-4"
+								class="bg-[#0f2a5c] px-4 py-3.5"
 							>
-								<div class="flex -space-x-2 shrink-0">
+								<div class="hidden">
 									<div
 										class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
 									>
@@ -355,8 +346,9 @@ onMounted(() => {
 										</svg>
 									</div>
 								</div>
-								<p class="text-white text-sm leading-relaxed">
-									"{{ video.description }}"
+								<h3 class="mb-1 text-sm font-bold text-white">{{ video.title }}</h3>
+								<p class="text-xs leading-relaxed text-slate-300">
+									{{ video.description }}
 								</p>
 							</div>
 						</div>
@@ -368,7 +360,7 @@ onMounted(() => {
 		<!-- US Section - Why Choose Us (Nosotros) -->
 		<section
 			id="us"
-			class="py-20 bg-gray-50 dark:bg-slate-800 relative overflow-hidden"
+			class="order-2 relative overflow-hidden bg-gray-50 py-16 transition-colors duration-500 dark:bg-slate-800 lg:py-24"
 		>
 			<!-- Decorative shapes -->
 			<div
@@ -396,11 +388,9 @@ onMounted(() => {
 			></div>
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-				<div
-					class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
-				>
+				<div class="grid grid-cols-1 items-stretch gap-10 lg:grid-cols-12 lg:gap-12">
 					<!-- Left: Features -->
-					<div v-slide-right class="space-y-8">
+					<div v-slide-right class="space-y-7 lg:col-span-7">
 						<div>
 							<span
 								class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-4"
@@ -421,9 +411,9 @@ onMounted(() => {
 						</div>
 
 						<!-- Feature items -->
-						<div class="space-y-6">
+						<div class="grid gap-4 xl:grid-cols-2">
 							<div
-								class="flex items-start gap-5 p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-pink-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-pink-800"
 							>
 								<div
 									class="w-14 h-14 bg-pink-100 dark:bg-pink-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -456,7 +446,7 @@ onMounted(() => {
 							</div>
 
 							<div
-								class="flex items-start gap-5 p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-800"
 							>
 								<div
 									class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -489,7 +479,7 @@ onMounted(() => {
 							</div>
 
 							<div
-								class="flex items-start gap-5 p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-yellow-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-yellow-800"
 							>
 								<div
 									class="w-14 h-14 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -522,7 +512,7 @@ onMounted(() => {
 							</div>
 
 							<div
-								class="flex items-start gap-5 p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-red-800"
 							>
 								<div
 									class="w-14 h-14 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -557,37 +547,39 @@ onMounted(() => {
 					</div>
 
 					<!-- Right: Stats Card -->
-					<div v-slide-left class="relative">
+					<div v-slide-left class="relative lg:col-span-5 lg:pt-11">
 						<div
-							class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-10 lg:p-12"
+							class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blue-100 bg-white p-7 shadow-xl shadow-blue-950/5 transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9"
 						>
+							<div class="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue-100/60 blur-2xl dark:bg-blue-900/20"></div>
+							<span class="relative mb-4 text-xs font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">Nuestro respaldo</span>
 							<h3
-								class="text-2xl lg:text-3xl font-bold text-[#0f2a5c] dark:text-white mb-4"
+								class="relative mb-4 text-2xl font-bold leading-tight text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-[1.75rem]"
 							>
 								Tecnología avanzada para detectar enfermedades
 								con precisión
 							</h3>
 							<p
-								class="text-gray-600 dark:text-gray-400 text-lg mb-10"
+								class="relative mb-8 text-base leading-relaxed text-gray-600 transition-colors duration-500 dark:text-gray-400"
 							>
 								En CETIN utilizamos los equipos más modernos del
 								mercado para garantizar resultados confiables.
 							</p>
 
 							<!-- Stats -->
-							<div class="grid grid-cols-2 gap-6">
+							<div class="relative grid grid-cols-2 gap-3 sm:gap-4">
 								<div
 									class="text-center p-5 bg-pink-50 dark:bg-pink-900/30 rounded-2xl"
 								>
 									<p
 										class="text-3xl lg:text-4xl font-bold text-pink-500 mb-2"
 									>
-										{{ content.stats.bebesAtendidos }}
+										{{ content.stats.tamicesEspecializados }}
 									</p>
 									<p
 										class="text-gray-600 dark:text-gray-400 font-medium text-sm"
 									>
-										{{ content.stats.bebesAtendidosLabel }}
+										{{ content.stats.tamicesEspecializadosLabel }}
 									</p>
 								</div>
 								<div
@@ -596,19 +588,19 @@ onMounted(() => {
 									<p
 										class="text-3xl lg:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2"
 									>
-										{{ content.stats.citasAgendadas }}
+										{{ content.stats.confiabilidad }}
 									</p>
 									<p
 										class="text-gray-600 dark:text-gray-400 font-medium text-sm"
 									>
-										{{ content.stats.citasAgendadasLabel }}
+										{{ content.stats.confiabilidadLabel }}
 									</p>
 								</div>
 							</div>
 
 							<a
-								href="#contact"
-								class="group inline-flex items-center justify-center w-full mt-10 bg-pink-500 hover:bg-pink-600 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg shadow-pink-500/30 hover:scale-105 hover:shadow-xl hover:shadow-pink-500/40 active:scale-95"
+								href="#services-info"
+								class="group relative mt-auto inline-flex w-full items-center justify-center rounded-xl bg-pink-500 px-8 py-3.5 font-semibold text-white shadow-lg shadow-pink-500/20 transition-all duration-300 hover:bg-pink-600 hover:shadow-xl hover:shadow-pink-500/30 active:scale-[0.98]"
 							>
 								<svg
 									class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12"
@@ -623,7 +615,7 @@ onMounted(() => {
 										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
 									/>
 								</svg>
-								Agendar una cita
+								Conocer nuestros tamices
 							</a>
 						</div>
 					</div>
@@ -632,10 +624,10 @@ onMounted(() => {
 		</section>
 
 		<!-- Servicios -->
-		<InfoSection />
+		<InfoSection class="order-3" />
 
 		<!-- Labor Altruista Section -->
-		<section class="py-24 bg-[#0f2a5c] relative overflow-hidden">
+		<section v-if="content.laborAltruista.active" class="order-9 py-16 lg:py-24 bg-[#0f2a5c] relative overflow-hidden">
 			<!-- Decorative patterns -->
 			<div class="absolute inset-0 opacity-10">
 				<div
@@ -691,7 +683,7 @@ onMounted(() => {
 
 						<!-- Main heading -->
 						<h2
-							class="text-3xl lg:text-5xl font-bold text-blue-50 leading-tight mb-6"
+							class="text-3xl lg:text-4xl font-bold text-blue-50 leading-tight mb-6"
 						>
 							{{ content.laborAltruista.title }}
 							<span class="text-pink-400">{{ content.laborAltruista.titleHighlight }}</span>
@@ -721,6 +713,7 @@ onMounted(() => {
 								class="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-lg"
 							>
 								<iframe
+									loading="lazy"
 									class="w-full h-full"
 									:src="content.laborAltruista.videoUrl"
 									title="Labor Altruista CETIN"
@@ -796,7 +789,7 @@ onMounted(() => {
 		<!-- How to Book Section -->
 		<section
 			id="services"
-			class="py-24 bg-gradient-to-b from-pink-500 via-pink-500 to-pink-600 relative overflow-hidden"
+			class="order-5 py-16 lg:py-24 bg-gradient-to-b from-pink-500 via-pink-500 to-pink-600 relative overflow-hidden"
 		>
 			<!-- Subtle floating shapes with secondary colors -->
 			<div
@@ -994,40 +987,34 @@ onMounted(() => {
 			</div>
 		</section>
 
-		<!-- Aval Section - Marquee -->
-		<section class="py-12 bg-[#0f2a5c] overflow-hidden">
-			<div class="marquee-container">
-				<div class="marquee-content">
-					<span class="marquee-text"
-						>Todos los resultados de los tamices son avalados por
-						médicos subespecialistas expertos en cada área.</span
-					>
-					<span class="marquee-separator">✦</span>
-					<span class="marquee-text"
-						>Todos los resultados de los tamices son avalados por
-						médicos subespecialistas expertos en cada área.</span
-					>
-					<span class="marquee-separator">✦</span>
-					<span class="marquee-text"
-						>Todos los resultados de los tamices son avalados por
-						médicos subespecialistas expertos en cada área.</span
-					>
-					<span class="marquee-separator">✦</span>
-					<span class="marquee-text"
-						>Todos los resultados de los tamices son avalados por
-						médicos subespecialistas expertos en cada área.</span
-					>
-					<span class="marquee-separator">✦</span>
+		<!-- Respaldo médico -->
+		<section class="order-3 relative overflow-hidden bg-[#0f2a5c] py-14 lg:py-16">
+			<div class="absolute inset-y-0 left-0 w-1.5 bg-pink-500"></div>
+			<div class="absolute -right-16 -top-20 h-56 w-56 rounded-full border border-white/10"></div>
+			<div class="absolute -bottom-24 right-24 h-48 w-48 rounded-full border border-pink-400/15"></div>
+			<div v-fade-up class="relative mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 text-center md:flex-row md:text-left lg:px-12">
+				<div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-pink-300 ring-1 ring-white/15 backdrop-blur-sm">
+					<svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75l2 2 4-5m5.25 2.25c0 4.97-3.69 8.62-8.25 9.75C7.44 20.62 3.75 16.97 3.75 12V5.85L12 2.25l8.25 3.6V12z" />
+					</svg>
 				</div>
+				<div class="min-w-0 flex-1">
+					<p class="text-xs font-semibold uppercase tracking-[0.2em] text-pink-300">Respaldo médico especializado</p>
+					<h2 class="mt-2 text-2xl font-semibold leading-snug text-white lg:text-3xl">
+						Todos los resultados son revisados e interpretados por médicos subespecialistas expertos en cada área.
+					</h2>
+				</div>
+				<div class="hidden h-16 w-px bg-white/15 md:block"></div>
+				<p class="max-w-48 text-sm leading-6 text-blue-100/75">Precisión, experiencia y acompañamiento para cada familia.</p>
 			</div>
 		</section>
 
 		<!-- Nueva Sucursal Section -->
-		<section ref="parallaxSucursal" class="py-32 relative overflow-hidden">
+		<section v-if="content.proximamente.active" ref="parallaxSucursal" class="order-8 py-20 lg:py-32 relative overflow-hidden">
 			<!-- Background Image with Parallax -->
 			<div class="absolute inset-0 overflow-hidden">
 				<img
-					src="../assets/images/cetin_ciudad_de_mexico.jpg"
+					:src="content.proximamente.backgroundImage || defaultSucursalCover"
 					alt="Nueva sucursal CETIN"
 					class="parallax-img w-full h-[140%] object-cover will-change-transform"
 					style="transform: translateY(0) scale(1.2)"
@@ -1072,7 +1059,7 @@ onMounted(() => {
 				</div>
 
 				<h2
-					class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-100 leading-tight mb-4"
+					class="text-3xl md:text-4xl font-bold text-slate-100 leading-tight mb-4"
 				>
 					{{ content.proximamente.title }}
 					<span class="text-pink-400">{{ content.proximamente.titleHighlight }}</span>
@@ -1086,7 +1073,7 @@ onMounted(() => {
 		<!-- Testimonials Section -->
 		<section
 			id="clients"
-			class="py-20 bg-white dark:bg-slate-900 relative overflow-hidden"
+			class="order-6 py-16 lg:py-20 bg-white dark:bg-slate-900 relative overflow-hidden"
 		>
 			<!-- Decorative shapes -->
 			<div
@@ -1116,7 +1103,7 @@ onMounted(() => {
 			></div>
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-				<div v-fade-up class="text-center mb-16">
+				<div v-fade-up class="text-center mb-10 lg:mb-12">
 					<span
 						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 uppercase tracking-wider mb-4"
 					>
@@ -1125,13 +1112,13 @@ onMounted(() => {
 						<span class="w-8 h-[2px] bg-pink-500"></span>
 					</span>
 					<h2
-						class="text-3xl lg:text-5xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
+						class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
 					>
 						Lo que dicen nuestros
 						<span class="text-pink-500">clientes</span>
 					</h2>
 					<p class="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-						El 99% de nuestros pacientes se encuentran satisfechos con nuestros servicios
+						Experiencias compartidas por familias que visitaron nuestras sucursales
 					</p>
 				</div>
 				<div v-fade-up="{ delay: 200 }">
@@ -1143,7 +1130,7 @@ onMounted(() => {
 		<!-- Contact Section -->
 		<section
 			id="contact"
-			class="py-20 bg-gray-50 dark:bg-slate-800 relative overflow-hidden"
+			class="order-7 py-16 lg:py-20 bg-gray-50 dark:bg-slate-800 relative overflow-hidden"
 		>
 			<!-- Decorative shapes -->
 			<div
@@ -1169,7 +1156,7 @@ onMounted(() => {
 
 			<!-- Dr. Blue waving -->
 			<div
-				class="flex justify-center lg:absolute lg:left-0 lg:-bottom-4 pointer-events-none z-20 mb-6 lg:mb-0"
+				class="flex justify-center lg:absolute lg:left-0 lg:-bottom-4 pointer-events-none z-20 mb-2 lg:mb-0"
 			>
 				<div class="relative">
 					<img
@@ -1188,7 +1175,7 @@ onMounted(() => {
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 				<!-- Section Header -->
-				<div v-fade-up class="text-center mb-12">
+				<div v-fade-up class="text-center mb-8 lg:mb-12">
 					<span
 						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 uppercase tracking-wider mb-4"
 					>
@@ -1213,7 +1200,7 @@ onMounted(() => {
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
 					<!-- Corporativo Card - Principal -->
 					<div
-						class="group relative p-8 bg-gradient-to-br from-[#0f2a5c] via-[#143366] to-[#1a3a6c] rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden"
+						class="group relative p-6 lg:p-8 bg-gradient-to-br from-[#0f2a5c] via-[#143366] to-[#1a3a6c] rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
 					>
 						<!-- Decorative elements -->
 						<div
@@ -1296,7 +1283,7 @@ onMounted(() => {
 					<!-- Email Card -->
 					<a
 						href="mailto:cetincorporativo@gmail.com"
-						class="group relative p-8 bg-gradient-to-br from-pink-500 via-pink-500 to-pink-600 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden"
+					class="group relative p-6 lg:p-8 bg-gradient-to-br from-pink-500 via-pink-500 to-pink-600 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
 					>
 						<!-- Decorative elements -->
 						<div
@@ -1356,349 +1343,70 @@ onMounted(() => {
 					<div
 						class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-slate-700 to-transparent"
 					></div>
-					<span
-						class="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider"
-						>Nuestras Sucursales</span
-					>
+					<h2 class="text-2xl font-bold text-[#0f2a5c] dark:text-white">Nuestras Sucursales</h2>
 					<div
 						class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-slate-700 to-transparent"
 					></div>
 				</div>
 
 				<!-- Sucursales Grid -->
-				<div
-					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12"
-				>
-					<!-- Puebla -->
-					<a
-						href="https://www.google.com/maps/place/CETIN+Puebla/@19.0278616,-98.237383,17z/data=!3m1!4b1!4m6!3m5!1s0x85cfc117dcd367d1:0x3781456e2b7b67bf!8m2!3d19.0278616!4d-98.2348081!16s%2Fg%2F11sk1hrbrk?entry=ttu"
-						target="_blank"
-						class="group p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700 hover:border-pink-300 dark:hover:border-pink-600 hover:-translate-y-1"
+				<div class="branch-layout grid grid-cols-1 items-stretch gap-6 md:grid-cols-6 lg:gap-7 mb-12">
+					<article
+						v-for="(sucursal, index) in content.sucursales"
+						:key="sucursal.id"
+						class="branch-card group flex h-full flex-col overflow-hidden rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+						:class="getBranchLayoutClass(index, content.sucursales.length)"
 					>
-						<div class="flex items-start gap-4">
-							<div
-								class="w-11 h-11 bg-pink-100 dark:bg-pink-900/50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-pink-500 transition-colors"
-							>
-								<svg
-									class="w-5 h-5 text-pink-500 dark:text-pink-400 group-hover:text-white transition-colors"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-									/>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-									/>
-								</svg>
-							</div>
+						<img
+							:src="getSucursalCover(sucursal.id)"
+							:alt="`Portada de ${sucursal.name}`"
+							class="branch-card-image transition-transform duration-700 group-hover:scale-105"
+						/>
+						<div class="branch-card-content flex flex-1 items-end gap-4 p-6">
 							<div>
-								<h3
-									class="font-bold text-[#0f2a5c] dark:text-white mb-1"
-								>
-									Puebla
+								<h3 class="font-bold text-[#0f2a5c] dark:text-white mb-1">
+									{{ sucursal.name }}
 								</h3>
-								<p
-									class="text-sm text-gray-500 dark:text-gray-400 mb-2"
-								>
-									Blvrd del Niño Poblano 2501-B local 5-B,
-									Reserva Territorial Atlixcáyotl, 72450 San
-									Andrés Cholula, Pue.
+								<p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+									{{ sucursal.address }}
 								</p>
 								<a
-									href="tel:+522211911419"
-									class="inline-flex items-center gap-2 text-sm text-pink-500 font-medium hover:text-pink-600"
-									@click.stop
+									v-if="sucursal.phone"
+									:href="`tel:${sucursal.phone.replace(/\s/g, '')}`"
+									class="inline-flex items-center text-sm font-semibold text-[#0f2a5c] dark:text-pink-300"
 								>
-									<svg
-										class="w-4 h-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+									{{ sucursal.phone }}
+								</a>
+								<div class="mt-4 space-y-2 border-t border-slate-100 pt-4 dark:border-slate-700">
+									<a
+										v-if="sucursal.email"
+										:href="`mailto:${sucursal.email}`"
+										class="block truncate text-sm text-slate-600 hover:text-pink-500 dark:text-slate-300 dark:hover:text-pink-300"
 									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-										/>
-									</svg>
-									221 191 1419
+										{{ sucursal.email }}
+									</a>
+									<a
+										v-if="sucursal.facebook"
+										:href="sucursal.facebook"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="block text-sm font-medium text-slate-600 hover:text-pink-500 dark:text-slate-300 dark:hover:text-pink-300"
+									>
+										Facebook
+									</a>
+								</div>
+								<a
+									v-if="sucursal.mapsUrl"
+									:href="sucursal.mapsUrl"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="mt-5 flex items-center justify-between rounded-xl bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pink-500 hover:shadow-md"
+								>
+									Ver ubicación <span aria-hidden="true">→</span>
 								</a>
 							</div>
 						</div>
-					</a>
-
-					<!-- Los Reyes la Paz -->
-					<a
-						href="https://www.google.com/maps/place/Tamiz+Neonatal+Cetin+M%C3%A9xico+Los+Reyes/@19.3549368,-98.9813748,17z/data=!3m1!4b1!4m6!3m5!1s0x85d1e375bf60eceb:0x3816aff1b36b4de0!8m2!3d19.3549368!4d-98.9787999!16s%2Fg%2F11w3t5cly1?entry=ttu"
-						target="_blank"
-						class="group p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:-translate-y-1"
-					>
-						<div class="flex items-start gap-4">
-							<div
-								class="w-11 h-11 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors"
-							>
-								<svg
-									class="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-									/>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-									/>
-								</svg>
-							</div>
-							<div>
-								<h3
-									class="font-bold text-[#0f2a5c] dark:text-white mb-1"
-								>
-									Los Reyes
-								</h3>
-								<p
-									class="text-sm text-gray-500 dark:text-gray-400 mb-2"
-								>
-									Carr. Federal México-Puebla 62, Los Reyes,
-									56400 Emiliano Zapata, Méx.
-								</p>
-								<a
-									href="tel:+525518334557"
-									class="inline-flex items-center gap-2 text-sm text-blue-600 font-medium hover:text-blue-700"
-									@click.stop
-								>
-									<svg
-										class="w-4 h-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-										/>
-									</svg>
-									55 1833 4557
-								</a>
-							</div>
-						</div>
-					</a>
-
-					<!-- Roma Sur -->
-					<a
-						href="https://www.google.com/maps/place/CETIN+ROMA+SUR/@19.4063121,-99.1698302,17z/data=!3m1!4b1!4m6!3m5!1s0x85d1ff000a76b681:0xf6f654e0c0850fb9!8m2!3d19.4063121!4d-99.1672553!16s%2Fg%2F11wnk8_gps?entry=ttu"
-						target="_blank"
-						class="group p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700 hover:border-yellow-300 dark:hover:border-yellow-600 hover:-translate-y-1"
-					>
-						<div class="flex items-start gap-4">
-							<div
-								class="w-11 h-11 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-500 transition-colors"
-							>
-								<svg
-									class="w-5 h-5 text-yellow-600 dark:text-yellow-400 group-hover:text-white transition-colors"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-									/>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-									/>
-								</svg>
-							</div>
-							<div>
-								<h3
-									class="font-bold text-[#0f2a5c] dark:text-white mb-1"
-								>
-									Roma Sur
-								</h3>
-								<p
-									class="text-sm text-gray-500 dark:text-gray-400 mb-2"
-								>
-									Tepic 139, Roma Sur, Cuauhtémoc, 06760
-									Ciudad de México, CDMX
-								</p>
-								<a
-									href="tel:+525534599088"
-									class="inline-flex items-center gap-2 text-sm text-yellow-600 font-medium hover:text-yellow-700"
-									@click.stop
-								>
-									<svg
-										class="w-4 h-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-										/>
-									</svg>
-									55 3459 9088
-								</a>
-							</div>
-						</div>
-					</a>
-
-					<!-- Cuautitlán Izcalli -->
-					<a
-						href="https://www.google.com/maps/place/CETIN+Cuautitl%C3%A1n+Izcalli/@19.6542518,-99.2106628,17z/data=!3m1!4b1!4m6!3m5!1s0x85d21f7c5e465717:0xe08b10f9241090c2!8m2!3d19.6542518!4d-99.2080879!16s%2Fg%2F11x7k4jgwq?entry=ttu"
-						target="_blank"
-						class="group p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-600 hover:-translate-y-1"
-					>
-						<div class="flex items-start gap-4">
-							<div
-								class="w-11 h-11 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500 transition-colors"
-							>
-								<svg
-									class="w-5 h-5 text-purple-500 dark:text-purple-400 group-hover:text-white transition-colors"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-									/>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-									/>
-								</svg>
-							</div>
-							<div>
-								<h3
-									class="font-bold text-[#0f2a5c] dark:text-white mb-1"
-								>
-									Cuautitlán Izcalli
-								</h3>
-								<p
-									class="text-sm text-gray-500 dark:text-gray-400 mb-2"
-								>
-									And. París 24-Loc.1, Centro Urbano, 54700
-									Cuautitlán Izcalli, Méx.
-								</p>
-								<a
-									href="tel:+525572232421"
-									class="inline-flex items-center gap-2 text-sm text-purple-500 font-medium hover:text-purple-600"
-									@click.stop
-								>
-									<svg
-										class="w-4 h-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-										/>
-									</svg>
-									55 7223 2421
-								</a>
-							</div>
-						</div>
-					</a>
-
-					<!-- Lindavista -->
-					<a
-						href="https://www.google.com/maps/place/CETIN+Lindavista/@19.4906913,-99.1323058,17z/data=!3m1!4b1!4m6!3m5!1s0x85d1f986fee9617b:0x4e707691c09bc60c!8m2!3d19.4906914!4d-99.1274349!16s%2Fg%2F11xz2rf_ps?entry=ttu"
-						target="_blank"
-						class="group p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-600 hover:-translate-y-1"
-					>
-						<div class="flex items-start gap-4">
-							<div
-								class="w-11 h-11 bg-teal-100 dark:bg-teal-900/50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-teal-500 transition-colors"
-							>
-								<svg
-									class="w-5 h-5 text-teal-500 dark:text-teal-400 group-hover:text-white transition-colors"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-									/>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-									/>
-								</svg>
-							</div>
-							<div>
-								<h3
-									class="font-bold text-[#0f2a5c] dark:text-white mb-1"
-								>
-									Lindavista
-								</h3>
-								<p
-									class="text-sm text-gray-500 dark:text-gray-400 mb-2"
-								>
-									Riobamba 758, Lindavista Sur, Gustavo A.
-									Madero, 07300 Ciudad de México, CDMX
-								</p>
-								<a
-									href="tel:+525534599088"
-									class="inline-flex items-center gap-2 text-sm text-teal-500 font-medium hover:text-teal-600"
-									@click.stop
-								>
-									<svg
-										class="w-4 h-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-										/>
-									</svg>
-									55 3459 9088
-								</a>
-							</div>
-						</div>
-					</a>
+					</article>
 				</div>
 
 				<!-- Map with all locations -->
@@ -1707,9 +1415,45 @@ onMounted(() => {
 						class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden"
 						style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.1);"
 					>
-						<div id="cetin-map" style="width:100%;height:450px;min-height:400px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
+						<div id="cetin-map" style="width:100%;height:360px;min-height:320px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
 							<p style="color:#64748b;font-size:14px;">Cargando mapa...</p>
 						</div>
+						<div v-if="mapError && !mapReady" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-100/95 px-6 text-center dark:bg-slate-900/95">
+							<p class="font-semibold text-[#0f2a5c] dark:text-white">No pudimos cargar el mapa</p>
+							<p class="mt-1 max-w-sm text-sm text-slate-600 dark:text-slate-400">Puedes abrir la ubicación desde cualquiera de las tarjetas o volver a intentarlo.</p>
+							<button type="button" class="mt-4 rounded-xl bg-[#0f2a5c] px-4 py-2 text-sm font-semibold text-white transition hover:bg-pink-500" @click="initMap">Volver a intentar</button>
+						</div>
+						<Transition name="map-panel">
+							<aside
+								v-if="selectedMapBranch"
+								class="absolute inset-y-0 right-0 z-20 flex w-[min(340px,calc(100%-1rem))] flex-col bg-white/95 p-6 shadow-2xl backdrop-blur-md dark:bg-slate-900/95"
+								aria-live="polite"
+							>
+								<Transition name="branch-detail" mode="out-in">
+									<div :key="selectedMapBranch.id" class="flex h-full flex-col">
+								<div class="flex items-start justify-between gap-4">
+									<div>
+										<p class="text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">Sucursal</p>
+										<h3 class="mt-1 text-2xl font-bold text-[#0f2a5c] dark:text-white">{{ selectedMapBranch.name }}</h3>
+									</div>
+									<button type="button" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl text-slate-500 transition hover:bg-slate-200 hover:text-slate-800 dark:bg-slate-800 dark:text-slate-300" aria-label="Cerrar información de sucursal" @click="selectedMapBranch = null">×</button>
+								</div>
+
+								<p class="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{{ selectedMapBranch.address }}</p>
+
+								<div class="mt-6 space-y-3 border-t border-slate-200 pt-5 dark:border-slate-700">
+									<a :href="`tel:${selectedMapBranch.phone.replace(/\s/g, '')}`" class="block text-sm font-semibold text-[#0f2a5c] transition hover:text-pink-500 dark:text-white">{{ selectedMapBranch.phone }}</a>
+									<a :href="`mailto:${getSucursal(selectedMapBranch.id)?.email || content.contact.email}`" class="block truncate text-sm text-slate-600 transition hover:text-pink-500 dark:text-slate-300">{{ getSucursal(selectedMapBranch.id)?.email || content.contact.email }}</a>
+									<a :href="getSucursal(selectedMapBranch.id)?.facebook || content.footer.socialLinks.facebook" target="_blank" rel="noopener noreferrer" class="block text-sm text-slate-600 transition hover:text-pink-500 dark:text-slate-300">Facebook</a>
+								</div>
+
+								<a :href="selectedMapBranch.mapsUrl" target="_blank" rel="noopener noreferrer" class="mt-auto flex items-center justify-between rounded-xl bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white transition hover:bg-pink-500">
+									Abrir en Google Maps <span aria-hidden="true">→</span>
+								</a>
+									</div>
+								</Transition>
+							</aside>
+						</Transition>
 					</div>
 				</div>
 			</div>
@@ -1717,7 +1461,7 @@ onMounted(() => {
 
 		<!-- Footer Values -->
 		<section
-			class="py-16 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 relative overflow-hidden"
+			class="order-11 relative overflow-hidden border-t border-gray-100 bg-white py-16 transition-colors duration-500 dark:border-slate-800 dark:bg-slate-900 lg:py-20"
 		>
 			<!-- Decorative elements with secondary colors -->
 			<div
@@ -1731,13 +1475,24 @@ onMounted(() => {
 			></div>
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-					<div class="text-center p-8">
+				<div class="mx-auto mb-10 max-w-2xl text-center">
+					<span class="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.16em] text-pink-500">Nuestro compromiso</span>
+					<h2 class="text-3xl font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-4xl">
+						Cuidado confiable en cada etapa
+					</h2>
+					<p class="mt-4 text-base leading-relaxed text-gray-600 dark:text-gray-400">
+						Combinamos experiencia, procesos verificados y acompañamiento para cuidar lo más importante.
+					</p>
+				</div>
+
+				<div class="relative grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-5">
+					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cetin-coral/50 hover:bg-white hover:shadow-xl hover:shadow-slate-900/5 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
+						<div class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-cetin-coral transition-transform duration-300 group-hover:scale-x-100"></div>
 						<div
-							class="w-16 h-16 bg-cetin-coral/20 dark:bg-cetin-coral/30 rounded-full flex items-center justify-center mx-auto mb-4"
+							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-coral/20 transition-transform duration-300 group-hover:scale-105 dark:bg-cetin-coral/30"
 						>
 							<svg
-								class="w-8 h-8 text-cetin-coral"
+								class="h-6 w-6 text-cetin-coral"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -1751,22 +1506,23 @@ onMounted(() => {
 							</svg>
 						</div>
 						<h3
-							class="text-xl font-bold text-[#0f2a5c] dark:text-white mb-2"
+							class="mb-2 text-lg font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white"
 						>
 							Profesionalismo
 						</h3>
-						<p class="text-gray-600 dark:text-gray-400">
+						<p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
 							Personal altamente capacitado y comprometido con la
 							salud de tu bebé.
 						</p>
 					</div>
 
-					<div class="text-center p-8">
+					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cetin-turquoise/50 hover:bg-white hover:shadow-xl hover:shadow-slate-900/5 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
+						<div class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-cetin-turquoise transition-transform duration-300 group-hover:scale-x-100"></div>
 						<div
-							class="w-16 h-16 bg-cetin-turquoise/20 dark:bg-cetin-turquoise/30 rounded-full flex items-center justify-center mx-auto mb-4"
+							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-turquoise/20 transition-transform duration-300 group-hover:scale-105 dark:bg-cetin-turquoise/30"
 						>
 							<svg
-								class="w-8 h-8 text-cetin-turquoise"
+								class="h-6 w-6 text-cetin-turquoise"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -1780,22 +1536,23 @@ onMounted(() => {
 							</svg>
 						</div>
 						<h3
-							class="text-xl font-bold text-[#0f2a5c] dark:text-white mb-2"
+							class="mb-2 text-lg font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white"
 						>
 							Control de Calidad
 						</h3>
-						<p class="text-gray-600 dark:text-gray-400">
+						<p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
 							Equipos calibrados y resultados verificados por
 							especialistas.
 						</p>
 					</div>
 
-					<div class="text-center p-8">
+					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cetin-gold/50 hover:bg-white hover:shadow-xl hover:shadow-slate-900/5 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
+						<div class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-cetin-gold transition-transform duration-300 group-hover:scale-x-100"></div>
 						<div
-							class="w-16 h-16 bg-cetin-gold/20 dark:bg-cetin-gold/30 rounded-full flex items-center justify-center mx-auto mb-4"
+							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-gold/20 transition-transform duration-300 group-hover:scale-105 dark:bg-cetin-gold/30"
 						>
 							<svg
-								class="w-8 h-8 text-cetin-gold"
+								class="h-6 w-6 text-cetin-gold"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -1808,10 +1565,10 @@ onMounted(() => {
 								/>
 							</svg>
 						</div>
-						<h3 class="text-xl font-bold text-[#0f2a5c] dark:text-white mb-2">
+						<h3 class="mb-2 text-lg font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white">
 							Soporte Continuo
 						</h3>
-						<p class="text-gray-600 dark:text-gray-400">
+						<p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
 							Te acompañamos en todo momento durante el proceso de
 							tamizaje.
 						</p>
@@ -1823,46 +1580,172 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.marquee-container {
-	display: flex;
+.map-panel-enter-active,
+.map-panel-leave-active {
+	transition:
+		opacity 220ms ease,
+		transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.map-panel-enter-from,
+.map-panel-leave-to {
+	opacity: 0;
+	transform: translateX(100%);
+}
+
+.branch-detail-enter-active,
+.branch-detail-leave-active {
+	transition:
+		opacity 180ms ease,
+		transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.branch-detail-enter-from {
+	opacity: 0;
+	transform: translateX(14px);
+}
+
+.branch-detail-leave-to {
+	opacity: 0;
+	transform: translateX(-10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.map-panel-enter-active,
+	.map-panel-leave-active,
+	.branch-detail-enter-active,
+	.branch-detail-leave-active {
+		transition: none;
+	}
+}
+
+:deep(.marcador-cetin > div) {
+	transition:
+		transform 220ms ease,
+		box-shadow 220ms ease,
+		filter 220ms ease;
+}
+
+:deep(.marcador-cetin.is-active > div) {
+	transform: rotate(-45deg) scale(1.22) !important;
+	box-shadow:
+		0 0 0 7px rgba(233, 30, 140, 0.2),
+		0 6px 18px rgba(233, 30, 140, 0.55) !important;
+	filter: saturate(1.15) brightness(1.08);
+}
+
+:deep(.marcador-cetin:focus-visible) {
+	outline: 3px solid rgba(233, 30, 140, 0.45);
+	outline-offset: 5px;
+	border-radius: 9999px;
+}
+
+.branch-card {
+	position: relative;
+	min-height: 30rem;
+	background: #0f172a;
+}
+
+.branch-card::after {
+	position: absolute;
+	inset: 0;
+	content: '';
+	background: linear-gradient(to top, rgba(2, 6, 23, 0.98) 5%, rgba(2, 6, 23, 0.78) 42%, rgba(2, 6, 23, 0.08) 76%);
+	pointer-events: none;
+}
+
+.branch-card-image {
+	position: absolute;
+	inset: 0;
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+	object-position: center;
+}
+
+.branch-card-content {
+	position: relative;
+	z-index: 1;
+	margin-top: auto;
+	padding-top: 12rem;
+}
+
+.branch-card-content > div:last-child {
+	display: grid;
+	grid-template-columns: auto auto minmax(0, 1fr);
+	column-gap: 1rem;
+	row-gap: 0.65rem;
 	width: 100%;
 }
 
-.marquee-content {
-	display: flex;
+.branch-card-content h3 {
+	grid-column: 1 / -1;
+	grid-row: 1;
+	margin-bottom: 0.5rem;
+	font-size: 1.5rem;
+	line-height: 1.2;
+	color: white !important;
+}
+
+.branch-card-content p {
+	grid-column: 1 / -1;
+	grid-row: 2;
+	color: rgb(203 213 225) !important;
+}
+
+.branch-card-content > div:last-child > a:not(:last-child) {
+	grid-column: 1;
+	grid-row: 4;
+	align-self: center;
 	white-space: nowrap;
-	animation: marquee 50s linear infinite;
+	color: rgb(226 232 240) !important;
 }
 
-.marquee-text {
-	font-size: clamp(1.1rem, 2.5vw, 1.75rem);
-	font-weight: 500;
+.branch-card-content > div:last-child > div {
+	display: contents;
+}
+
+.branch-card-content > div:last-child > div a {
+	color: rgb(226 232 240) !important;
+}
+
+.branch-card-content > div:last-child > div a[href^='mailto:'] {
+	grid-column: 1 / -1;
+	grid-row: 3;
+}
+
+.branch-card-content > div:last-child > div a[href*='facebook'] {
+	grid-column: 2;
+	grid-row: 4;
+	align-self: center;
+	white-space: nowrap;
+}
+
+.branch-card-content > div:last-child > a:last-child {
+	grid-column: 3;
+	grid-row: 4;
+	justify-self: end;
+	margin-top: 0;
+	padding: 0.45rem 0.8rem;
+	background: rgba(255, 255, 255, 0.1);
 	color: white;
-	font-style: italic;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	padding: 0 1rem;
+	border: 1px solid rgba(255, 255, 255, 0.28);
+	border-radius: 9999px;
+	box-shadow: none;
+	white-space: nowrap;
 }
 
-.marquee-separator {
-	font-size: clamp(1.1rem, 2.5vw, 1.75rem);
-	color: #f9a8d4;
-	padding: 0 2rem;
+.branch-card-content > div:last-child > a:last-child:hover {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.5);
+	color: white;
+	box-shadow: none;
 }
 
-@keyframes marquee {
-	0% {
-		transform: translateX(0);
-	}
-	100% {
-		transform: translateX(-50%);
+@media (max-width: 640px) {
+	.branch-card {
+		min-height: 26rem;
 	}
 }
 
-.marquee-container:hover .marquee-content {
-	animation-play-state: paused;
-}
 </style>
-
-<!-- Adding the MapLibre CSS from jsdelivr as an alternative CDN -->
-<link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.0.0/dist/maplibre-gl.css" rel="stylesheet" />

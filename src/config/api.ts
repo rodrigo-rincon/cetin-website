@@ -16,6 +16,10 @@ export const API_CONFIG = {
       getSection: (section: string) => `/content/${section}`,
       updateSection: (section: string) => `/content/${section}`,
     },
+    media: {
+      createUploadUrl: '/media/upload-url',
+      remove: '/media',
+    },
   },
 } as const;
 

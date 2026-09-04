@@ -142,7 +142,7 @@ module.exports = {
 		},
 		fontFamily: {
 			sans: ['Inter', 'sans-serif'],
-			heading: ['Outfit', 'sans-serif'],
+			heading: ['Nunito Sans', 'sans-serif'],
 		},
 		letterSpacing: {
 			1: '0em',

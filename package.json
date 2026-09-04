@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "maplibre-gl": "^6.6.0",
     "vee-validate": "^4.13.2",
     "vue": "^3.4.35",
     "vue-router": "^4.4.3",

@@ -1,8 +1,5 @@
 /* ./src/index.css */
 
-/*Google font  */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,19 +10,24 @@
 	scroll-margin: 8em;
 }
 
-/* Hide scrollbar but keep functionality */
+/* Keep scrolling discoverable without adding visual noise. */
 html {
-	scrollbar-width: none; /* Firefox */
-	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: thin;
+	scrollbar-color: #94a3b8 transparent;
 }
 
 html::-webkit-scrollbar {
-	display: none; /* Chrome, Safari, Opera */
+	width: 8px;
+}
+
+html::-webkit-scrollbar-thumb {
+	background: #94a3b8;
+	border-radius: 999px;
 }
 
 h1, h2, h3, h4, h5, h6,
 .font-heading {
-	font-family: 'Outfit', sans-serif;
+	font-family: 'Nunito Sans', sans-serif;
 }
 
 .nav-link {
@@ -529,3 +531,28 @@ select:required:invalid {
 	background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 }
 
+@media (prefers-reduced-motion: reduce) {
+	html:focus-within {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+	}
+
+	.fade-up,
+	.fade-in,
+	.slide-left,
+	.slide-right,
+	.scale-up,
+	.scroll-reveal,
+	.stagger-children > * {
+		opacity: 1 !important;
+		transform: none !important;
+	}
+}

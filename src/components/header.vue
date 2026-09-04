@@ -9,13 +9,9 @@ const isDark = ref(false);
 // Dark mode toggle
 const toggleDarkMode = () => {
 	isDark.value = !isDark.value;
-	if (isDark.value) {
-		document.documentElement.classList.add('dark');
-		localStorage.setItem('theme', 'dark');
-	} else {
-		document.documentElement.classList.remove('dark');
-		localStorage.setItem('theme', 'light');
-	}
+	document.documentElement.classList.toggle('dark', isDark.value);
+	document.documentElement.style.colorScheme = isDark.value ? 'dark' : 'light';
+	localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
 };
 
 // Inicializar dark mode desde localStorage
@@ -27,8 +23,9 @@ const initDarkMode = () => {
 
 	if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
 		isDark.value = true;
-		document.documentElement.classList.add('dark');
 	}
+	document.documentElement.classList.toggle('dark', isDark.value);
+	document.documentElement.style.colorScheme = isDark.value ? 'dark' : 'light';
 };
 
 // Scroll handler
@@ -111,44 +108,46 @@ const toSection = (section: string) => {
 
 <template>
 	<header
-		class="w-full bg-white dark:bg-slate-900 sticky top-0 z-50 transition-all duration-300"
-		:class="{ 'shadow-lg dark:shadow-slate-800/50': showShadow }"
+		class="fixed inset-x-0 top-0 z-50 w-full border-b transition-all duration-500"
+		:class="showShadow
+			? 'border-slate-200/80 bg-white/90 shadow-[0_10px_35px_rgba(15,42,92,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 dark:shadow-black/20'
+			: 'border-transparent bg-transparent shadow-none'"
 	>
 		<div
-			class="max-w-7xl mx-auto flex items-center justify-between py-5 px-6"
+			class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5 lg:px-12"
 		>
 			<!-- Logo y nombre -->
 			<div
-				class="flex items-center space-x-3 cursor-pointer"
+				class="group flex cursor-pointer items-center space-x-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
 				@click="toSection('home')"
 			>
 				<img
 					src="../assets/images/cetin_logo.png"
-					class="w-12 h-12"
+					class="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105"
 					alt="Logo CETIN"
 				/>
 				<div class="flex flex-col">
 					<span
-						class="text-2xl font-bold text-[#0f2a5c] dark:text-white tracking-tight"
+						class="text-xl font-extrabold tracking-tight text-[#0f2a5c] transition-colors dark:text-white"
 						>CETIN</span
 					>
-					<span class="text-xs text-gray-500 dark:text-gray-400 -mt-1"
+					<span class="mt-[-2px] text-[11px] font-medium tracking-wide text-gray-500 dark:text-gray-400"
 						>Centro de Tamizaje Infantil</span
 					>
 				</div>
 			</div>
 
 			<!-- Navegación principal -->
-			<nav class="hidden lg:flex flex-1 justify-center">
-				<ul class="flex space-x-1 text-base font-medium bg-gray-100/50 dark:bg-slate-800/50 rounded-full p-1.5">
+			<nav class="hidden flex-1 justify-center lg:flex" aria-label="Navegación principal">
+				<ul class="flex items-center gap-7 text-sm font-semibold">
 					<li
 						@click="toSection('home')"
 						:class="
 							currentTab === 'home'
-								? 'bg-white dark:bg-slate-700 text-pink-500 dark:text-pink-400 shadow-md'
-								: 'text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-white/50 dark:hover:bg-slate-700/50'
+								? 'text-pink-500 dark:text-pink-400 after:scale-x-100'
+								: 'text-slate-600 hover:text-[#0f2a5c] dark:text-slate-300 dark:hover:text-white after:scale-x-0'
 						"
-						class="relative cursor-pointer px-5 py-2 rounded-full transition-all duration-300 ease-out"
+						class="relative cursor-pointer py-2 transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:rounded-full after:bg-pink-500 after:transition-transform after:duration-300"
 					>
 						<span class="relative z-10">Inicio</span>
 					</li>
@@ -156,10 +155,10 @@ const toSection = (section: string) => {
 						@click="toSection('us')"
 						:class="
 							currentTab === 'us'
-								? 'bg-white dark:bg-slate-700 text-pink-500 dark:text-pink-400 shadow-md'
-								: 'text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-white/50 dark:hover:bg-slate-700/50'
+								? 'text-pink-500 dark:text-pink-400 after:scale-x-100'
+								: 'text-slate-600 hover:text-[#0f2a5c] dark:text-slate-300 dark:hover:text-white after:scale-x-0'
 						"
-						class="relative cursor-pointer px-5 py-2 rounded-full transition-all duration-300 ease-out"
+						class="relative cursor-pointer py-2 transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:rounded-full after:bg-pink-500 after:transition-transform after:duration-300"
 					>
 						<span class="relative z-10">Nosotros</span>
 					</li>
@@ -167,10 +166,10 @@ const toSection = (section: string) => {
 						@click="toSection('services-info')"
 						:class="
 							currentTab === 'services-info'
-								? 'bg-white dark:bg-slate-700 text-pink-500 dark:text-pink-400 shadow-md'
-								: 'text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-white/50 dark:hover:bg-slate-700/50'
+								? 'text-pink-500 dark:text-pink-400 after:scale-x-100'
+								: 'text-slate-600 hover:text-[#0f2a5c] dark:text-slate-300 dark:hover:text-white after:scale-x-0'
 						"
-						class="relative cursor-pointer px-5 py-2 rounded-full transition-all duration-300 ease-out"
+						class="relative cursor-pointer py-2 transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:rounded-full after:bg-pink-500 after:transition-transform after:duration-300"
 					>
 						<span class="relative z-10">Servicios</span>
 					</li>
@@ -178,10 +177,10 @@ const toSection = (section: string) => {
 						@click="toSection('clients')"
 						:class="
 							currentTab === 'clients'
-								? 'bg-white dark:bg-slate-700 text-pink-500 dark:text-pink-400 shadow-md'
-								: 'text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-white/50 dark:hover:bg-slate-700/50'
+								? 'text-pink-500 dark:text-pink-400 after:scale-x-100'
+								: 'text-slate-600 hover:text-[#0f2a5c] dark:text-slate-300 dark:hover:text-white after:scale-x-0'
 						"
-						class="relative cursor-pointer px-5 py-2 rounded-full transition-all duration-300 ease-out"
+						class="relative cursor-pointer py-2 transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:rounded-full after:bg-pink-500 after:transition-transform after:duration-300"
 					>
 						<span class="relative z-10">Testimonios</span>
 					</li>
@@ -189,10 +188,10 @@ const toSection = (section: string) => {
 						@click="toSection('contact')"
 						:class="
 							currentTab === 'contact'
-								? 'bg-white dark:bg-slate-700 text-pink-500 dark:text-pink-400 shadow-md'
-								: 'text-gray-600 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 hover:bg-white/50 dark:hover:bg-slate-700/50'
+								? 'text-pink-500 dark:text-pink-400 after:scale-x-100'
+								: 'text-slate-600 hover:text-[#0f2a5c] dark:text-slate-300 dark:hover:text-white after:scale-x-0'
 						"
-						class="relative cursor-pointer px-5 py-2 rounded-full transition-all duration-300 ease-out"
+						class="relative cursor-pointer py-2 transition-colors duration-300 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:rounded-full after:bg-pink-500 after:transition-transform after:duration-300"
 					>
 						<span class="relative z-10">Contacto</span>
 					</li>
@@ -200,11 +199,13 @@ const toSection = (section: string) => {
 			</nav>
 
 			<!-- Dark mode toggle + CTA Button -->
-			<div class="hidden lg:flex items-center gap-3">
+			<div class="hidden items-center gap-2.5 lg:flex">
 				<!-- Dark Mode Toggle -->
 				<button
 					@click="toggleDarkMode"
-					class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all"
+					:aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
+					:title="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
+					class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/70 text-slate-600 transition-all hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-yellow-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
 				>
 					<!-- Sol (light mode) -->
 					<svg
@@ -234,7 +235,7 @@ const toSection = (section: string) => {
 
 				<a
 					href="#contact"
-					class="group inline-flex items-center bg-primary hover:bg-pink-600 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 hover:shadow-pink-500/40 active:scale-95"
+					class="group inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-pink-600 hover:shadow-lg hover:shadow-pink-500/25 active:scale-[0.98]"
 				>
 					<svg
 						class="w-4 h-4 mr-2 transition-transform duration-300 group-hover:rotate-12"
@@ -254,11 +255,13 @@ const toSection = (section: string) => {
 			</div>
 
 			<!-- Menú móvil -->
-			<div class="lg:hidden flex items-center gap-2">
+			<div class="flex items-center gap-2 lg:hidden">
 				<!-- Dark Mode Toggle Mobile -->
 				<button
 					@click="toggleDarkMode"
-					class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all"
+					:aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
+					:title="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
+					class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/70 text-slate-600 transition-all dark:border-slate-700 dark:bg-slate-900/70 dark:text-yellow-300"
 				>
 					<svg
 						v-if="isDark"
@@ -285,7 +288,9 @@ const toSection = (section: string) => {
 				</button>
 				<button
 					@click="showMenuModal"
-					class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-600 dark:text-gray-300 hover:text-primary transition"
+					aria-label="Abrir menú de navegación"
+					:aria-expanded="showModal"
+					class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/70 text-slate-600 transition hover:border-pink-300 hover:text-primary dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -305,15 +310,9 @@ const toSection = (section: string) => {
 			</div>
 		</div>
 
-		<!-- Barra de colores identidad - aparece al hacer scroll -->
+		<!-- Indicador discreto de profundidad al hacer scroll -->
 		<transition name="slide-down">
-			<div v-if="showShadow" class="w-full h-1 flex">
-				<div class="flex-1 bg-cetin-coral"></div>
-				<div class="flex-1 bg-cetin-turquoise"></div>
-				<div class="flex-1 bg-cetin-gold"></div>
-				<div class="flex-1 bg-cetin-lavender"></div>
-				<div class="flex-1 bg-cetin-lime"></div>
-			</div>
+			<div v-if="showShadow" class="h-px w-full bg-gradient-to-r from-transparent via-pink-400/70 to-transparent"></div>
 		</transition>
 
 		<!-- Menú móvil desplegable -->
@@ -339,6 +338,7 @@ const toSection = (section: string) => {
 					</div>
 					<button
 						@click="hideMenuModal"
+						aria-label="Cerrar menú de navegación"
 						class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
 					>
 						<svg

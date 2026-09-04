@@ -28,6 +28,37 @@ Parameters:
     Type: String
 
 Resources:
+  WebsiteMediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins: [!Ref WebOrigin]
+            AllowedMethods: [GET, PUT]
+            AllowedHeaders: ['*']
+            MaxAge: 600
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+  WebsiteMediaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteMediaBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${WebsiteMediaBucket.Arn}/*'
+
   ContentLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -70,12 +101,21 @@ Resources:
           DB_NAME: !Ref DatabaseName
           JWT_SECRET: !Ref JwtSecret
           WEB_ORIGIN: !Ref WebOrigin
+          MEDIA_BUCKET: !Ref WebsiteMediaBucket
+          MEDIA_PUBLIC_URL: !Sub 'https://${WebsiteMediaBucket.RegionalDomainName}'
       Policies:
         - AWSLambdaVPCAccessExecutionRole
         - Statement:
             - Effect: Allow
               Action: secretsmanager:GetSecretValue
               Resource: !Ref DatabaseSecretArn
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource:
+                - !Sub '${WebsiteMediaBucket.Arn}/branches/*'
+                - !Sub '${WebsiteMediaBucket.Arn}/upcoming/*'
       FunctionUrlConfig:
         AuthType: NONE
         Cors:
@@ -87,9 +127,14 @@ Resources:
           AllowMethods:
             - GET
             - PUT
+            - POST
+            - DELETE
           MaxAge: 600
 
 Outputs:
   ContentApiUrl:
     Description: URL for VITE_CONTENT_API_URL (append /api)
     Value: !GetAtt ContentFunctionUrl.FunctionUrl
+  MediaBucketName:
+    Description: Test bucket for editable CETIN website media
+    Value: !Ref WebsiteMediaBucket

@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const currentYear = new Date().getFullYear();
+</script>
 
 <template>
 	<footer class="bg-gray-900 text-white">
@@ -10,11 +12,7 @@
 					<div
 						class="flex items-center gap-3 mb-6 justify-center md:justify-start"
 					>
-						<div
-							class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center"
-						>
-							<span class="text-white font-bold text-xl">C</span>
-						</div>
+						<img src="../assets/images/cetin_logo.png" alt="Logo CETIN" class="h-12 w-12 object-contain" />
 						<div>
 							<h3 class="text-xl font-bold">CETIN</h3>
 							<p class="text-sm text-gray-400">
@@ -126,7 +124,7 @@
 						</li>
 						<li>
 							<a
-								href="#services"
+								href="#services-info"
 								class="text-gray-400 hover:text-pink-500 transition-colors"
 								>Servicios</a
 							>
@@ -167,6 +165,8 @@
 						<a
 							href="https://www.facebook.com/cetinpuebla"
 							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="Visitar Facebook de CETIN"
 							class="w-14 h-14 bg-gray-800 hover:bg-blue-600 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/30"
 						>
 							<svg
@@ -182,6 +182,8 @@
 						<a
 							href="https://www.instagram.com/cetin.puebla/"
 							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="Visitar Instagram de CETIN"
 							class="w-14 h-14 bg-gray-800 hover:bg-gradient-to-br hover:from-purple-600 hover:via-pink-500 hover:to-orange-400 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-500/30"
 						>
 							<svg
@@ -197,6 +199,8 @@
 						<a
 							href="https://www.tiktok.com/@cetinpuebla"
 							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="Visitar TikTok de CETIN"
 							class="w-14 h-14 bg-gray-800 hover:bg-black rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-500/30"
 						>
 							<svg
@@ -212,6 +216,8 @@
 						<a
 							href="https://www.youtube.com/@CETINPuebla"
 							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="Visitar YouTube de CETIN"
 							class="w-14 h-14 bg-gray-800 hover:bg-red-600 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/30"
 						>
 							<svg
@@ -236,7 +242,7 @@
 					class="flex flex-col md:flex-row justify-between items-center gap-4"
 				>
 					<p class="text-gray-400 text-sm text-center md:text-left">
-						© 2024 CETIN - Centro de Tamizaje Infantil. Todos los
+						© {{ currentYear }} CETIN - Centro de Tamizaje Infantil. Todos los
 						derechos reservados.
 					</p>
 					<div class="flex items-center gap-2">
