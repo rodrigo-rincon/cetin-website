@@ -279,260 +279,78 @@ onUnmounted(() => {
 		<!-- US Section - Why Choose Us (Nosotros) -->
 		<section
 			id="us"
-			class="editorial-section order-2 relative overflow-hidden bg-gray-50 py-16 transition-colors duration-500 dark:bg-slate-800 lg:py-24"
+			class="editorial-section order-2 relative overflow-hidden bg-gray-50 py-16 transition-colors duration-500 dark:bg-slate-800 lg:py-20"
 		>
-			<!-- Decorative shapes -->
-			<div
-				class="absolute -right-20 top-20 w-40 h-40 border border-pink-200 dark:border-pink-800 rounded-full opacity-40"
-			></div>
-			<div
-				class="absolute -right-10 top-40 w-24 h-24 border border-blue-200 dark:border-blue-800 rounded-full opacity-30"
-			></div>
-			<div
-				class="absolute left-10 bottom-20 w-16 h-16 border-2 border-yellow-400 dark:border-yellow-600 rounded-full opacity-40"
-			></div>
-			<!-- Yellow accent elements -->
-			<div
-				class="absolute top-10 left-1/3 w-8 h-8 bg-yellow-400/20 rounded-full"
-			></div>
-			<div
-				class="absolute bottom-40 right-1/4 w-5 h-5 bg-yellow-400/30 rounded-full"
-			></div>
-			<!-- Yellow star shape -->
-			<div
-				class="absolute bottom-10 right-10 w-6 h-6 rotate-45 border-2 border-yellow-400/40 dark:border-yellow-600/40"
-			></div>
+			<div class="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
+				<div v-fade-up class="mb-10 lg:mb-12">
+					<span class="mb-4 inline-flex items-center gap-3 text-sm font-semibold text-blue-600 dark:text-blue-400">
+						<span class="h-0.5 w-8 bg-blue-600 dark:bg-blue-400"></span>
+						¿Por qué elegirnos?
+					</span>
+					<h2 class="text-3xl font-semibold leading-tight text-[#0f2a5c] dark:text-white lg:text-4xl">
+						Lo que nos hace <span class="text-blue-600 dark:text-blue-400">diferentes</span>
+					</h2>
+				</div>
 
-			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-				<div class="grid grid-cols-1 items-stretch gap-10 lg:grid-cols-12 lg:gap-12">
-					<!-- Left: Features -->
-					<div v-slide-right class="space-y-7 lg:col-span-7">
-						<div>
-							<span
-								class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 mb-4"
-							>
-								<span
-									class="w-8 h-[2px] bg-blue-600 dark:bg-blue-400"
-								></span>
-								¿Por qué elegirnos?
-							</span>
-							<h2
-								class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
-							>
-								Lo que nos hace
-								<span class="text-blue-600 dark:text-blue-400"
-									>diferentes</span
-								>
-							</h2>
-						</div>
+				<div class="grid items-stretch gap-10 lg:grid-cols-12 lg:gap-16">
+					<div v-slide-right class="lg:col-span-5">
+						<div class="flex h-full min-h-[29rem] flex-col rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-sm transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9">
+							<span class="text-sm font-semibold text-pink-500">Nuestro respaldo</span>
+							<h3 class="mt-6 text-2xl font-semibold leading-tight text-[#0f2a5c] dark:text-white lg:text-[1.75rem]">
+								Tecnología avanzada para detectar enfermedades con precisión
+							</h3>
+							<p class="mt-4 leading-relaxed text-gray-600 dark:text-gray-400">
+								Utilizamos equipos modernos para garantizar resultados confiables.
+							</p>
 
-						<!-- Feature items -->
-						<div class="grid gap-4 xl:grid-cols-2">
-							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-pink-800"
-							>
-								<div
-									class="w-14 h-14 bg-pink-100 dark:bg-pink-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
-								>
-									<svg
-										class="w-7 h-7 text-pink-500"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-										/>
-									</svg>
+							<div class="mt-auto grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+								<div class="bg-pink-50 p-5 dark:bg-pink-900/20">
+									<p class="text-3xl font-semibold text-pink-500">{{ content.stats.tamicesEspecializados }}</p>
+									<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ content.stats.tamicesEspecializadosLabel }}</p>
 								</div>
-								<div>
-									<h3
-										class="text-lg font-bold text-[#0f2a5c] dark:text-white mb-1"
-									>
-										Años de experiencia
-									</h3>
-									<p class="text-gray-600 dark:text-gray-400">
-										Personal altamente capacitado con amplia
-										trayectoria en tamizaje neonatal.
-									</p>
+								<div class="border-l border-slate-200 bg-blue-50 p-5 dark:border-slate-700 dark:bg-blue-900/20">
+									<p class="text-3xl font-semibold text-blue-600 dark:text-blue-400">{{ content.stats.confiabilidad }}</p>
+									<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ content.stats.confiabilidadLabel }}</p>
 								</div>
 							</div>
 
-							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-blue-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-800"
-							>
-								<div
-									class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
-								>
-									<svg
-										class="w-7 h-7 text-blue-600"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-										/>
-									</svg>
-								</div>
-								<div>
-									<h3
-										class="text-lg font-bold text-[#0f2a5c] dark:text-white mb-1"
-									>
-										Equipos de alta tecnología
-									</h3>
-									<p class="text-gray-600 dark:text-gray-400">
-										Contamos con equipos nuevos, calibrados
-										según normas internacionales.
-									</p>
-								</div>
-							</div>
-
-							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-yellow-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-yellow-800"
-							>
-								<div
-									class="w-14 h-14 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
-								>
-									<svg
-										class="w-7 h-7 text-yellow-600 dark:text-yellow-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M13 10V3L4 14h7v7l9-11h-7z"
-										/>
-									</svg>
-								</div>
-								<div>
-									<h3
-										class="text-lg font-bold text-[#0f2a5c] dark:text-white mb-1"
-									>
-										Proceso rápido y eficiente
-									</h3>
-									<p class="text-gray-600 dark:text-gray-400">
-										Resultados confiables en el menor tiempo
-										posible.
-									</p>
-								</div>
-							</div>
-
-							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-red-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-red-800"
-							>
-								<div
-									class="w-14 h-14 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
-								>
-									<svg
-										class="w-7 h-7 text-red-500 dark:text-red-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-										/>
-									</svg>
-								</div>
-								<div>
-									<h3
-										class="text-lg font-bold text-[#0f2a5c] dark:text-white mb-1"
-									>
-										Staff profesional
-									</h3>
-									<p class="text-gray-600 dark:text-gray-400">
-										Médicos subespecialistas expertos que
-										avalan todos nuestros resultados.
-									</p>
-								</div>
-							</div>
+							<a href="#services-info" class="mt-4 inline-flex items-center justify-center rounded-lg bg-pink-500 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
+								Conocer nuestros tamices <span class="ml-2" aria-hidden="true">→</span>
+							</a>
 						</div>
 					</div>
 
-					<!-- Right: Stats Card -->
-					<div v-slide-left class="relative lg:col-span-5 lg:pt-11">
-						<div
-							class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white p-7 shadow-sm transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9"
-						>
-							<div class="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue-100/60 blur-2xl dark:bg-blue-900/20"></div>
-							<span class="relative mb-4 text-sm font-semibold text-blue-600 dark:text-blue-400">Nuestro respaldo</span>
-							<h3
-								class="relative mb-4 text-2xl font-bold leading-tight text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-[1.75rem]"
-							>
-								Tecnología avanzada para detectar enfermedades
-								con precisión
-							</h3>
-							<p
-								class="relative mb-8 text-base leading-relaxed text-gray-600 transition-colors duration-500 dark:text-gray-400"
-							>
-								En CETIN utilizamos los equipos más modernos del
-								mercado para garantizar resultados confiables.
-							</p>
-
-							<!-- Stats -->
-							<div class="relative grid grid-cols-2 gap-3 sm:gap-4">
-								<div
-									class="text-center p-5 bg-pink-50 dark:bg-pink-900/30 rounded-2xl"
-								>
-									<p
-										class="text-3xl lg:text-4xl font-bold text-pink-500 mb-2"
-									>
-										{{ content.stats.tamicesEspecializados }}
-									</p>
-									<p
-										class="text-gray-600 dark:text-gray-400 font-medium text-sm"
-									>
-										{{ content.stats.tamicesEspecializadosLabel }}
-									</p>
-								</div>
-								<div
-									class="text-center p-5 bg-blue-50 dark:bg-blue-900/30 rounded-2xl"
-								>
-									<p
-										class="text-3xl lg:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2"
-									>
-										{{ content.stats.confiabilidad }}
-									</p>
-									<p
-										class="text-gray-600 dark:text-gray-400 font-medium text-sm"
-									>
-										{{ content.stats.confiabilidadLabel }}
-									</p>
-								</div>
+					<div v-slide-left class="divide-y divide-slate-200 dark:divide-slate-700 lg:col-span-7">
+						<div class="grid grid-cols-[3rem_1fr_auto] items-center gap-5 py-6 first:pt-0 lg:py-7">
+							<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-pink-500 dark:bg-pink-900/40">
+								<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138" /></svg>
 							</div>
+							<div><h3 class="text-lg font-semibold text-[#0f2a5c] dark:text-white">Experiencia especializada</h3><p class="mt-1 text-gray-600 dark:text-gray-400">Atención enfocada en el cuidado y tamizaje del recién nacido.</p></div>
+							<span class="hidden text-sm font-semibold text-blue-600 dark:text-blue-400 sm:block">01</span>
+						</div>
 
-							<a
-								href="#services-info"
-								class="group relative mt-auto inline-flex w-full items-center justify-center rounded-lg bg-pink-500 px-8 py-3.5 font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
-							>
-								<svg
-									class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-									/>
-								</svg>
-								Conocer nuestros tamices
-							</a>
+						<div class="grid grid-cols-[3rem_1fr_auto] items-center gap-5 py-6 lg:py-7">
+							<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+								<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17 9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" /></svg>
+							</div>
+							<div><h3 class="text-lg font-semibold text-[#0f2a5c] dark:text-white">Tecnología verificada</h3><p class="mt-1 text-gray-600 dark:text-gray-400">Equipos calibrados para obtener resultados precisos y confiables.</p></div>
+							<span class="hidden text-sm font-semibold text-blue-600 dark:text-blue-400 sm:block">02</span>
+						</div>
+
+						<div class="grid grid-cols-[3rem_1fr_auto] items-center gap-5 py-6 lg:py-7">
+							<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-pink-100 text-pink-500 dark:bg-pink-900/40">
+								<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7Z" /></svg>
+							</div>
+							<div><h3 class="text-lg font-semibold text-[#0f2a5c] dark:text-white">Resultados oportunos</h3><p class="mt-1 text-gray-600 dark:text-gray-400">Procesos ágiles para brindarte claridad en el menor tiempo posible.</p></div>
+							<span class="hidden text-sm font-semibold text-blue-600 dark:text-blue-400 sm:block">03</span>
+						</div>
+
+						<div class="grid grid-cols-[3rem_1fr_auto] items-center gap-5 py-6 last:pb-0 lg:py-7">
+							<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+								<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+							</div>
+							<div><h3 class="text-lg font-semibold text-[#0f2a5c] dark:text-white">Respaldo médico</h3><p class="mt-1 text-gray-600 dark:text-gray-400">Cada resultado es revisado e interpretado por subespecialistas.</p></div>
+							<span class="hidden text-sm font-semibold text-blue-600 dark:text-blue-400 sm:block">04</span>
 						</div>
 					</div>
 				</div>
