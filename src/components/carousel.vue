@@ -5,7 +5,6 @@ import { testimonials, type Testimonial } from '../data/testimonials';
 const currentIndex = ref(0);
 const selectedBranch = ref('');
 const expandedTestimonials = ref<Set<number>>(new Set());
-const transitionDirection = ref<'next' | 'prev'>('next');
 
 const normalizedTestimonials = computed(() =>
 	testimonials.map((testimonial) => ({
@@ -25,12 +24,21 @@ const filteredTestimonials = computed(() => {
 	);
 });
 
-const visibleTestimonials = computed(() => {
+const deckTestimonials = computed(() => {
 	const list = filteredTestimonials.value;
 	if (!list.length) return [];
-	return Array.from({ length: Math.min(3, list.length) }, (_, offset) =>
-		list[(currentIndex.value + offset) % list.length],
-	);
+	if (list.length === 1) return [{ testimonial: list[0], position: 'active' as const }];
+	if (list.length === 2) {
+		return [
+			{ testimonial: list[currentIndex.value], position: 'active' as const },
+			{ testimonial: list[(currentIndex.value + 1) % list.length], position: 'next' as const },
+		];
+	}
+	return [
+		{ testimonial: list[(currentIndex.value - 1 + list.length) % list.length], position: 'previous' as const },
+		{ testimonial: list[currentIndex.value], position: 'active' as const },
+		{ testimonial: list[(currentIndex.value + 1) % list.length], position: 'next' as const },
+	];
 });
 
 const selectBranch = () => {
@@ -40,21 +48,18 @@ const selectBranch = () => {
 
 const next = () => {
 	if (!filteredTestimonials.value.length) return;
-	transitionDirection.value = 'next';
 	currentIndex.value = (currentIndex.value + 1) % filteredTestimonials.value.length;
 };
 
 const prev = () => {
 	const length = filteredTestimonials.value.length;
 	if (!length) return;
-	transitionDirection.value = 'prev';
 	currentIndex.value = currentIndex.value === 0 ? length - 1 : currentIndex.value - 1;
 };
 
-const showTestimonial = (offset: number) => {
-	if (!offset || !filteredTestimonials.value.length) return;
-	transitionDirection.value = 'next';
-	currentIndex.value = (currentIndex.value + offset) % filteredTestimonials.value.length;
+const showTestimonial = (position: 'previous' | 'active' | 'next') => {
+	if (position === 'previous') prev();
+	if (position === 'next') next();
 };
 
 const toggleExpanded = (id: number) => {
@@ -97,48 +102,49 @@ const sourceLabel = (testimonial: Testimonial) =>
 		</div>
 
 		<div class="testimonial-deck-stage">
-			<Transition :name="`testimonial-${transitionDirection}`" mode="out-in">
-				<div :key="`${selectedBranch}-${currentIndex}`" class="testimonial-deck">
+			<div class="testimonial-deck">
 					<article
-						v-for="(testimonial, index) in visibleTestimonials"
-						:key="testimonial.id"
+						v-for="item in deckTestimonials"
+						:key="item.testimonial.id"
 						class="testimonial-deck-card"
-						:class="`testimonial-deck-card-${index}`"
-						:aria-hidden="index > 0"
-						@click="showTestimonial(index)"
+						:class="`testimonial-deck-card-${item.position}`"
+						:aria-hidden="item.position !== 'active'"
+						@click="showTestimonial(item.position)"
 					>
+						<span v-if="item.position !== 'active'" class="testimonial-side-label">
+							{{ item.position === 'previous' ? '← Anterior' : 'Siguiente →' }}
+						</span>
 						<div class="mb-6 flex items-start justify-between gap-4">
 							<div>
-								<p class="font-semibold text-[#0f2a5c] dark:text-white">CETIN {{ testimonial.branch }}</p>
-								<p class="mt-1 text-xs text-slate-500 dark:text-slate-300">{{ sourceLabel(testimonial) }}</p>
+								<p class="font-semibold text-[#0f2a5c] dark:text-white">CETIN {{ item.testimonial.branch }}</p>
+								<p class="mt-1 text-xs text-slate-500 dark:text-slate-300">{{ sourceLabel(item.testimonial) }}</p>
 							</div>
-							<div class="flex shrink-0 gap-0.5" :aria-label="`${testimonial.rating} de 5 estrellas`">
-								<svg v-for="star in testimonial.rating" :key="star" class="testimonial-star h-4 w-4" viewBox="0 0 20 20" aria-hidden="true">
+							<div class="flex shrink-0 gap-0.5" :aria-label="`${item.testimonial.rating} de 5 estrellas`">
+								<svg v-for="star in item.testimonial.rating" :key="star" class="testimonial-star h-4 w-4" viewBox="0 0 20 20" aria-hidden="true">
 									<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
 								</svg>
 							</div>
 						</div>
 
-						<p class="testimonial-quote" :class="isExpanded(testimonial.id) ? '' : 'line-clamp-7'">“{{ testimonial.text }}”</p>
+						<p class="testimonial-quote" :class="isExpanded(item.testimonial.id) ? '' : 'line-clamp-7'">“{{ item.testimonial.text }}”</p>
 						<button
-							v-if="index === 0 && testimonial.text.length > 240"
+							v-if="item.position === 'active' && item.testimonial.text.length > 240"
 							type="button"
 							class="mt-3 self-start text-sm font-semibold text-pink-600 hover:text-pink-700 dark:text-pink-300 dark:hover:text-pink-200"
-							@click.stop="toggleExpanded(testimonial.id)"
+							@click.stop="toggleExpanded(item.testimonial.id)"
 						>
-							{{ isExpanded(testimonial.id) ? 'Ver menos' : 'Leer más' }}
+							{{ isExpanded(item.testimonial.id) ? 'Ver menos' : 'Leer más' }}
 						</button>
 
 						<div class="mt-auto flex items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-700">
-							<div class="flex h-11 w-11 items-center justify-center rounded-full bg-pink-50 text-sm font-bold text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">{{ getInitials(testimonial.name) }}</div>
+							<div class="flex h-11 w-11 items-center justify-center rounded-full bg-pink-50 text-sm font-bold text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">{{ getInitials(item.testimonial.name) }}</div>
 							<div>
-								<p class="font-medium text-slate-800 dark:text-slate-100">{{ testimonial.name }}</p>
-								<p v-if="index === 0" class="mt-0.5 text-xs text-slate-400">Experiencia verificada</p>
+								<p class="font-medium text-slate-800 dark:text-slate-100">{{ item.testimonial.name }}</p>
+								<p v-if="item.position === 'active'" class="mt-0.5 text-xs text-slate-400">Experiencia verificada</p>
 							</div>
 						</div>
 					</article>
-				</div>
-			</Transition>
+			</div>
 		</div>
 
 		<div class="mt-8 flex items-center justify-center gap-4">
@@ -188,32 +194,53 @@ const sourceLabel = (testimonial: Testimonial) =>
 	padding: 2.25rem;
 	box-shadow: 0 20px 50px rgb(15 23 42 / 0.09);
 	transform-origin: center bottom;
-	transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), border-color 180ms ease;
+	transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease, border-color 180ms ease;
 }
 
-.testimonial-deck-card-0 {
+.testimonial-deck-card-active {
 	z-index: 3;
 	transform: translateX(-50%);
 }
 
-.testimonial-deck-card-1 {
-	z-index: 2;
-	cursor: pointer;
-	transform: translateX(calc(-50% + 2.25rem)) translateY(1.25rem) rotate(2deg) scale(0.96);
-}
-
-.testimonial-deck-card-2 {
+.testimonial-deck-card-previous {
 	z-index: 1;
 	cursor: pointer;
-	transform: translateX(calc(-50% + 4.5rem)) translateY(2.5rem) rotate(4deg) scale(0.92);
+	opacity: 0.62;
+	transform: translateX(-80%) translateY(1.5rem) rotate(-3deg) scale(0.9);
 }
 
-.testimonial-deck-card-1:hover {
-	transform: translateX(calc(-50% + 2.6rem)) translateY(1.1rem) rotate(2.4deg) scale(0.965);
+.testimonial-deck-card-next {
+	z-index: 2;
+	cursor: pointer;
+	opacity: 0.72;
+	transform: translateX(-20%) translateY(1.5rem) rotate(3deg) scale(0.9);
 }
 
-.testimonial-deck-card-2:hover {
-	transform: translateX(calc(-50% + 5rem)) translateY(2.25rem) rotate(4.5deg) scale(0.925);
+.testimonial-deck-card-previous:hover {
+	opacity: 0.8;
+	transform: translateX(-79%) translateY(1.25rem) rotate(-3.5deg) scale(0.91);
+}
+
+.testimonial-deck-card-next:hover {
+	opacity: 0.86;
+	transform: translateX(-21%) translateY(1.25rem) rotate(3.5deg) scale(0.91);
+}
+
+.testimonial-side-label {
+	position: absolute;
+	top: -2.25rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: rgb(100 116 139);
+}
+
+.testimonial-deck-card-previous .testimonial-side-label { left: 1rem; }
+.testimonial-deck-card-next .testimonial-side-label { right: 1rem; }
+:global(.dark .testimonial-side-label) { color: rgb(148 163 184); }
+
+.testimonial-deck-card:not(.testimonial-deck-card-active) .testimonial-quote {
+	-webkit-line-clamp: 4;
+	line-clamp: 4;
 }
 
 :global(.dark .testimonial-deck-card) {
@@ -231,35 +258,17 @@ const sourceLabel = (testimonial: Testimonial) =>
 
 :global(.dark .testimonial-quote) { color: rgb(203 213 225); }
 
-.testimonial-next-enter-active,
-.testimonial-next-leave-active,
-.testimonial-prev-enter-active,
-.testimonial-prev-leave-active {
-	transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.testimonial-next-enter-from { opacity: 0; transform: translateX(3rem) rotate(1.5deg); }
-.testimonial-next-leave-to { opacity: 0; transform: translateX(-3rem) rotate(-1.5deg); }
-.testimonial-prev-enter-from { opacity: 0; transform: translateX(-3rem) rotate(-1.5deg); }
-.testimonial-prev-leave-to { opacity: 0; transform: translateX(3rem) rotate(1.5deg); }
-
 @media (max-width: 640px) {
 	.testimonial-deck-stage { height: 34rem; }
 	.testimonial-deck-card { width: calc(100% - 2.5rem); min-height: 30rem; padding: 1.5rem; }
-	.testimonial-deck-card-1 { transform: translateX(calc(-50% + 0.75rem)) translateY(1rem) rotate(1.5deg) scale(0.97); }
-	.testimonial-deck-card-2 { transform: translateX(calc(-50% + 1.5rem)) translateY(2rem) rotate(3deg) scale(0.94); }
+	.testimonial-deck-card-previous { transform: translateX(-55%) translateY(1rem) rotate(-1.5deg) scale(0.96); }
+	.testimonial-deck-card-next { transform: translateX(-45%) translateY(1rem) rotate(1.5deg) scale(0.96); }
+	.testimonial-side-label { display: none; }
 	.testimonial-quote { font-size: 1rem; line-height: 1.65; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.testimonial-enter-active,
-	.testimonial-leave-active,
-	.testimonial-next-enter-active,
-	.testimonial-next-leave-active,
-	.testimonial-prev-enter-active,
-	.testimonial-prev-leave-active {
-		transition: none;
-	}
+	.testimonial-deck-card { transition: none; }
 }
 
 .line-clamp-7 {
