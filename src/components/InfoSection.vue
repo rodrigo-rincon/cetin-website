@@ -73,14 +73,14 @@
 				</div>
 			</div>
 
-			<!-- Clear services grid -->
+			<!-- Services grid -->
 			<div
 				v-scale-up
-				class="mx-auto grid max-w-6xl grid-cols-1 gap-7 md:auto-rows-fr md:grid-cols-2 lg:gap-8"
+				class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
 			>
 				<!-- Service 1 - Metabólico (Featured - Large) -->
 				<div
-					class="group relative min-h-[19rem] overflow-hidden rounded-2xl bg-pink-500 p-8"
+					class="group relative overflow-hidden rounded-2xl bg-pink-500 p-6 lg:col-span-2 lg:p-8"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -134,7 +134,7 @@
 
 				<!-- Service 2 - Cardiológico -->
 				<div
-					class="group relative min-h-[19rem] rounded-2xl border border-slate-200 bg-white p-8 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -167,7 +167,7 @@
 
 				<!-- Service 3 - Auditivo -->
 				<div
-					class="group relative min-h-[19rem] rounded-2xl border border-slate-200 bg-white p-8 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -200,7 +200,7 @@
 
 				<!-- Service 4 - Visual -->
 				<div
-					class="group relative min-h-[19rem] rounded-2xl border border-slate-200 bg-white p-8 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -233,7 +233,7 @@
 
 				<!-- Service 5 - Cadera -->
 				<div
-					class="group relative min-h-[19rem] rounded-2xl border border-slate-200 bg-white p-8 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -266,7 +266,7 @@
 
 				<!-- CTA Card - Paquetes -->
 				<div
-					class="group relative min-h-[19rem] overflow-hidden rounded-2xl bg-[#0f2a5c] p-8"
+					class="group relative overflow-hidden rounded-2xl bg-[#0f2a5c] p-8 lg:col-span-3 lg:p-10"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
