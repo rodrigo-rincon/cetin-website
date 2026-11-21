@@ -118,6 +118,12 @@ watch(selectedMapBranch, (selectedBranch) => {
 
 let mapInstance: MapLibreMap | null = null;
 
+const focusBranchOnMap = (branch: Sucursal) => {
+	selectedMapBranch.value = branch;
+	mapInstance?.flyTo({ center: [branch.longitude, branch.latitude], zoom: 14, duration: 850 });
+	document.getElementById('cetin-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
 // Inicializar mapa de sucursales
 const initMap = async () => {
 	mapReady.value = false;
@@ -276,13 +282,13 @@ onUnmounted(() => {
 
 			<!-- Videos Section -->
 			<div
-				v-fade-up="{ delay: 200 }"
 				class="mx-auto mt-10 w-full px-6 lg:mt-12 lg:px-8 xl:px-12"
 			>
 				<div class="video-bento-grid">
 					<article
 						v-for="(video, index) in content.videosSection.videos"
 						:key="video.id"
+						v-fade-up="{ delay: index * 90 }"
 						class="video-tile group"
 					>
 						<div class="relative h-full min-h-64 overflow-hidden bg-slate-950">
@@ -478,7 +484,7 @@ onUnmounted(() => {
 						<!-- Glow effect -->
 
 						<div
-							class="relative bg-white rounded-2xl p-6 lg:p-8 overflow-hidden"
+							class="labor-media-frame relative bg-white rounded-2xl p-6 lg:p-8 overflow-hidden"
 						>
 							<!-- Video wrapper with aspect ratio -->
 							<div
@@ -971,7 +977,7 @@ onUnmounted(() => {
 						v-for="(sucursal, index) in content.sucursales"
 						:key="sucursal.id"
 						class="branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
-						:class="getBranchLayoutClass(index, content.sucursales.length)"
+						:class="[getBranchLayoutClass(index, content.sucursales.length), { 'is-active': selectedMapBranch?.id === sucursal.id }]"
 					>
 						<img
 							:src="getSucursalCover(sucursal.id)"
@@ -1011,15 +1017,13 @@ onUnmounted(() => {
 										Facebook
 									</a>
 								</div>
-								<a
+								<button
 									v-if="sucursal.mapsUrl"
-									:href="sucursal.mapsUrl"
-									target="_blank"
-									rel="noopener noreferrer"
 									class="mt-5 flex items-center justify-between rounded-lg bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-pink-500"
+									@click="focusBranchOnMap(sucursal)"
 								>
-									Ver ubicación <span aria-hidden="true">→</span>
-								</a>
+									Ver en mapa <span aria-hidden="true">↓</span>
+								</button>
 							</div>
 						</div>
 					</article>
@@ -1267,6 +1271,23 @@ onUnmounted(() => {
 .video-tile > div {
 	height: 100%;
 	min-height: 0;
+	transform: rotate(-0.55deg) scale(0.995);
+	transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.video-tile:nth-child(even) > div { transform: rotate(0.55deg) scale(0.995); }
+.video-tile:hover > div { transform: rotate(0) scale(1); }
+
+.labor-media-frame {
+	transform: rotate(-1.25deg);
+	transform-origin: center;
+	box-shadow: 0 24px 60px rgb(2 6 23 / 0.22);
+	transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms ease;
+}
+
+.labor-media-frame:hover {
+	transform: rotate(0);
+	box-shadow: 0 28px 68px rgb(2 6 23 / 0.28);
 }
 
 @media (min-width: 640px) {
@@ -1338,9 +1359,16 @@ onUnmounted(() => {
 
 @media (prefers-reduced-motion: reduce) {
 	.video-tile,
-	.video-tile:hover {
+	.video-tile:hover,
+	.video-tile > div,
+	.labor-media-frame,
+	.branch-card {
 		transition: none;
 	}
+
+	.video-tile > div,
+	.labor-media-frame,
+	.branch-card.is-active { transform: none; }
 
 	.map-panel-enter-active,
 	.map-panel-leave-active,
@@ -1375,6 +1403,15 @@ onUnmounted(() => {
 	position: relative;
 	min-height: 30rem;
 	background: #0f172a;
+	transition: opacity 260ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease;
+}
+
+.branch-layout:has(.branch-card.is-active) .branch-card:not(.is-active) { opacity: 0.68; }
+
+.branch-card.is-active {
+	transform: translateY(-0.35rem);
+	border-color: rgb(236 72 153 / 0.8) !important;
+	box-shadow: 0 18px 44px rgb(15 42 92 / 0.2);
 }
 
 .branch-card::after {
@@ -1452,7 +1489,7 @@ onUnmounted(() => {
 	white-space: nowrap;
 }
 
-.branch-card-content > div:last-child > a:last-child {
+.branch-card-content > div:last-child > button:last-child {
 	grid-column: 3;
 	grid-row: 4;
 	justify-self: end;
@@ -1466,7 +1503,7 @@ onUnmounted(() => {
 	white-space: nowrap;
 }
 
-.branch-card-content > div:last-child > a:last-child:hover {
+.branch-card-content > div:last-child > button:last-child:hover {
 	background: rgba(255, 255, 255, 0.2);
 	border-color: rgba(255, 255, 255, 0.5);
 	color: white;

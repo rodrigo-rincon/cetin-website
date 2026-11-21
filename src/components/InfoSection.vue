@@ -75,11 +75,11 @@
 
 			<!-- Services grid -->
 			<div
-				v-scale-up
 				class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
 			>
 				<!-- Service 1 - Metabólico (Featured - Large) -->
 				<div
+					v-fade-up="{ delay: 0 }"
 					class="group relative overflow-hidden rounded-2xl bg-pink-500 p-6 lg:col-span-2 lg:p-8"
 				>
 					<!-- Background pattern -->
@@ -134,6 +134,7 @@
 
 				<!-- Service 2 - Cardiológico -->
 				<div
+					v-fade-up="{ delay: 80 }"
 					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
@@ -167,6 +168,7 @@
 
 				<!-- Service 3 - Auditivo -->
 				<div
+					v-fade-up="{ delay: 140 }"
 					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
@@ -200,6 +202,7 @@
 
 				<!-- Service 4 - Visual -->
 				<div
+					v-fade-up="{ delay: 200 }"
 					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
@@ -233,6 +236,7 @@
 
 				<!-- Service 5 - Cadera -->
 				<div
+					v-fade-up="{ delay: 260 }"
 					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
@@ -266,6 +270,7 @@
 
 				<!-- CTA Card - Paquetes -->
 				<div
+					v-fade-up="{ delay: 320 }"
 					class="group relative overflow-hidden rounded-2xl bg-[#0f2a5c] p-8 lg:col-span-3 lg:p-10"
 				>
 					<!-- Background pattern -->
@@ -348,7 +353,7 @@
 </template>
 
 <script setup lang="ts">
-import { vFadeUp, vScaleUp } from '../directives/scrollReveal';
+import { vFadeUp } from '../directives/scrollReveal';
 import { useReadonlyContent } from '../composables/useContent';
 
 const { content } = useReadonlyContent();
