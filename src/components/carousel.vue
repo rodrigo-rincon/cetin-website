@@ -5,6 +5,7 @@ import { testimonials, type Testimonial } from '../data/testimonials';
 const currentIndex = ref(0);
 const selectedBranch = ref('');
 const expandedTestimonials = ref<Set<number>>(new Set());
+const transitionDirection = ref<'next' | 'prev'>('next');
 
 const normalizedTestimonials = computed(() =>
 	testimonials.map((testimonial) => ({
@@ -39,13 +40,21 @@ const selectBranch = () => {
 
 const next = () => {
 	if (!filteredTestimonials.value.length) return;
+	transitionDirection.value = 'next';
 	currentIndex.value = (currentIndex.value + 1) % filteredTestimonials.value.length;
 };
 
 const prev = () => {
 	const length = filteredTestimonials.value.length;
 	if (!length) return;
+	transitionDirection.value = 'prev';
 	currentIndex.value = currentIndex.value === 0 ? length - 1 : currentIndex.value - 1;
+};
+
+const showTestimonial = (offset: number) => {
+	if (!offset || !filteredTestimonials.value.length) return;
+	transitionDirection.value = 'next';
+	currentIndex.value = (currentIndex.value + offset) % filteredTestimonials.value.length;
 };
 
 const toggleExpanded = (id: number) => {
@@ -87,50 +96,50 @@ const sourceLabel = (testimonial: Testimonial) =>
 			</label>
 		</div>
 
-		<Transition name="testimonial" mode="out-in">
-			<div :key="`${selectedBranch}-${currentIndex}`" class="grid grid-cols-1 gap-5 md:grid-cols-3">
-			<article
-				v-for="(testimonial, index) in visibleTestimonials"
-				:key="testimonial.id"
-				class="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-pink-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-pink-800"
-				:class="index > 0 ? 'hidden md:flex' : 'flex'"
-			>
-				<div class="mb-5 flex items-start justify-between gap-4">
-					<div>
-						<p class="font-semibold text-[#0f2a5c] dark:text-white">CETIN {{ testimonial.branch }}</p>
-						<p class="mt-1 text-xs text-slate-500 dark:text-slate-300">{{ sourceLabel(testimonial) }}</p>
-					</div>
-					<div class="flex shrink-0 gap-0.5" :aria-label="`${testimonial.rating} de 5 estrellas`">
-						<svg v-for="star in testimonial.rating" :key="star" class="testimonial-star h-4 w-4" viewBox="0 0 20 20" aria-hidden="true">
-							<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-						</svg>
-					</div>
-				</div>
+		<div class="testimonial-deck-stage">
+			<Transition :name="`testimonial-${transitionDirection}`" mode="out-in">
+				<div :key="`${selectedBranch}-${currentIndex}`" class="testimonial-deck">
+					<article
+						v-for="(testimonial, index) in visibleTestimonials"
+						:key="testimonial.id"
+						class="testimonial-deck-card"
+						:class="`testimonial-deck-card-${index}`"
+						:aria-hidden="index > 0"
+						@click="showTestimonial(index)"
+					>
+						<div class="mb-6 flex items-start justify-between gap-4">
+							<div>
+								<p class="font-semibold text-[#0f2a5c] dark:text-white">CETIN {{ testimonial.branch }}</p>
+								<p class="mt-1 text-xs text-slate-500 dark:text-slate-300">{{ sourceLabel(testimonial) }}</p>
+							</div>
+							<div class="flex shrink-0 gap-0.5" :aria-label="`${testimonial.rating} de 5 estrellas`">
+								<svg v-for="star in testimonial.rating" :key="star" class="testimonial-star h-4 w-4" viewBox="0 0 20 20" aria-hidden="true">
+									<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+								</svg>
+							</div>
+						</div>
 
-				<p
-					class="flex-1 text-[15px] leading-7 text-slate-600 dark:text-slate-300"
-					:class="isExpanded(testimonial.id) ? '' : 'line-clamp-5'"
-				>
-					“{{ testimonial.text }}”
-				</p>
-				<button
-					v-if="testimonial.text.length > 190"
-					type="button"
-					class="mt-2 self-start text-sm font-semibold text-pink-600 hover:text-pink-700 dark:text-pink-300 dark:hover:text-pink-200"
-					@click="toggleExpanded(testimonial.id)"
-				>
-					{{ isExpanded(testimonial.id) ? 'Ver menos' : 'Leer más' }}
-				</button>
+						<p class="testimonial-quote" :class="isExpanded(testimonial.id) ? '' : 'line-clamp-7'">“{{ testimonial.text }}”</p>
+						<button
+							v-if="index === 0 && testimonial.text.length > 240"
+							type="button"
+							class="mt-3 self-start text-sm font-semibold text-pink-600 hover:text-pink-700 dark:text-pink-300 dark:hover:text-pink-200"
+							@click.stop="toggleExpanded(testimonial.id)"
+						>
+							{{ isExpanded(testimonial.id) ? 'Ver menos' : 'Leer más' }}
+						</button>
 
-				<div class="mt-6 flex items-center gap-3 border-t border-slate-100 pt-4 dark:border-slate-700">
-					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-pink-50 text-sm font-bold text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">
-						{{ getInitials(testimonial.name) }}
-					</div>
-					<p class="font-medium text-slate-800 dark:text-slate-100">{{ testimonial.name }}</p>
+						<div class="mt-auto flex items-center gap-3 border-t border-slate-100 pt-5 dark:border-slate-700">
+							<div class="flex h-11 w-11 items-center justify-center rounded-full bg-pink-50 text-sm font-bold text-pink-600 dark:bg-pink-900/30 dark:text-pink-300">{{ getInitials(testimonial.name) }}</div>
+							<div>
+								<p class="font-medium text-slate-800 dark:text-slate-100">{{ testimonial.name }}</p>
+								<p v-if="index === 0" class="mt-0.5 text-xs text-slate-400">Experiencia verificada</p>
+							</div>
+						</div>
+					</article>
 				</div>
-			</article>
-			</div>
-		</Transition>
+			</Transition>
+		</div>
 
 		<div class="mt-8 flex items-center justify-center gap-4">
 			<button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:border-pink-300 hover:text-pink-500 dark:border-slate-700 dark:text-slate-300" aria-label="Testimonios anteriores" @click="prev">←</button>
@@ -155,35 +164,109 @@ const sourceLabel = (testimonial: Testimonial) =>
 	filter: drop-shadow(0 0 5px rgb(253 224 71 / 0.22));
 }
 
-.testimonial-enter-active,
-.testimonial-leave-active {
-	transition:
-		opacity 280ms ease,
-		transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+.testimonial-deck-stage {
+	position: relative;
+	height: 31rem;
 }
 
-.testimonial-enter-from {
-	opacity: 0;
-	transform: translateX(18px) scale(0.985);
+.testimonial-deck {
+	position: relative;
+	height: 100%;
 }
 
-.testimonial-leave-to {
-	opacity: 0;
-	transform: translateX(-18px) scale(0.985);
+.testimonial-deck-card {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	display: flex;
+	width: min(46rem, calc(100% - 7rem));
+	min-height: 27rem;
+	flex-direction: column;
+	border: 1px solid rgb(226 232 240);
+	border-radius: 1.25rem;
+	background: white;
+	padding: 2.25rem;
+	box-shadow: 0 20px 50px rgb(15 23 42 / 0.09);
+	transform-origin: center bottom;
+	transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), border-color 180ms ease;
+}
+
+.testimonial-deck-card-0 {
+	z-index: 3;
+	transform: translateX(-50%);
+}
+
+.testimonial-deck-card-1 {
+	z-index: 2;
+	cursor: pointer;
+	transform: translateX(calc(-50% + 2.25rem)) translateY(1.25rem) rotate(2deg) scale(0.96);
+}
+
+.testimonial-deck-card-2 {
+	z-index: 1;
+	cursor: pointer;
+	transform: translateX(calc(-50% + 4.5rem)) translateY(2.5rem) rotate(4deg) scale(0.92);
+}
+
+.testimonial-deck-card-1:hover {
+	transform: translateX(calc(-50% + 2.6rem)) translateY(1.1rem) rotate(2.4deg) scale(0.965);
+}
+
+.testimonial-deck-card-2:hover {
+	transform: translateX(calc(-50% + 5rem)) translateY(2.25rem) rotate(4.5deg) scale(0.925);
+}
+
+:global(.dark .testimonial-deck-card) {
+	border-color: rgb(51 65 85);
+	background: rgb(30 41 59) !important;
+	box-shadow: 0 22px 52px rgb(2 6 23 / 0.24);
+}
+
+.testimonial-quote {
+	margin-bottom: 2rem;
+	font-size: clamp(1.125rem, 2vw, 1.4rem);
+	line-height: 1.7;
+	color: rgb(71 85 105);
+}
+
+:global(.dark .testimonial-quote) { color: rgb(203 213 225); }
+
+.testimonial-next-enter-active,
+.testimonial-next-leave-active,
+.testimonial-prev-enter-active,
+.testimonial-prev-leave-active {
+	transition: opacity 240ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.testimonial-next-enter-from { opacity: 0; transform: translateX(3rem) rotate(1.5deg); }
+.testimonial-next-leave-to { opacity: 0; transform: translateX(-3rem) rotate(-1.5deg); }
+.testimonial-prev-enter-from { opacity: 0; transform: translateX(-3rem) rotate(-1.5deg); }
+.testimonial-prev-leave-to { opacity: 0; transform: translateX(3rem) rotate(1.5deg); }
+
+@media (max-width: 640px) {
+	.testimonial-deck-stage { height: 34rem; }
+	.testimonial-deck-card { width: calc(100% - 2.5rem); min-height: 30rem; padding: 1.5rem; }
+	.testimonial-deck-card-1 { transform: translateX(calc(-50% + 0.75rem)) translateY(1rem) rotate(1.5deg) scale(0.97); }
+	.testimonial-deck-card-2 { transform: translateX(calc(-50% + 1.5rem)) translateY(2rem) rotate(3deg) scale(0.94); }
+	.testimonial-quote { font-size: 1rem; line-height: 1.65; }
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.testimonial-enter-active,
-	.testimonial-leave-active {
+	.testimonial-leave-active,
+	.testimonial-next-enter-active,
+	.testimonial-next-leave-active,
+	.testimonial-prev-enter-active,
+	.testimonial-prev-leave-active {
 		transition: none;
 	}
 }
 
-.line-clamp-5 {
+.line-clamp-7 {
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 5;
-	line-clamp: 5;
+	-webkit-line-clamp: 7;
+	line-clamp: 7;
 	overflow: hidden;
 }
 </style>
