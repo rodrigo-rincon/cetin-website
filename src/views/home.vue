@@ -43,12 +43,6 @@ const updateAppointmentStory = () => {
 	});
 };
 
-const appointmentCardClass = (step: number) => {
-	if (activeAppointmentStep.value < step) return 'translate-y-12 scale-[0.97] opacity-0 pointer-events-none';
-	if (activeAppointmentStep.value === step || (activeAppointmentStep.value === 4 && step === 3)) return 'translate-y-0 scale-100 opacity-100';
-	return '-translate-y-5 scale-[0.96] opacity-25 pointer-events-none';
-};
-
 const getYouTubeId = (url: string) => {
 	const match = url.match(/(?:embed\/|youtu\.be\/|watch\?v=)([\w-]{11})/);
 	return match?.[1] || '';
@@ -560,30 +554,28 @@ onUnmounted(() => {
 						<p class="mt-3 text-lg text-blue-100/80">Desliza para conocer el proceso</p>
 					</div>
 
-					<div class="relative mx-auto mt-10 h-[18rem] max-w-2xl sm:h-[16rem]">
-						<article :class="appointmentCardClass(1)" class="absolute inset-0 z-10 flex flex-col justify-center rounded-2xl border border-white/15 bg-[#13264b] p-7 shadow-2xl transition-[opacity,transform] duration-500 ease-out sm:p-9">
-							<div class="mb-5 flex items-center gap-4"><span class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">1</span><span class="text-sm font-semibold text-pink-200">Encuentra tu sucursal</span></div>
-							<h3 class="text-2xl font-semibold text-white">Ubica tu CETIN</h3>
-							<p class="mt-3 text-lg leading-relaxed text-white/70">Encuentra la sucursal más cercana a tu domicilio.</p>
-						</article>
+					<div class="mx-auto mt-10 max-w-2xl">
+						<div class="space-y-1.5">
+							<div class="flex min-h-16 items-center justify-between rounded-xl border px-5 py-3 text-left transition-[opacity,transform,background-color] duration-500" :class="activeAppointmentStep >= 1 ? 'translate-y-0 opacity-100 ' + (activeAppointmentStep === 1 ? 'border-pink-300 bg-pink-50' : 'border-slate-300 bg-slate-200') : 'translate-y-10 opacity-0'">
+								<div class="flex items-center gap-4"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">1</span><h3 class="text-lg font-semibold text-[#0f2a5c]">Ubica tu CETIN</h3></div><span class="text-sm font-semibold text-slate-500">Sucursal</span>
+							</div>
+							<div class="flex min-h-16 items-center justify-between rounded-xl border px-5 py-3 text-left transition-[opacity,transform,background-color] duration-500" :class="activeAppointmentStep >= 2 ? 'translate-y-0 opacity-100 ' + (activeAppointmentStep === 2 ? 'border-pink-300 bg-pink-50' : 'border-slate-300 bg-slate-200') : 'translate-y-10 opacity-0'">
+								<div class="flex items-center gap-4"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">2</span><h3 class="text-lg font-semibold text-[#0f2a5c]">Elige fecha y hora</h3></div><span class="text-sm font-semibold text-slate-500">Agenda</span>
+							</div>
+							<div class="flex min-h-16 items-center justify-between rounded-xl border px-5 py-3 text-left transition-[opacity,transform,background-color] duration-500" :class="activeAppointmentStep >= 3 ? 'translate-y-0 opacity-100 ' + (activeAppointmentStep >= 3 ? 'border-pink-300 bg-pink-50' : 'border-slate-300 bg-slate-200') : 'translate-y-10 opacity-0'">
+								<div class="flex items-center gap-4"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">3</span><h3 class="text-lg font-semibold text-[#0f2a5c]">Acude a tu cita</h3></div><span class="text-sm font-semibold text-slate-500">CETIN</span>
+							</div>
+						</div>
 
-						<article :class="appointmentCardClass(2)" class="absolute inset-0 z-20 flex flex-col justify-center rounded-2xl border border-white/15 bg-[#172e58] p-7 shadow-2xl transition-[opacity,transform] duration-500 ease-out sm:p-9">
-							<div class="mb-5 flex items-center gap-4"><span class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">2</span><span class="text-sm font-semibold text-pink-200">Agenda el momento ideal</span></div>
-							<h3 class="text-2xl font-semibold text-white">Elige fecha y hora</h3>
-							<p class="mt-3 text-lg leading-relaxed text-white/70">Llámanos y agenda la fecha que mejor te convenga.</p>
-						</article>
-
-						<article :class="appointmentCardClass(3)" class="absolute inset-0 z-30 flex flex-col justify-center rounded-2xl border border-white/15 bg-[#1b3665] p-7 shadow-2xl transition-[opacity,transform] duration-500 ease-out sm:p-9">
-							<div class="mb-5 flex items-center gap-4"><span class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">3</span><span class="text-sm font-semibold text-pink-200">Estamos listos para recibirte</span></div>
-							<h3 class="text-2xl font-semibold text-white">Acude a tu cita</h3>
-							<p class="mt-3 text-lg leading-relaxed text-white/70">Visítanos en el lugar y hora acordada. ¡Te esperamos!</p>
-						</article>
-					</div>
-
-					<div class="mt-8 text-center transition-[opacity,transform] duration-500" :class="activeAppointmentStep >= 4 ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0 pointer-events-none'">
-						<button type="button" @click="openAppointmentForm" class="inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white shadow-sm transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
-							Agendar mi cita <span aria-hidden="true">→</span>
-						</button>
+						<div class="relative mt-1.5 min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-[#0a1730] p-7 text-center shadow-2xl sm:p-9">
+							<Transition name="appointment-detail" mode="out-in">
+								<div v-if="activeAppointmentStep === 0" key="intro" class="flex min-h-32 items-center justify-center text-blue-100/65">Continúa bajando para comenzar</div>
+								<div v-else-if="activeAppointmentStep === 1" key="step-1" class="flex min-h-32 flex-col items-center justify-center"><p class="text-sm font-semibold text-pink-300">Paso 1</p><p class="mt-3 text-xl font-semibold text-white">Encuentra la sucursal más cercana a tu domicilio.</p></div>
+								<div v-else-if="activeAppointmentStep === 2" key="step-2" class="flex min-h-32 flex-col items-center justify-center"><p class="text-sm font-semibold text-pink-300">Paso 2</p><p class="mt-3 text-xl font-semibold text-white">Llámanos y elige la fecha y hora que mejor te convenga.</p></div>
+								<div v-else-if="activeAppointmentStep === 3" key="step-3" class="flex min-h-32 flex-col items-center justify-center"><p class="text-sm font-semibold text-pink-300">Paso 3</p><p class="mt-3 text-xl font-semibold text-white">Visítanos en el lugar y hora acordada. ¡Te esperamos!</p></div>
+								<div v-else key="action" class="flex min-h-32 flex-col items-center justify-center"><p class="mb-5 text-xl font-semibold text-white">Todo listo para cuidar la salud de tu bebé</p><button type="button" @click="openAppointmentForm" class="inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">Agendar mi cita <span aria-hidden="true">→</span></button></div>
+							</Transition>
+						</div>
 					</div>
 					<div class="mx-auto mt-8 flex max-w-xs gap-2" aria-hidden="true">
 						<span v-for="step in 4" :key="step" class="h-1 flex-1 rounded-full transition-colors duration-300" :class="activeAppointmentStep >= step ? 'bg-pink-400' : 'bg-white/15'"></span>
@@ -1461,6 +1453,21 @@ onUnmounted(() => {
 	.branch-card {
 		min-height: 26rem;
 	}
+}
+
+.appointment-detail-enter-active,
+.appointment-detail-leave-active {
+	transition: opacity 240ms ease, transform 240ms ease;
+}
+
+.appointment-detail-enter-from {
+	opacity: 0;
+	transform: translateY(12px);
+}
+
+.appointment-detail-leave-to {
+	opacity: 0;
+	transform: translateY(-8px);
 }
 
 @media (prefers-reduced-motion: reduce) {
