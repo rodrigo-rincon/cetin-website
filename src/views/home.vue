@@ -118,12 +118,6 @@ watch(selectedMapBranch, (selectedBranch) => {
 
 let mapInstance: MapLibreMap | null = null;
 
-const focusBranchOnMap = (branch: Sucursal) => {
-	selectedMapBranch.value = branch;
-	mapInstance?.flyTo({ center: [branch.longitude, branch.latitude], zoom: 14, duration: 850 });
-	document.getElementById('cetin-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-};
-
 // Inicializar mapa de sucursales
 const initMap = async () => {
 	mapReady.value = false;
@@ -1017,13 +1011,15 @@ onUnmounted(() => {
 										Facebook
 									</a>
 								</div>
-								<button
+								<a
 									v-if="sucursal.mapsUrl"
+									:href="sucursal.mapsUrl"
+									target="_blank"
+									rel="noopener noreferrer"
 									class="mt-5 flex items-center justify-between rounded-lg bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-pink-500"
-									@click="focusBranchOnMap(sucursal)"
 								>
-									Ver en mapa <span aria-hidden="true">↓</span>
-								</button>
+									Ver en Google Maps <span aria-hidden="true">↗</span>
+								</a>
 							</div>
 						</div>
 					</article>
@@ -1489,7 +1485,7 @@ onUnmounted(() => {
 	white-space: nowrap;
 }
 
-.branch-card-content > div:last-child > button:last-child {
+.branch-card-content > div:last-child > a:last-child {
 	grid-column: 3;
 	grid-row: 4;
 	justify-self: end;
@@ -1503,7 +1499,7 @@ onUnmounted(() => {
 	white-space: nowrap;
 }
 
-.branch-card-content > div:last-child > button:last-child:hover {
+.branch-card-content > div:last-child > a:last-child:hover {
 	background: rgba(255, 255, 255, 0.2);
 	border-color: rgba(255, 255, 255, 0.5);
 	color: white;
