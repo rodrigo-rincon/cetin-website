@@ -1077,38 +1077,30 @@ onUnmounted(() => {
 
 		<!-- Footer Values -->
 		<section
-			class="editorial-section order-11 relative overflow-hidden border-t border-gray-100 bg-white py-16 transition-colors duration-500 dark:border-slate-800 dark:bg-slate-900 lg:py-20"
+			class="editorial-section order-11 relative overflow-hidden border-t border-gray-100 bg-slate-50 py-20 transition-colors duration-500 dark:border-slate-800 dark:bg-[#0d172b] lg:py-28"
 		>
-			<!-- Decorative elements with secondary colors -->
-			<div
-				class="absolute -top-12 left-1/4 w-28 h-28 rounded-full border border-cetin-lavender/40 dark:border-cetin-lavender/20 opacity-40"
-			></div>
-			<div
-				class="absolute -bottom-8 right-1/3 w-20 h-20 rounded-full border border-cetin-lime/40 dark:border-cetin-lime/20 opacity-35"
-			></div>
-			<div
-				class="absolute top-1/2 -right-6 w-12 h-12 rounded-full border border-cetin-gold/40 dark:border-cetin-gold/25 opacity-45"
-			></div>
-
-			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-				<div class="mx-auto mb-10 max-w-2xl text-center">
-					<span class="mb-3 inline-block text-sm font-semibold text-pink-500">Nuestro compromiso</span>
-					<h2 class="text-3xl font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-4xl">
+			<div class="relative z-10 mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-20 lg:px-12">
+				<div v-fade-up class="max-w-xl lg:pr-8">
+					<span class="mb-4 inline-flex items-center gap-3 text-sm font-semibold text-pink-500">
+						<span class="h-px w-8 bg-pink-500" aria-hidden="true"></span>
+						Nuestro compromiso
+					</span>
+					<h2 class="max-w-lg text-4xl font-semibold leading-tight text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-5xl">
 						Cuidado confiable en cada etapa
 					</h2>
-					<p class="mt-4 text-base leading-relaxed text-gray-600 dark:text-gray-400">
+					<p class="mt-6 max-w-md text-base leading-7 text-slate-600 dark:text-slate-300 lg:text-lg">
 						Combinamos experiencia, procesos verificados y acompañamiento para cuidar lo más importante.
+					</p>
+					<p class="mt-8 border-l-2 border-pink-500 pl-4 text-sm leading-6 text-slate-500 dark:text-slate-400">
+						Un mismo estándar de atención, desde que llegas hasta que recibes tus resultados.
 					</p>
 				</div>
 
-				<div class="relative grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-5">
-					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-colors duration-300 hover:border-cetin-coral/50 hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
-						<div class="absolute inset-x-0 top-0 h-1 bg-cetin-coral"></div>
-						<div
-							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-coral/20 dark:bg-cetin-coral/30"
-						>
+				<div class="commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900/60 sm:px-8">
+					<div v-fade-up="{ delay: 80 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 py-7 sm:gap-6 sm:py-8">
+						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-pink-200 bg-pink-50 text-pink-500 dark:border-pink-400/20 dark:bg-pink-400/10">
 							<svg
-								class="h-6 w-6 text-cetin-coral"
+								class="h-6 w-6"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -1121,24 +1113,17 @@ onUnmounted(() => {
 								/>
 							</svg>
 						</div>
-						<h3
-							class="mb-2 text-lg font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white"
-						>
-							Profesionalismo
-						</h3>
-						<p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-							Personal altamente capacitado y comprometido con la
-							salud de tu bebé.
-						</p>
+						<div class="pt-0.5">
+							<h3 class="text-xl font-semibold text-[#0f2a5c] transition-colors duration-500 dark:text-white">Profesionalismo</h3>
+							<p class="mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">Personal capacitado que acompaña a tu familia con atención cuidadosa y cercana.</p>
+						</div>
+						<span class="pt-1 text-sm font-semibold tabular-nums text-slate-300 dark:text-slate-600">01</span>
 					</div>
 
-					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-colors duration-300 hover:border-cetin-turquoise/50 hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
-						<div class="absolute inset-x-0 top-0 h-1 bg-cetin-turquoise"></div>
-						<div
-							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-turquoise/20 dark:bg-cetin-turquoise/30"
-						>
+					<div v-fade-up="{ delay: 160 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 border-t border-slate-200 py-7 sm:gap-6 sm:py-8 dark:border-white/10">
+						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-cetin-turquoise/30 bg-cetin-turquoise/10 text-cetin-turquoise dark:border-cetin-turquoise/30 dark:bg-cetin-turquoise/10">
 							<svg
-								class="h-6 w-6 text-cetin-turquoise"
+								class="h-6 w-6"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -1151,24 +1136,17 @@ onUnmounted(() => {
 								/>
 							</svg>
 						</div>
-						<h3
-							class="mb-2 text-lg font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white"
-						>
-							Control de Calidad
-						</h3>
-						<p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-							Equipos calibrados y resultados verificados por
-							especialistas.
-						</p>
+						<div class="pt-0.5">
+							<h3 class="text-xl font-semibold text-[#0f2a5c] transition-colors duration-500 dark:text-white">Control de calidad</h3>
+							<p class="mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">Equipos calibrados y procesos verificados para obtener resultados confiables.</p>
+						</div>
+						<span class="pt-1 text-sm font-semibold tabular-nums text-slate-300 dark:text-slate-600">02</span>
 					</div>
 
-					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-colors duration-300 hover:border-cetin-gold/50 hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
-						<div class="absolute inset-x-0 top-0 h-1 bg-cetin-gold"></div>
-						<div
-							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-gold/20 dark:bg-cetin-gold/30"
-						>
+					<div v-fade-up="{ delay: 240 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 border-t border-slate-200 py-7 sm:gap-6 sm:py-8 dark:border-white/10">
+						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-cetin-gold/30 bg-cetin-gold/10 text-cetin-gold dark:border-cetin-gold/30 dark:bg-cetin-gold/10">
 							<svg
-								class="h-6 w-6 text-cetin-gold"
+								class="h-6 w-6"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -1181,13 +1159,11 @@ onUnmounted(() => {
 								/>
 							</svg>
 						</div>
-						<h3 class="mb-2 text-lg font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white">
-							Soporte Continuo
-						</h3>
-						<p class="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-							Te acompañamos en todo momento durante el proceso de
-							tamizaje.
-						</p>
+						<div class="pt-0.5">
+							<h3 class="text-xl font-semibold text-[#0f2a5c] transition-colors duration-500 dark:text-white">Acompañamiento continuo</h3>
+							<p class="mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base">Orientación clara antes, durante y después del proceso de tamizaje.</p>
+						</div>
+						<span class="pt-1 text-sm font-semibold tabular-nums text-slate-300 dark:text-slate-600">03</span>
 					</div>
 				</div>
 			</div>
@@ -1198,6 +1174,50 @@ onUnmounted(() => {
 <style scoped>
 .editorial-section > div.absolute {
 	display: none;
+}
+
+.commitment-flow::before {
+	content: '';
+	position: absolute;
+	left: 47px;
+	top: 56px;
+	bottom: 56px;
+	width: 1px;
+	background: rgb(203 213 225);
+}
+
+.commitment-row {
+	position: relative;
+	transition: background-color 220ms ease;
+}
+
+.commitment-row::after {
+	content: '';
+	position: absolute;
+	right: -2rem;
+	top: 50%;
+	height: 36px;
+	width: 2px;
+	border-radius: 999px;
+	background: rgb(236 72 153);
+	opacity: 0;
+	transform: translateY(-50%) scaleY(0.45);
+	transition: opacity 180ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.commitment-row:hover::after {
+	opacity: 1;
+	transform: translateY(-50%) scaleY(1);
+}
+
+.dark .commitment-flow::before {
+	background: rgb(255 255 255 / 0.12);
+}
+
+@media (min-width: 640px) {
+	.commitment-flow::before {
+		left: 55px;
+	}
 }
 
 .map-panel-enter-active,
