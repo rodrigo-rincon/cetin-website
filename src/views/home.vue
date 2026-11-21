@@ -22,6 +22,32 @@ const openAppointmentForm = () => {
 };
 
 const activeVideoIds = ref<Set<string>>(new Set());
+const appointmentStory = ref<HTMLElement | null>(null);
+const activeAppointmentStep = ref(0);
+let appointmentFrame: number | null = null;
+
+const updateAppointmentStory = () => {
+	if (appointmentFrame !== null) return;
+	appointmentFrame = window.requestAnimationFrame(() => {
+		appointmentFrame = null;
+		const section = appointmentStory.value;
+		if (!section) return;
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			activeAppointmentStep.value = 4;
+			return;
+		}
+		const rect = section.getBoundingClientRect();
+		const distance = Math.max(1, section.offsetHeight - window.innerHeight);
+		const progress = Math.min(1, Math.max(0, -rect.top / distance));
+		activeAppointmentStep.value = Math.min(4, Math.floor(progress * 5));
+	});
+};
+
+const appointmentCardClass = (step: number) => {
+	if (activeAppointmentStep.value < step) return 'translate-y-12 scale-[0.97] opacity-0 pointer-events-none';
+	if (activeAppointmentStep.value === step || (activeAppointmentStep.value === 4 && step === 3)) return 'translate-y-0 scale-100 opacity-100';
+	return '-translate-y-5 scale-[0.96] opacity-25 pointer-events-none';
+};
 
 const getYouTubeId = (url: string) => {
 	const match = url.match(/(?:embed\/|youtu\.be\/|watch\?v=)([\w-]{11})/);
@@ -182,9 +208,15 @@ const initMap = async () => {
 
 onMounted(() => {
 	void initMap();
+	window.addEventListener('scroll', updateAppointmentStory, { passive: true });
+	window.addEventListener('resize', updateAppointmentStory, { passive: true });
+	updateAppointmentStory();
 });
 
 onUnmounted(() => {
+	window.removeEventListener('scroll', updateAppointmentStory);
+	window.removeEventListener('resize', updateAppointmentStory);
+	if (appointmentFrame !== null) window.cancelAnimationFrame(appointmentFrame);
 	mapInstance?.remove();
 	mapInstance = null;
 	mapMarkerElements.clear();
@@ -517,163 +549,45 @@ onUnmounted(() => {
 		<!-- How to Book Section -->
 		<section
 			id="services"
-			class="editorial-section order-5 relative overflow-hidden bg-[#0f2a5c] py-16 lg:py-24"
+			ref="appointmentStory"
+			class="editorial-section order-5 relative h-[420vh] bg-[#0f2a5c]"
 		>
-			<div class="max-w-5xl mx-auto px-6 lg:px-12 relative z-10">
-				<!-- Header -->
-				<div v-fade-up class="mb-14 text-center lg:mb-16">
-					<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
-					<h2 class="mb-3 text-3xl font-semibold text-slate-100 lg:text-4xl">
-						¿Cómo agendar una cita?
-					</h2>
-					<p class="text-blue-100/80 text-lg">
-						Solo sigue estos simples pasos
-					</p>
-				</div>
-
-				<!-- Steps - Clean minimal cards -->
-				<div class="grid grid-cols-1 gap-5 md:grid-cols-3">
-					<!-- Step 1 -->
-					<div
-						v-fade-up="{ delay: 80 }"
-						class="group rounded-2xl border border-white/10 bg-white/[0.06] p-7 transition-colors duration-300 hover:border-pink-300/40 hover:bg-white/10"
-					>
-						<div class="flex items-center gap-3 mb-5">
-							<span
-								class="w-8 h-8 rounded-lg bg-yellow-400 flex items-center justify-center text-[#0f2a5c] font-bold text-sm"
-								>1</span
-							>
-							<div class="h-px flex-1 bg-white/20"></div>
-						</div>
-						<div
-							class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors"
-						>
-							<svg
-								class="w-6 h-6 text-white"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-								/>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-								/>
-							</svg>
-						</div>
-						<h3 class="text-lg font-bold text-white mb-2">
-							Ubica tu CETIN
-						</h3>
-						<p class="text-white/70 text-sm leading-relaxed">
-							Encuentra la sucursal más cercana a tu domicilio.
-						</p>
+			<div class="sticky top-0 flex min-h-screen items-center overflow-hidden py-20">
+				<div class="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-12">
+					<div class="text-center">
+						<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
+						<h2 class="text-3xl font-semibold text-slate-100 lg:text-4xl">¿Cómo agendar una cita?</h2>
+						<p class="mt-3 text-lg text-blue-100/80">Desliza para conocer el proceso</p>
 					</div>
 
-					<!-- Step 2 -->
-					<div
-						v-fade-up="{ delay: 260 }"
-						class="group rounded-2xl border border-white/10 bg-white/[0.06] p-7 transition-colors duration-300 hover:border-pink-300/40 hover:bg-white/10"
-					>
-						<div class="flex items-center gap-3 mb-5">
-							<span
-								class="w-8 h-8 rounded-lg bg-yellow-400 flex items-center justify-center text-[#0f2a5c] font-bold text-sm"
-								>2</span
-							>
-							<div class="h-px flex-1 bg-white/20"></div>
-						</div>
-						<div
-							class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors"
-						>
-							<svg
-								class="w-6 h-6 text-white"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-								/>
-							</svg>
-						</div>
-						<h3 class="text-lg font-bold text-white mb-2">
-							Elige fecha y hora
-						</h3>
-						<p class="text-white/70 text-sm leading-relaxed">
-							Llámanos y agenda la fecha que mejor te convenga.
-						</p>
+					<div class="relative mx-auto mt-10 h-[18rem] max-w-2xl sm:h-[16rem]">
+						<article :class="appointmentCardClass(1)" class="absolute inset-0 z-10 flex flex-col justify-center rounded-2xl border border-white/15 bg-[#13264b] p-7 shadow-2xl transition-[opacity,transform] duration-500 ease-out sm:p-9">
+							<div class="mb-5 flex items-center gap-4"><span class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">1</span><span class="text-sm font-semibold text-pink-200">Encuentra tu sucursal</span></div>
+							<h3 class="text-2xl font-semibold text-white">Ubica tu CETIN</h3>
+							<p class="mt-3 text-lg leading-relaxed text-white/70">Encuentra la sucursal más cercana a tu domicilio.</p>
+						</article>
+
+						<article :class="appointmentCardClass(2)" class="absolute inset-0 z-20 flex flex-col justify-center rounded-2xl border border-white/15 bg-[#172e58] p-7 shadow-2xl transition-[opacity,transform] duration-500 ease-out sm:p-9">
+							<div class="mb-5 flex items-center gap-4"><span class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">2</span><span class="text-sm font-semibold text-pink-200">Agenda el momento ideal</span></div>
+							<h3 class="text-2xl font-semibold text-white">Elige fecha y hora</h3>
+							<p class="mt-3 text-lg leading-relaxed text-white/70">Llámanos y agenda la fecha que mejor te convenga.</p>
+						</article>
+
+						<article :class="appointmentCardClass(3)" class="absolute inset-0 z-30 flex flex-col justify-center rounded-2xl border border-white/15 bg-[#1b3665] p-7 shadow-2xl transition-[opacity,transform] duration-500 ease-out sm:p-9">
+							<div class="mb-5 flex items-center gap-4"><span class="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">3</span><span class="text-sm font-semibold text-pink-200">Estamos listos para recibirte</span></div>
+							<h3 class="text-2xl font-semibold text-white">Acude a tu cita</h3>
+							<p class="mt-3 text-lg leading-relaxed text-white/70">Visítanos en el lugar y hora acordada. ¡Te esperamos!</p>
+						</article>
 					</div>
 
-					<!-- Step 3 -->
-					<div
-						v-fade-up="{ delay: 440 }"
-						class="group rounded-2xl border border-white/10 bg-white/[0.06] p-7 transition-colors duration-300 hover:border-pink-300/40 hover:bg-white/10"
-					>
-						<div class="flex items-center gap-3 mb-5">
-							<span
-								class="w-8 h-8 rounded-lg bg-yellow-400 flex items-center justify-center text-[#0f2a5c] font-bold text-sm"
-								>3</span
-							>
-							<div class="h-px flex-1 bg-white/20"></div>
-						</div>
-						<div
-							class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors"
-						>
-							<svg
-								class="w-6 h-6 text-white"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M5 13l4 4L19 7"
-								/>
-							</svg>
-						</div>
-						<h3 class="text-lg font-bold text-white mb-2">
-							Acude a tu cita
-						</h3>
-						<p class="text-white/70 text-sm leading-relaxed">
-							Visítanos en el lugar y hora acordada. ¡Te
-							esperamos!
-						</p>
+					<div class="mt-8 text-center transition-[opacity,transform] duration-500" :class="activeAppointmentStep >= 4 ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0 pointer-events-none'">
+						<button type="button" @click="openAppointmentForm" class="inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white shadow-sm transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
+							Agendar mi cita <span aria-hidden="true">→</span>
+						</button>
 					</div>
-				</div>
-
-				<!-- CTA -->
-				<div v-fade-up="{ delay: 620 }" class="mt-12 text-center">
-					<button
-						type="button"
-						@click="openAppointmentForm"
-						class="group inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
-					>
-						Agendar mi cita
-						<svg
-							class="w-5 h-5"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M17 8l4 4m0 0l-4 4m4-4H3"
-							/>
-						</svg>
-					</button>
+					<div class="mx-auto mt-8 flex max-w-xs gap-2" aria-hidden="true">
+						<span v-for="step in 4" :key="step" class="h-1 flex-1 rounded-full transition-colors duration-300" :class="activeAppointmentStep >= step ? 'bg-pink-400' : 'bg-white/15'"></span>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -1546,6 +1460,16 @@ onUnmounted(() => {
 @media (max-width: 640px) {
 	.branch-card {
 		min-height: 26rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#services {
+		height: auto !important;
+	}
+
+	#services > .sticky {
+		position: relative;
 	}
 }
 
