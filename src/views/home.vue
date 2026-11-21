@@ -519,52 +519,11 @@ onUnmounted(() => {
 			id="services"
 			class="editorial-section order-5 relative overflow-hidden bg-[#0f2a5c] py-16 lg:py-24"
 		>
-			<!-- Subtle floating shapes with secondary colors -->
-			<div
-				class="absolute top-20 left-10 w-32 h-32 bg-cetin-lavender/40 rounded-full blur-2xl"
-			></div>
-			<div
-				class="absolute bottom-20 right-10 w-40 h-40 bg-cetin-turquoise/35 rounded-full blur-2xl"
-			></div>
-			<div
-				class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-400/20 rounded-full blur-3xl"
-			></div>
-			<!-- Decorative dots pattern -->
-			<div class="absolute top-16 right-20 opacity-60">
-				<div class="flex gap-2">
-					<div class="w-2 h-2 rounded-full bg-cetin-gold"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-gold"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-gold"></div>
-				</div>
-				<div class="flex gap-2 mt-2">
-					<div class="w-2 h-2 rounded-full bg-cetin-gold"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-gold"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-gold"></div>
-				</div>
-			</div>
-			<div class="absolute bottom-16 left-20 opacity-60">
-				<div class="flex gap-2">
-					<div class="w-2 h-2 rounded-full bg-cetin-lime"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-lime"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-lime"></div>
-				</div>
-				<div class="flex gap-2 mt-2">
-					<div class="w-2 h-2 rounded-full bg-cetin-lime"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-lime"></div>
-					<div class="w-2 h-2 rounded-full bg-cetin-lime"></div>
-				</div>
-			</div>
-			<!-- Floating rings -->
-			<div class="absolute top-32 right-1/4 w-16 h-16 border-2 border-cetin-turquoise/40 rounded-full"></div>
-			<div class="absolute bottom-32 left-1/4 w-24 h-24 border-2 border-cetin-lavender/40 rounded-full"></div>
-			<!-- Small accent shapes -->
-			<div class="absolute top-1/3 left-8 w-3 h-3 bg-cetin-coral/70 rounded-full"></div>
-			<div class="absolute top-2/3 right-12 w-4 h-4 bg-cetin-gold/60 rotate-45"></div>
-
 			<div class="max-w-5xl mx-auto px-6 lg:px-12 relative z-10">
 				<!-- Header -->
-				<div class="text-center mb-16">
-					<h2 class="text-3xl lg:text-4xl font-bold text-slate-100 mb-3">
+				<div v-fade-up class="mb-14 text-center lg:mb-16">
+					<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
+					<h2 class="mb-3 text-3xl font-semibold text-slate-100 lg:text-4xl">
 						¿Cómo agendar una cita?
 					</h2>
 					<p class="text-blue-100/80 text-lg">
@@ -573,10 +532,11 @@ onUnmounted(() => {
 				</div>
 
 				<!-- Steps - Clean minimal cards -->
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+				<div class="grid grid-cols-1 gap-5 md:grid-cols-3">
 					<!-- Step 1 -->
 					<div
-						class="group rounded-2xl border border-white/10 bg-white/5 p-7 transition-colors duration-300 hover:bg-white/10"
+						v-fade-up="{ delay: 80 }"
+						class="group rounded-2xl border border-white/10 bg-white/[0.06] p-7 transition-colors duration-300 hover:border-pink-300/40 hover:bg-white/10"
 					>
 						<div class="flex items-center gap-3 mb-5">
 							<span
@@ -618,7 +578,8 @@ onUnmounted(() => {
 
 					<!-- Step 2 -->
 					<div
-						class="group rounded-2xl border border-white/10 bg-white/5 p-7 transition-colors duration-300 hover:bg-white/10"
+						v-fade-up="{ delay: 260 }"
+						class="group rounded-2xl border border-white/10 bg-white/[0.06] p-7 transition-colors duration-300 hover:border-pink-300/40 hover:bg-white/10"
 					>
 						<div class="flex items-center gap-3 mb-5">
 							<span
@@ -654,7 +615,8 @@ onUnmounted(() => {
 
 					<!-- Step 3 -->
 					<div
-						class="group rounded-2xl border border-white/10 bg-white/5 p-7 transition-colors duration-300 hover:bg-white/10"
+						v-fade-up="{ delay: 440 }"
+						class="group rounded-2xl border border-white/10 bg-white/[0.06] p-7 transition-colors duration-300 hover:border-pink-300/40 hover:bg-white/10"
 					>
 						<div class="flex items-center gap-3 mb-5">
 							<span
@@ -691,7 +653,7 @@ onUnmounted(() => {
 				</div>
 
 				<!-- CTA -->
-				<div class="mt-12 text-center">
+				<div v-fade-up="{ delay: 620 }" class="mt-12 text-center">
 					<button
 						type="button"
 						@click="openAppointmentForm"
