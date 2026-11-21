@@ -19,7 +19,7 @@ const showFooter = computed(() => showLayout.value || route.meta.legalDocument);
 		>
 			<Header></Header>
 		</div>
-		<div class="container-section w-full overflow-hidden relative" :class="{ 'pt-0': !showLayout }">
+		<div class="container-section w-full overflow-x-clip relative" :class="{ 'pt-0': !showLayout }">
 			<router-view></router-view>
 		</div>
 		<Footer v-if="showFooter"></Footer>

@@ -22,6 +22,44 @@ const openAppointmentForm = () => {
 };
 
 const activeVideoIds = ref<Set<string>>(new Set());
+const appointmentStory = ref<HTMLElement | null>(null);
+const appointmentProgress = ref(0);
+const compactAppointmentScene = ref(false);
+let appointmentFrame: number | null = null;
+
+const clamp = (value: number, min = 0, max = 1) =>
+	Math.min(max, Math.max(min, value));
+
+const updateAppointmentStory = () => {
+	if (appointmentFrame !== null) return;
+	appointmentFrame = window.requestAnimationFrame(() => {
+		appointmentFrame = null;
+		const section = appointmentStory.value;
+		if (!section) return;
+		compactAppointmentScene.value = window.innerWidth < 720;
+		const rect = section.getBoundingClientRect();
+		const distance = Math.max(1, section.offsetHeight - window.innerHeight);
+		appointmentProgress.value = clamp(-rect.top / distance);
+	});
+};
+
+const appointmentCardStyle = (index: number) => {
+	const localProgress = clamp(appointmentProgress.value * 4.4 - index * 0.92);
+	const eased = 1 - Math.pow(1 - localProgress, 3);
+	const desktopX = [-28, -10, 10, 28][index];
+	const mobileX = [-8, -3, 3, 8][index];
+	const rotations = [-9, -3, 3, 9];
+	const x = (compactAppointmentScene.value ? mobileX : desktopX) * eased;
+	const y = (1 - eased) * 112 + index * (compactAppointmentScene.value ? 1.2 : 0.65);
+	const rotation = rotations[index] * eased;
+	const scale = 0.88 + eased * 0.12;
+
+	return {
+		opacity: clamp(localProgress * 2),
+		transform: `translate3d(calc(-50% + ${x}vw), ${y}vh, 0) rotate(${rotation}deg) scale(${scale})`,
+		zIndex: index + 1,
+	};
+};
 
 const getYouTubeId = (url: string) => {
 	const match = url.match(/(?:embed\/|youtu\.be\/|watch\?v=)([\w-]{11})/);
@@ -182,9 +220,15 @@ const initMap = async () => {
 
 onMounted(() => {
 	void initMap();
+	window.addEventListener('scroll', updateAppointmentStory, { passive: true });
+	window.addEventListener('resize', updateAppointmentStory, { passive: true });
+	updateAppointmentStory();
 });
 
 onUnmounted(() => {
+	window.removeEventListener('scroll', updateAppointmentStory);
+	window.removeEventListener('resize', updateAppointmentStory);
+	if (appointmentFrame !== null) window.cancelAnimationFrame(appointmentFrame);
 	mapInstance?.remove();
 	mapInstance = null;
 	mapMarkerElements.clear();
@@ -517,32 +561,49 @@ onUnmounted(() => {
 		<!-- How to Book Section -->
 		<section
 			id="services"
-			class="editorial-section order-5 relative bg-[#0f2a5c] py-20 lg:py-28"
+			ref="appointmentStory"
+			class="editorial-section order-5 relative h-[500vh] bg-[#0f2a5c]"
 		>
-			<div class="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-12">
-				<div class="mb-14 text-center lg:mb-20">
+			<div class="sticky top-0 h-screen overflow-hidden">
+				<div class="appointment-scene-title absolute inset-x-0 top-[10vh] z-10 px-6 text-center" :style="{ opacity: Math.max(0.25, 1 - appointmentProgress * 2.2), transform: `translateY(${-appointmentProgress * 32}px)` }">
 					<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
-					<h2 class="text-3xl font-semibold text-slate-100 lg:text-4xl">¿Cómo agendar una cita?</h2>
-					<p class="mt-3 text-lg text-blue-100/80">Baja para descubrir cada paso</p>
+					<h2 class="text-3xl font-semibold text-white lg:text-5xl">¿Cómo agendar una cita?</h2>
+					<p class="mt-4 text-base text-blue-100/75 lg:text-lg">Desliza para armar tu cita</p>
 				</div>
 
-				<div class="appointment-stack mx-auto max-w-2xl">
-					<article class="appointment-stack-card appointment-card-pink">
-						<header class="appointment-stack-header"><span class="appointment-stack-number">1</span><h3>Ubica tu CETIN</h3><span class="appointment-stack-label">Sucursal</span></header>
-						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Elige el lugar ideal</p><p>Encuentra la sucursal más cercana a tu domicilio.</p></div>
+				<div class="appointment-scene" aria-live="polite">
+					<article class="appointment-scene-card appointment-scene-card-pink" :style="appointmentCardStyle(0)">
+						<p class="appointment-scene-step">Paso 1</p>
+						<div class="appointment-scene-number">01</div>
+						<h3>Ubica tu CETIN</h3>
+						<p>Encuentra la sucursal más cercana a tu domicilio</p>
 					</article>
-					<article class="appointment-stack-card appointment-card-blue">
-						<header class="appointment-stack-header"><span class="appointment-stack-number">2</span><h3>Elige fecha y hora</h3><span class="appointment-stack-label">Agenda</span></header>
-						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Nos adaptamos a ti</p><p>Llámanos y elige el horario que mejor te convenga.</p></div>
+
+					<article class="appointment-scene-card appointment-scene-card-blue" :style="appointmentCardStyle(1)">
+						<p class="appointment-scene-step">Paso 2</p>
+						<div class="appointment-scene-number">02</div>
+						<h3>Elige fecha y hora</h3>
+						<p>Selecciona el horario que mejor se adapte a tu familia</p>
 					</article>
-					<article class="appointment-stack-card appointment-card-coral">
-						<header class="appointment-stack-header"><span class="appointment-stack-number">3</span><h3>Acude a tu cita</h3><span class="appointment-stack-label">CETIN</span></header>
-						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Nosotros te acompañamos</p><p>Visítanos en el lugar y la hora acordados. ¡Te esperamos!</p></div>
+
+					<article class="appointment-scene-card appointment-scene-card-coral" :style="appointmentCardStyle(2)">
+						<p class="appointment-scene-step">Paso 3</p>
+						<div class="appointment-scene-number">03</div>
+						<h3>Acude a tu cita</h3>
+						<p>Te esperamos para acompañarte durante todo el proceso</p>
 					</article>
-					<article class="appointment-stack-card appointment-card-action">
-						<header class="appointment-stack-header"><span class="appointment-stack-number">✓</span><h3>Todo listo</h3><span class="appointment-stack-label">Tu cita</span></header>
-						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Cuidemos la salud de tu bebé</p><button type="button" @click="openAppointmentForm" class="mt-6 inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">Agendar mi cita <span aria-hidden="true">→</span></button></div>
+
+					<article class="appointment-scene-card appointment-scene-card-action" :style="appointmentCardStyle(3)">
+						<p class="appointment-scene-step">Todo listo</p>
+						<div class="appointment-scene-mark" aria-hidden="true">✓</div>
+						<h3>Agenda tu cita</h3>
+						<p>Da el primer paso para cuidar la salud de tu bebé</p>
+						<button type="button" @click="openAppointmentForm" class="appointment-scene-button">Agendar ahora <span aria-hidden="true">→</span></button>
 					</article>
+				</div>
+
+				<div class="appointment-progress" aria-hidden="true">
+					<span v-for="step in 4" :key="step" :class="appointmentProgress * 4.4 >= step - 0.55 ? 'is-active' : ''"></span>
 				</div>
 			</div>
 		</section>
@@ -1418,99 +1479,136 @@ onUnmounted(() => {
 	}
 }
 
-.appointment-stack {
-	--stack-top: 5.5rem;
-	--stack-gap: 4.5rem;
-	padding-bottom: 10rem;
+.appointment-scene-title {
+	transition: opacity 160ms linear, transform 160ms linear;
 }
 
-.appointment-stack-card {
-	position: sticky;
-	min-height: 19rem;
-	margin-bottom: 8rem;
-	overflow: hidden;
-	border: 1px solid rgb(255 255 255 / 0.16);
-	border-radius: 1.25rem;
-	background: #f8fafc;
-	box-shadow: 0 24px 65px rgb(2 6 23 / 0.28);
+.appointment-scene {
+	position: absolute;
+	inset: 0;
+	perspective: 1200px;
 }
 
-.appointment-stack-card:nth-child(1) { top: var(--stack-top); }
-.appointment-stack-card:nth-child(2) { top: calc(var(--stack-top) + var(--stack-gap)); }
-.appointment-stack-card:nth-child(3) { top: calc(var(--stack-top) + var(--stack-gap) * 2); }
-.appointment-stack-card:nth-child(4) { top: calc(var(--stack-top) + var(--stack-gap) * 3); margin-bottom: 0; }
-
-.appointment-stack-header {
-	display: grid;
-	grid-template-columns: auto 1fr auto;
-	align-items: center;
-	min-height: 4.5rem;
-	gap: 1rem;
-	padding: 0.8rem 1.25rem;
-	color: #0f2a5c;
-}
-
-.appointment-stack-header h3 { font-size: 1.125rem; font-weight: 650; }
-
-.appointment-stack-number {
-	display: inline-flex;
-	height: 2.5rem;
-	width: 2.5rem;
-	align-items: center;
-	justify-content: center;
-	border-radius: 0.75rem;
-	background: #ec4899;
-	color: white;
-	font-size: 0.875rem;
-	font-weight: 700;
-}
-
-.appointment-stack-label { font-size: 0.8rem; font-weight: 650; color: #64748b; }
-
-.appointment-stack-detail {
-	display: flex;
-	min-height: 14.5rem;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+.appointment-scene-card {
+	position: absolute;
+	top: 28vh;
+	left: 50%;
+	width: min(24rem, 34vw);
+	min-height: 25rem;
 	padding: 2rem;
-	text-align: center;
+	border: 1px solid rgb(15 42 92 / 0.14);
+	border-radius: 1rem;
+	background: #f8fafc;
+	box-shadow: 0 28px 72px rgb(2 6 23 / 0.36);
+	color: #0f2a5c;
+	will-change: transform, opacity;
+}
+
+.appointment-scene-step {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #475569;
+}
+
+.appointment-scene-number {
+	margin-top: 2.25rem;
+	font-family: 'Satoshi', sans-serif;
+	font-size: clamp(4rem, 7vw, 6rem);
+	font-weight: 600;
+	line-height: 0.9;
 	color: #0f2a5c;
 }
 
-.appointment-stack-detail > p:last-child {
-	max-width: 30rem;
-	font-size: clamp(1.3rem, 3vw, 1.75rem);
+.appointment-scene-card h3 {
+	margin-top: 2.5rem;
+	font-size: clamp(1.5rem, 2.2vw, 2rem);
 	font-weight: 600;
-	line-height: 1.35;
+	line-height: 1.1;
 }
 
-.appointment-stack-kicker {
-	margin-bottom: 0.75rem;
-	font-size: 0.85rem !important;
-	font-weight: 650 !important;
-	color: #db2777;
+.appointment-scene-card > p:last-child {
+	margin-top: 1rem;
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #475569;
 }
 
-.appointment-card-pink .appointment-stack-header { background: #fce7f3; }
-.appointment-card-blue .appointment-stack-header { background: #dbeafe; }
-.appointment-card-blue .appointment-stack-number { background: #2563eb; }
-.appointment-card-coral .appointment-stack-header { background: #ffe4e6; }
-.appointment-card-coral .appointment-stack-number { background: #f43f5e; }
-.appointment-card-action .appointment-stack-header { background: #e0f2fe; }
-.appointment-card-action .appointment-stack-number { background: #0f2a5c; }
+.appointment-scene-card-pink { background: #fce7f3; }
+.appointment-scene-card-blue { background: #dbeafe; }
+.appointment-scene-card-coral { background: #ffe4e6; }
+.appointment-scene-card-action { background: #f8fafc; }
 
-@media (max-width: 640px) {
-	.appointment-stack { --stack-top: 4.5rem; --stack-gap: 4rem; padding-bottom: 7rem; }
-	.appointment-stack-card { min-height: 17rem; margin-bottom: 7rem; border-radius: 1rem; }
-	.appointment-stack-header { min-height: 4rem; gap: 0.75rem; padding: 0.7rem 0.9rem; }
-	.appointment-stack-header h3 { font-size: 1rem; }
-	.appointment-stack-number { height: 2.25rem; width: 2.25rem; }
-	.appointment-stack-detail { min-height: 13rem; padding: 1.5rem; }
+.appointment-scene-mark {
+	display: flex;
+	width: 5.5rem;
+	height: 5.5rem;
+	margin-top: 2.25rem;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: #0f2a5c;
+	color: white;
+	font-size: 2.5rem;
+}
+
+.appointment-scene-button {
+	display: inline-flex;
+	margin-top: 1.75rem;
+	align-items: center;
+	gap: 0.75rem;
+	border-radius: 0.625rem;
+	background: #db2777;
+	padding: 0.9rem 1.35rem;
+	color: white;
+	font-weight: 600;
+	transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.appointment-scene-button:hover { background: #be185d; }
+.appointment-scene-button:active { transform: scale(0.98); }
+.appointment-scene-button:focus-visible { outline: 3px solid #f9a8d4; outline-offset: 3px; }
+
+.appointment-progress {
+	position: absolute;
+	right: 2rem;
+	bottom: 2rem;
+	z-index: 10;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.appointment-progress span {
+	width: 2.5rem;
+	height: 0.2rem;
+	border-radius: 999px;
+	background: rgb(255 255 255 / 0.2);
+	transition: background-color 200ms ease;
+}
+
+.appointment-progress span.is-active { background: #f472b6; }
+
+@media (max-width: 719px) {
+	.appointment-scene-card {
+		top: 27vh;
+		width: min(78vw, 22rem);
+		min-height: 22rem;
+		padding: 1.5rem;
+	}
+
+	.appointment-scene-number { margin-top: 1.5rem; font-size: 4.5rem; }
+	.appointment-scene-card h3 { margin-top: 2rem; }
+	.appointment-scene-mark { width: 4.5rem; height: 4.5rem; margin-top: 1.5rem; }
+	.appointment-progress { right: 1.5rem; bottom: 1.5rem; left: 1.5rem; }
+	.appointment-progress span { flex: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.appointment-stack-card { position: relative; top: auto !important; }
+	#services { height: auto !important; padding: 5rem 1.5rem; }
+	#services > .sticky { position: relative; height: auto; overflow: visible; }
+	.appointment-scene-title { position: relative; top: auto; opacity: 1 !important; transform: none !important; }
+	.appointment-scene { position: relative; display: grid; gap: 1rem; margin-top: 3rem; }
+	.appointment-scene-card { position: relative; top: auto; left: auto; width: 100%; min-height: auto; opacity: 1 !important; transform: none !important; }
+	.appointment-progress { display: none; }
 }
 
 </style>
