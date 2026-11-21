@@ -930,10 +930,10 @@ onUnmounted(() => {
 					class="h-full w-full object-cover object-center lg:object-[65%_center]"
 				/>
 				<!-- Dark overlay that preserves the image while guaranteeing text contrast -->
-				<div class="absolute inset-0" style="background: rgba(2, 6, 23, 0.68)"></div>
+				<div class="absolute inset-0" style="background: rgba(2, 6, 23, 0.42)"></div>
 				<div
 					class="absolute inset-0"
-					style="background: linear-gradient(to bottom, rgba(7, 26, 56, 0.28), rgba(7, 26, 56, 0.72), rgba(7, 26, 56, 0.5))"
+					style="background: linear-gradient(to bottom, rgba(7, 26, 56, 0.14), rgba(7, 26, 56, 0.48), rgba(7, 26, 56, 0.3))"
 				></div>
 			</div>
 
