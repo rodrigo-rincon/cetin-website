@@ -1018,7 +1018,7 @@ onUnmounted(() => {
 									rel="noopener noreferrer"
 									class="mt-5 flex items-center justify-between rounded-lg bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-pink-500"
 								>
-									Ver en Google Maps <span aria-hidden="true">↗</span>
+									Google Maps <span aria-hidden="true">↗</span>
 								</a>
 							</div>
 						</div>
@@ -1417,6 +1417,7 @@ onUnmounted(() => {
 
 .branch-card {
 	position: relative;
+	container-type: inline-size;
 	min-height: 30rem;
 	background: #0f172a;
 	transition: opacity 260ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease;
@@ -1456,8 +1457,8 @@ onUnmounted(() => {
 
 .branch-card-content > div:last-child {
 	display: grid;
-	grid-template-columns: auto auto minmax(0, 1fr);
-	column-gap: 1rem;
+	grid-template-columns: minmax(0, 1fr) auto auto;
+	column-gap: 0.75rem;
 	row-gap: 0.65rem;
 	width: 100%;
 }
@@ -1510,13 +1511,31 @@ onUnmounted(() => {
 	grid-row: 4;
 	justify-self: end;
 	margin-top: 0;
-	padding: 0.45rem 0.8rem;
+	gap: 0.35rem;
+	padding: 0.4rem 0.7rem;
 	background: rgba(255, 255, 255, 0.1);
 	color: white;
 	border: 1px solid rgba(255, 255, 255, 0.28);
 	border-radius: 9999px;
 	box-shadow: none;
 	white-space: nowrap;
+}
+
+@container (max-width: 28rem) {
+	.branch-card-content > div:last-child {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+
+	.branch-card-content > div:last-child > div a[href*='facebook'] {
+		grid-column: 2;
+	}
+
+	.branch-card-content > div:last-child > a:last-child {
+		grid-column: 1 / -1;
+		grid-row: 5;
+		justify-self: start;
+		margin-top: 0.25rem;
+	}
 }
 
 .branch-card-content > div:last-child > a:last-child:hover {
