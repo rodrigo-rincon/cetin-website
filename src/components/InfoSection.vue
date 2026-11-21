@@ -1,7 +1,7 @@
 <template>
 	<section
 		id="services-info"
-		class="py-14 lg:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-800 relative overflow-hidden"
+		class="py-14 lg:py-20 bg-gray-50 dark:bg-slate-900 relative overflow-hidden"
 	>
 		<!-- Decorative elements with secondary colors -->
 		<div
@@ -26,9 +26,6 @@
 		<div
 			class="absolute top-40 right-1/3 w-4 h-4 bg-cetin-lavender/25 rounded-full"
 		></div>
-		<div
-			class="absolute bottom-1/3 left-10 w-3 h-3 bg-cetin-coral/20 rounded-full animate-pulse"
-		></div>
 
 		<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 			<!-- Section header with Dr. Blue -->
@@ -36,7 +33,7 @@
 				<!-- Header badge centered -->
 				<div class="text-center mb-6">
 					<span
-						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 uppercase tracking-wider"
+						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500"
 					>
 						<span class="w-8 h-[2px] bg-pink-500"></span>
 						{{ content.infoSection.badge }}
@@ -83,7 +80,7 @@
 			>
 				<!-- Service 1 - Metabólico (Featured - Large) -->
 				<div
-					class="lg:col-span-2 group relative bg-gradient-to-br from-pink-500 to-pink-600 rounded-3xl p-6 lg:p-8 overflow-hidden"
+					class="lg:col-span-2 group relative bg-pink-500 rounded-2xl p-6 lg:p-8 overflow-hidden"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -137,10 +134,10 @@
 
 				<!-- Service 2 - Cardiológico -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-pink-200 dark:border-red-500/50 hover:border-cetin-coral dark:hover:border-cetin-coral hover:shadow-lg transition-all duration-300"
+					class="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300"
 				>
 					<div
-						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
+						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
 					>
 						<img
 							src="../assets/images/card-icons/Cardio.png"
@@ -150,7 +147,7 @@
 					</div>
 					<div class="pt-8">
 						<span
-							class="text-xs font-bold text-pink-500 dark:text-pink-400 uppercase tracking-wider"
+							class="text-xs font-semibold text-pink-500 dark:text-pink-400"
 							>Corazón</span
 						>
 						<h3
@@ -170,10 +167,10 @@
 
 				<!-- Service 3 - Auditivo -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-yellow-200 dark:border-yellow-900/50 hover:border-yellow-400 dark:hover:border-yellow-500 hover:shadow-lg transition-all duration-300"
+					class="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300"
 				>
 					<div
-						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
+						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
 					>
 						<img
 							src="../assets/images/card-icons/Auditivo.png"
@@ -183,7 +180,7 @@
 					</div>
 					<div class="pt-8">
 						<span
-							class="text-xs font-bold text-yellow-600 dark:text-yellow-400 uppercase tracking-wider"
+							class="text-xs font-semibold text-yellow-600 dark:text-yellow-400"
 							>Audición</span
 						>
 						<h3
@@ -203,10 +200,10 @@
 
 				<!-- Service 4 - Visual -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-blue-200 dark:border-blue-900/50 hover:border-blue-400 dark:hover:border-cetin-turquoise hover:shadow-lg transition-all duration-300"
+					class="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300"
 				>
 					<div
-						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
+						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
 					>
 						<img
 							src="../assets/images/card-icons/Visual.png"
@@ -216,7 +213,7 @@
 					</div>
 					<div class="pt-8">
 						<span
-							class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider"
+							class="text-xs font-semibold text-blue-600 dark:text-blue-400"
 							>Vista</span
 						>
 						<h3
@@ -236,10 +233,10 @@
 
 				<!-- Service 5 - Cadera -->
 				<div
-					class="group relative bg-white dark:bg-slate-800 rounded-3xl p-6 border border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-400 dark:hover:border-cetin-lime hover:shadow-lg transition-all duration-300"
+					class="group relative bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300"
 				>
 					<div
-						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
+						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
 					>
 						<img
 							src="../assets/images/card-icons/Cadera.png"
@@ -249,7 +246,7 @@
 					</div>
 					<div class="pt-8">
 						<span
-							class="text-xs font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider"
+							class="text-xs font-semibold text-emerald-500 dark:text-emerald-400"
 							>Cadera</span
 						>
 						<h3
@@ -269,7 +266,7 @@
 
 				<!-- CTA Card - Paquetes -->
 				<div
-					class="lg:col-span-3 group relative bg-[#0f2a5c] rounded-3xl p-8 lg:p-10 overflow-hidden"
+					class="lg:col-span-3 group relative bg-[#0f2a5c] rounded-2xl p-8 lg:p-10 overflow-hidden"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -307,7 +304,7 @@
 									</svg>
 								</div>
 								<span
-									class="text-pink-400 text-sm font-semibold uppercase tracking-wider"
+									class="text-pink-400 text-sm font-semibold"
 									>Ahorra con nuestros paquetes</span
 								>
 							</div>
@@ -326,11 +323,11 @@
 						</div>
 						<a
 							href="#contact"
-							class="group inline-flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 gap-2 flex-shrink-0 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/40 active:scale-95"
+							class="group inline-flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white font-semibold px-8 py-4 rounded-lg transition-colors duration-300 gap-2 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
 						>
 							Ver Paquetes
 							<svg
-								class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+								class="w-5 h-5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"

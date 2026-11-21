@@ -31,14 +31,7 @@ const currentYear = new Date().getFullYear();
 					<h4
 						class="text-lg font-bold mb-6 flex items-center gap-2 justify-center md:justify-start"
 					>
-						<span class="relative flex h-3 w-3">
-							<span
-								class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-							></span>
-							<span
-								class="relative inline-flex rounded-full h-3 w-3 bg-red-500"
-							></span>
-						</span>
+						<span class="h-px w-5 bg-pink-500" aria-hidden="true"></span>
 						Horarios
 					</h4>
 					<ul class="space-y-3 text-gray-400">
@@ -104,14 +97,7 @@ const currentYear = new Date().getFullYear();
 					<h4
 						class="text-lg font-bold mb-6 flex items-center gap-2 justify-center md:justify-start"
 					>
-						<span class="relative flex h-3 w-3">
-							<span
-								class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"
-							></span>
-							<span
-								class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"
-							></span>
-						</span>
+						<span class="h-px w-5 bg-pink-500" aria-hidden="true"></span>
 						Enlaces Rápidos
 					</h4>
 					<ul class="space-y-3">
@@ -151,14 +137,7 @@ const currentYear = new Date().getFullYear();
 					<h4
 						class="text-lg font-bold mb-6 flex items-center gap-2 justify-center md:justify-start"
 					>
-						<span class="relative flex h-3 w-3">
-							<span
-								class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"
-							></span>
-							<span
-								class="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"
-							></span>
-						</span>
+						<span class="h-px w-5 bg-pink-500" aria-hidden="true"></span>
 						Contáctanos al
 					</h4>
 					<div class="social-links">
@@ -170,7 +149,7 @@ const currentYear = new Date().getFullYear();
 							class="social-link social-link--facebook group"
 						>
 							<svg
-								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+								class="w-6 h-6 text-white"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 							>
@@ -189,7 +168,7 @@ const currentYear = new Date().getFullYear();
 							class="social-link social-link--instagram group"
 						>
 							<svg
-								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+								class="w-6 h-6 text-white"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 							>
@@ -208,7 +187,7 @@ const currentYear = new Date().getFullYear();
 							class="social-link social-link--tiktok group"
 						>
 							<svg
-								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+								class="w-6 h-6 text-white"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 							>
@@ -227,7 +206,7 @@ const currentYear = new Date().getFullYear();
 							class="social-link social-link--youtube group"
 						>
 							<svg
-								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+								class="w-6 h-6 text-white"
 								fill="currentColor"
 								viewBox="0 0 24 24"
 							>
@@ -325,9 +304,7 @@ const currentYear = new Date().getFullYear();
 
 .social-link:hover,
 .social-link:focus-visible {
-	transform: translateX(5px);
 	border-color: rgb(255 255 255 / 0.24);
-	box-shadow: 0 12px 30px rgb(0 0 0 / 0.24);
 	outline: none;
 }
 
@@ -338,7 +315,6 @@ const currentYear = new Date().getFullYear();
 
 .social-link:hover svg,
 .social-link:focus-visible svg {
-	transform: rotate(-5deg) scale(1.08);
 	background: rgb(255 255 255 / 0.18);
 }
 

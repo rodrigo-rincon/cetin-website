@@ -26,28 +26,6 @@
 			aria-hidden="true"
 		></div>
 
-		<!-- Yellow decorative elements with parallax -->
-		<div
-			ref="parallaxElements"
-			class="absolute inset-0 hidden will-change-transform"
-		>
-			<div
-				class="absolute top-32 right-1/4 w-5 h-5 bg-yellow-400/30 rounded-full"
-			></div>
-			<div
-				class="absolute top-1/2 left-16 w-4 h-4 bg-yellow-400/40 rounded-full animate-pulse"
-			></div>
-			<div
-				class="absolute bottom-24 right-20 w-6 h-6 bg-yellow-300/30 rounded-full"
-			></div>
-			<div
-				class="absolute top-40 left-1/3 w-3 h-3 bg-yellow-400/50 rounded-full"
-			></div>
-			<div
-				class="absolute bottom-1/3 left-10 w-5 h-5 rotate-45 border-2 border-yellow-400/30"
-			></div>
-		</div>
-
 		<div
 			class="relative z-10 mx-auto flex min-h-[720px] w-full max-w-7xl items-center px-6 pb-28 pt-24 lg:min-h-[min(820px,calc(100vh-2rem))] lg:px-12 lg:pb-36 lg:pt-32"
 		>
@@ -58,13 +36,13 @@
 				<div
 					class="hero-content mx-auto flex max-w-xl flex-col gap-6 text-center transition-colors duration-500 ease-in-out sm:mx-0 sm:text-left lg:max-w-[52%]"
 				>
-					<!-- Badge -->
+					<!-- Context label -->
 					<div class="flex justify-center sm:justify-start">
 						<span
-							class="animate-float inline-flex items-center gap-2 rounded-full border border-pink-100 bg-pink-50 px-4 py-2 text-sm font-medium text-pink-600 transition-colors duration-500 dark:border-pink-800 dark:bg-pink-900/30 dark:text-pink-400"
+							class="inline-flex items-center gap-2 text-sm font-medium text-pink-600 transition-colors duration-300 dark:text-pink-300"
 						>
 							<span
-								class="w-2 h-2 bg-pink-500 rounded-full"
+								class="h-px w-8 bg-pink-500"
 							></span>
 							{{ content.hero.badge }}
 						</span>
@@ -72,7 +50,7 @@
 
 					<!-- Main heading -->
 					<h1
-						class="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#0f2a5c] dark:text-white leading-tight transition-colors duration-500"
+						class="text-4xl font-semibold leading-[1.08] text-[#0f2a5c] transition-colors duration-300 dark:text-white sm:text-5xl lg:text-6xl"
 					>
 						{{ content.hero.title }}
 						<span class="text-pink-500"> {{ content.hero.titleHighlight }}</span>
@@ -80,7 +58,7 @@
 
 					<!-- Subtitle -->
 					<p
-						class="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0 transition-colors duration-500"
+						class="mx-auto max-w-lg text-lg leading-relaxed text-gray-600 transition-colors duration-300 dark:text-gray-300 sm:mx-0 lg:text-xl"
 					>
 						{{ content.hero.subtitle }}
 					</p>
@@ -92,7 +70,7 @@
 						<button
 							type="button"
 							@click="openAppointmentForm"
-							class="group inline-flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/40 active:scale-95"
+							class="group inline-flex items-center justify-center rounded-lg bg-pink-600 px-7 py-3.5 font-semibold text-white transition-colors duration-150 hover:bg-pink-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500 active:bg-pink-800"
 						>
 							<svg
 								class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12"
@@ -111,11 +89,11 @@
 						</button>
 						<a
 							href="#services-info"
-							class="group inline-flex items-center justify-center bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+							class="group inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/75 px-7 py-3.5 font-semibold text-slate-700 transition-colors duration-150 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-white/20 dark:bg-slate-900/50 dark:text-gray-100 dark:hover:bg-slate-800"
 						>
 							{{ content.hero.ctaSecondary }}
 							<svg
-								class="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1"
+								class="w-4 h-4 ml-2"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -143,14 +121,6 @@
 							<p
 								class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center justify-center gap-1.5"
 							>
-								<span class="relative flex h-2 w-2">
-									<span
-										class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-500 opacity-75"
-									></span>
-									<span
-										class="relative inline-flex rounded-full h-2 w-2 bg-pink-500"
-									></span>
-								</span>
 								{{ content.stats.bebesAtendidosLabel }}
 							</p>
 						</div>
@@ -166,14 +136,6 @@
 							<p
 								class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center justify-center gap-1.5"
 							>
-								<span class="relative flex h-2 w-2">
-									<span
-										class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"
-									></span>
-									<span
-										class="relative inline-flex rounded-full h-2 w-2 bg-yellow-400"
-									></span>
-								</span>
 								{{ content.stats.tamicesEspecializadosLabel }}
 							</p>
 						</div>
@@ -189,14 +151,6 @@
 							<p
 								class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center justify-center gap-1.5"
 							>
-								<span class="relative flex h-2 w-2">
-									<span
-										class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4577d5] opacity-75"
-									></span>
-									<span
-										class="relative inline-flex rounded-full h-2 w-2 bg-[#4577d5]"
-									></span>
-								</span>
 								{{ content.stats.confiabilidadLabel }}
 							</p>
 						</div>
@@ -252,7 +206,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
 import { useReadonlyContent } from '../composables/useContent';
 
 const { content } = useReadonlyContent();
@@ -261,50 +214,12 @@ const openAppointmentForm = () => {
 	window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
 };
 
-// Parallax refs
-const parallaxBg = ref<HTMLElement | null>(null);
-const parallaxElements = ref<HTMLElement | null>(null);
-
-// Parallax effect
-const handleScroll = () => {
-	const scrollY = window.scrollY;
-
-	if (parallaxBg.value) {
-		parallaxBg.value.style.transform = `translateY(${scrollY * 0.3}px)`;
-	}
-
-	if (parallaxElements.value) {
-		parallaxElements.value.style.transform = `translateY(${scrollY * 0.15}px)`;
-	}
-};
-
-onMounted(() => {
-	window.addEventListener('scroll', handleScroll, { passive: true });
-});
-
-onUnmounted(() => {
-	window.removeEventListener('scroll', handleScroll);
-});
 </script>
 
 <style scoped>
-@keyframes float {
-	0%,
-	100% {
-		transform: translateY(0px);
-	}
-	50% {
-		transform: translateY(-6px);
-	}
-}
-
-.animate-float {
-	animation: float 3s ease-in-out infinite;
-}
-
 /* Hero animations */
 .hero-content {
-	animation: slideInLeft 0.8s ease-out forwards;
+	animation: heroEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .hero-image {
@@ -313,14 +228,14 @@ onUnmounted(() => {
 	opacity: 0;
 }
 
-@keyframes slideInLeft {
+@keyframes heroEnter {
 	from {
 		opacity: 0;
-		transform: translateX(-40px);
+		transform: translateY(8px);
 	}
 	to {
 		opacity: 1;
-		transform: translateX(0);
+		transform: translateY(0);
 	}
 }
 

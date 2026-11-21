@@ -113,7 +113,7 @@ const toSection = (section: string) => {
 
 <template>
 	<header
-		class="fixed inset-x-0 top-0 z-50 w-full border-b transition-all duration-500"
+		class="fixed inset-x-0 top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow] duration-500"
 		:class="showShadow
 			? 'border-slate-200/80 bg-white/90 shadow-[0_10px_35px_rgba(15,42,92,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 dark:shadow-black/20'
 			: 'border-transparent bg-transparent shadow-none'"
@@ -128,7 +128,7 @@ const toSection = (section: string) => {
 			>
 				<img
 					src="../assets/images/cetin_logo.png"
-					class="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105"
+					class="h-11 w-11 object-contain"
 					alt="Logo CETIN"
 				/>
 				<div class="flex flex-col">
@@ -210,7 +210,7 @@ const toSection = (section: string) => {
 					@click="toggleDarkMode"
 					:aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
 					:title="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/70 text-slate-600 transition-all hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-yellow-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
+					class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white/70 text-slate-600 transition-colors hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-yellow-300 dark:hover:border-slate-600 dark:hover:bg-slate-800"
 				>
 					<!-- Sol (light mode) -->
 					<svg
@@ -241,10 +241,10 @@ const toSection = (section: string) => {
 				<button
 					type="button"
 					@click="openAppointmentForm"
-					class="group inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-pink-600 hover:shadow-lg hover:shadow-pink-500/25 active:scale-[0.98]"
+					class="group inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2"
 				>
 					<svg
-						class="w-4 h-4 mr-2 transition-transform duration-300 group-hover:rotate-12"
+						class="w-4 h-4 mr-2"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -267,7 +267,7 @@ const toSection = (section: string) => {
 					@click="toggleDarkMode"
 					:aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
 					:title="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
-					class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/70 text-slate-600 transition-all dark:border-slate-700 dark:bg-slate-900/70 dark:text-yellow-300"
+					class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white/70 text-slate-600 transition-colors dark:border-slate-700 dark:bg-slate-900/70 dark:text-yellow-300"
 				>
 					<svg
 						v-if="isDark"
@@ -318,7 +318,7 @@ const toSection = (section: string) => {
 
 		<!-- Indicador discreto de profundidad al hacer scroll -->
 		<transition name="slide-down">
-			<div v-if="showShadow" class="h-px w-full bg-gradient-to-r from-transparent via-pink-400/70 to-transparent"></div>
+			<div v-if="showShadow" class="h-px w-full bg-slate-200/80 dark:bg-white/10"></div>
 		</transition>
 
 		<!-- Menú móvil desplegable -->

@@ -78,49 +78,6 @@ watch(selectedMapBranch, (selectedBranch) => {
 	});
 });
 
-// Parallax refs
-const parallaxSucursal = ref<HTMLElement | null>(null);
-let parallaxFrame: number | null = null;
-
-// Parallax scroll handler
-const handleParallax = () => {
-	if (parallaxFrame !== null) return;
-	parallaxFrame = window.requestAnimationFrame(() => {
-		parallaxFrame = null;
-		const section = parallaxSucursal.value;
-		if (!section) return;
-
-		const img = section.querySelector('.parallax-img') as HTMLElement | null;
-		if (!img) return;
-
-		const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (window.innerWidth < 768 || shouldReduceMotion) {
-			img.style.transform = 'translate3d(0, 0, 0) scale(1.06)';
-			return;
-		}
-
-		const rect = section.getBoundingClientRect();
-		const progress = Math.min(
-			1,
-			Math.max(0, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)),
-		);
-		const offset = (0.5 - progress) * 40;
-		img.style.transform = `translate3d(0, ${offset}px, 0) scale(1.06)`;
-	});
-};
-
-onMounted(() => {
-	window.addEventListener('scroll', handleParallax, { passive: true });
-	window.addEventListener('resize', handleParallax, { passive: true });
-	handleParallax();
-});
-
-onUnmounted(() => {
-	window.removeEventListener('scroll', handleParallax);
-	window.removeEventListener('resize', handleParallax);
-	if (parallaxFrame !== null) window.cancelAnimationFrame(parallaxFrame);
-});
-
 let mapInstance: MapLibreMap | null = null;
 
 // Inicializar mapa de sucursales
@@ -256,9 +213,6 @@ onUnmounted(() => {
 			<div
 				class="absolute bottom-32 left-20 w-4 h-4 bg-cetin-lime/35 rounded-full"
 			></div>
-			<div
-				class="absolute top-1/3 left-1/4 w-3 h-3 bg-cetin-coral/40 rounded-full animate-pulse"
-			></div>
 
 			<div
 				v-fade-up
@@ -305,10 +259,10 @@ onUnmounted(() => {
 								:aria-label="`Reproducir ${video.title}`"
 								@click="activateVideo(video.id)"
 							>
-								<img v-if="getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-90 transition duration-700 group-hover/play:scale-105" />
+								<img v-if="getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover/play:opacity-100" />
 								<span class="video-tile-shade absolute inset-0"></span>
-								<span class="video-episode absolute left-5 top-5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white">Video {{ String(index + 1).padStart(2, '0') }}</span>
-								<span class="video-play absolute right-5 top-5 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl transition duration-300 group-hover/play:rotate-6 group-hover/play:scale-110" aria-hidden="true">
+								<span class="video-episode absolute left-5 top-5 rounded-md px-3 py-1.5 text-[11px] font-semibold text-white">Video {{ String(index + 1).padStart(2, '0') }}</span>
+								<span class="video-play absolute right-5 top-5 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-sm transition-colors duration-300" aria-hidden="true">
 									<svg class="ml-1 h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
 								</span>
 								<span class="absolute inset-x-0 bottom-0 z-10 p-5 text-white lg:p-6">
@@ -344,9 +298,6 @@ onUnmounted(() => {
 			<div
 				class="absolute bottom-40 right-1/4 w-5 h-5 bg-yellow-400/30 rounded-full"
 			></div>
-			<div
-				class="absolute top-1/2 left-20 w-3 h-3 bg-yellow-300/40 rounded-full animate-pulse"
-			></div>
 			<!-- Yellow star shape -->
 			<div
 				class="absolute bottom-10 right-10 w-6 h-6 rotate-45 border-2 border-yellow-400/40 dark:border-yellow-600/40"
@@ -358,7 +309,7 @@ onUnmounted(() => {
 					<div v-slide-right class="space-y-7 lg:col-span-7">
 						<div>
 							<span
-								class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-4"
+								class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 mb-4"
 							>
 								<span
 									class="w-8 h-[2px] bg-blue-600 dark:bg-blue-400"
@@ -378,7 +329,7 @@ onUnmounted(() => {
 						<!-- Feature items -->
 						<div class="grid gap-4 xl:grid-cols-2">
 							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-pink-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-pink-800"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-pink-800"
 							>
 								<div
 									class="w-14 h-14 bg-pink-100 dark:bg-pink-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -411,7 +362,7 @@ onUnmounted(() => {
 							</div>
 
 							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-800"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-blue-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-800"
 							>
 								<div
 									class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -444,7 +395,7 @@ onUnmounted(() => {
 							</div>
 
 							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-yellow-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-yellow-800"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-yellow-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-yellow-800"
 							>
 								<div
 									class="w-14 h-14 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -477,7 +428,7 @@ onUnmounted(() => {
 							</div>
 
 							<div
-								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-red-800"
+								class="group flex items-start gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm transition-colors duration-300 hover:border-red-200 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-red-800"
 							>
 								<div
 									class="w-14 h-14 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -514,10 +465,10 @@ onUnmounted(() => {
 					<!-- Right: Stats Card -->
 					<div v-slide-left class="relative lg:col-span-5 lg:pt-11">
 						<div
-							class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blue-100 bg-white p-7 shadow-xl shadow-blue-950/5 transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9"
+							class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-blue-100 bg-white p-7 shadow-sm transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9"
 						>
 							<div class="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue-100/60 blur-2xl dark:bg-blue-900/20"></div>
-							<span class="relative mb-4 text-xs font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">Nuestro respaldo</span>
+							<span class="relative mb-4 text-sm font-semibold text-blue-600 dark:text-blue-400">Nuestro respaldo</span>
 							<h3
 								class="relative mb-4 text-2xl font-bold leading-tight text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-[1.75rem]"
 							>
@@ -565,7 +516,7 @@ onUnmounted(() => {
 
 							<a
 								href="#services-info"
-								class="group relative mt-auto inline-flex w-full items-center justify-center rounded-xl bg-pink-500 px-8 py-3.5 font-semibold text-white shadow-lg shadow-pink-500/20 transition-all duration-300 hover:bg-pink-600 hover:shadow-xl hover:shadow-pink-500/30 active:scale-[0.98]"
+								class="group relative mt-auto inline-flex w-full items-center justify-center rounded-lg bg-pink-500 px-8 py-3.5 font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
 							>
 								<svg
 									class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12"
@@ -613,9 +564,6 @@ onUnmounted(() => {
 				class="absolute top-16 right-1/4 w-4 h-4 bg-yellow-400/60 rounded-full"
 			></div>
 			<div
-				class="absolute bottom-24 left-1/3 w-6 h-6 bg-yellow-400/40 rounded-full animate-pulse"
-			></div>
-			<div
 				class="absolute top-1/2 right-10 w-3 h-3 bg-yellow-300/50 rounded-full"
 			></div>
 			<div
@@ -634,14 +582,14 @@ onUnmounted(() => {
 						>
 							<span class="relative flex h-3 w-3">
 								<span
-									class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"
+									class="absolute inline-flex h-full w-full rounded-full bg-pink-400"
 								></span>
 								<span
 									class="relative inline-flex rounded-full h-3 w-3 bg-pink-500"
 								></span>
 							</span>
 							<span
-								class="text-sm font-semibold text-white uppercase tracking-wider"
+								class="text-sm font-semibold text-white"
 								>{{ content.laborAltruista.badge }}</span
 							>
 						</div>
@@ -666,12 +614,9 @@ onUnmounted(() => {
 					<!-- Right: Video Container -->
 					<div v-scale-up class="relative">
 						<!-- Glow effect -->
-						<div
-							class="absolute -inset-4 bg-gradient-to-r from-pink-500 to-pink-400 rounded-[2rem] opacity-20 blur-xl"
-						></div>
 
 						<div
-							class="relative bg-white rounded-3xl p-6 lg:p-8 overflow-hidden"
+							class="relative bg-white rounded-2xl p-6 lg:p-8 overflow-hidden"
 						>
 							<!-- Video wrapper with aspect ratio -->
 							<div
@@ -754,7 +699,7 @@ onUnmounted(() => {
 		<!-- How to Book Section -->
 		<section
 			id="services"
-			class="editorial-section order-5 relative overflow-hidden bg-gradient-to-br from-[#0f2a5c] via-[#14386f] to-[#0b234c] py-16 lg:py-24"
+			class="editorial-section order-5 relative overflow-hidden bg-[#0f2a5c] py-16 lg:py-24"
 		>
 			<!-- Subtle floating shapes with secondary colors -->
 			<div
@@ -813,7 +758,7 @@ onUnmounted(() => {
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 					<!-- Step 1 -->
 					<div
-						class="group bg-[#0f2a5c] rounded-2xl p-7 shadow-lg shadow-pink-600/20 hover:shadow-xl hover:shadow-pink-600/30 hover:-translate-y-1 transition-all duration-300"
+						class="group rounded-2xl border border-white/10 bg-white/5 p-7 transition-colors duration-300 hover:bg-white/10"
 					>
 						<div class="flex items-center gap-3 mb-5">
 							<span
@@ -855,7 +800,7 @@ onUnmounted(() => {
 
 					<!-- Step 2 -->
 					<div
-						class="group bg-[#0f2a5c] rounded-2xl p-7 shadow-lg shadow-pink-600/20 hover:shadow-xl hover:shadow-pink-600/30 hover:-translate-y-1 transition-all duration-300"
+						class="group rounded-2xl border border-white/10 bg-white/5 p-7 transition-colors duration-300 hover:bg-white/10"
 					>
 						<div class="flex items-center gap-3 mb-5">
 							<span
@@ -891,7 +836,7 @@ onUnmounted(() => {
 
 					<!-- Step 3 -->
 					<div
-						class="group bg-[#0f2a5c] rounded-2xl p-7 shadow-lg shadow-pink-600/20 hover:shadow-xl hover:shadow-pink-600/30 hover:-translate-y-1 transition-all duration-300"
+						class="group rounded-2xl border border-white/10 bg-white/5 p-7 transition-colors duration-300 hover:bg-white/10"
 					>
 						<div class="flex items-center gap-3 mb-5">
 							<span
@@ -932,11 +877,11 @@ onUnmounted(() => {
 					<button
 						type="button"
 						@click="openAppointmentForm"
-						class="group inline-flex items-center gap-3 rounded-full bg-pink-500 px-8 py-4 font-semibold text-white shadow-lg shadow-pink-950/20 transition-all duration-300 hover:bg-pink-600 hover:shadow-xl active:scale-[0.98]"
+						class="group inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
 					>
 						Agendar mi cita
 						<svg
-							class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+							class="w-5 h-5"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -965,7 +910,7 @@ onUnmounted(() => {
 					</svg>
 				</div>
 				<div class="min-w-0 flex-1">
-					<p class="text-xs font-semibold uppercase tracking-[0.2em] text-pink-300">Respaldo médico especializado</p>
+					<p class="text-sm font-semibold text-pink-300">Respaldo médico especializado</p>
 					<h2 class="mt-2 text-2xl font-semibold leading-snug text-white lg:text-3xl">
 						Todos los resultados son revisados e interpretados por médicos subespecialistas expertos en cada área.
 					</h2>
@@ -976,18 +921,17 @@ onUnmounted(() => {
 		</section>
 
 		<!-- Nueva Sucursal Section -->
-		<section v-if="content.proximamente.active" ref="parallaxSucursal" class="order-8 py-20 lg:py-32 relative overflow-hidden">
-			<!-- Background Image with Parallax -->
+		<section v-if="content.proximamente.active" class="order-8 py-20 lg:py-28 relative overflow-hidden">
+			<!-- Background image -->
 			<div class="absolute inset-0 overflow-hidden">
 				<img
 					:src="content.proximamente.backgroundImage || defaultSucursalCover"
 					alt="Nueva sucursal CETIN"
-					class="parallax-img h-[108%] w-full object-cover object-center will-change-transform lg:object-[65%_center]"
-					style="transform: translate3d(0, 0, 0) scale(1.06)"
+					class="h-full w-full object-cover object-center lg:object-[65%_center]"
 				/>
 				<!-- Overlay gradient -->
 				<div
-					class="absolute inset-0 bg-gradient-to-b from-[#0f2a5c]/70 via-[#0f2a5c]/60 to-[#0f2a5c]/70 dark:from-[#0f2a5c]/80 dark:via-[#0f2a5c]/70 dark:to-[#0f2a5c]/80"
+					class="absolute inset-0 bg-[#0f2a5c]/68 dark:bg-[#071a38]/78"
 				></div>
 			</div>
 
@@ -1012,14 +956,14 @@ onUnmounted(() => {
 				>
 					<span class="relative flex h-2 w-2">
 						<span
-							class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"
+							class="absolute inline-flex h-full w-full rounded-full bg-pink-400"
 						></span>
 						<span
 							class="relative inline-flex rounded-full h-2 w-2 bg-pink-400"
 						></span>
 					</span>
 					<span
-						class="text-sm font-semibold text-white uppercase tracking-wider"
+					class="text-sm font-semibold text-white"
 						>{{ content.proximamente.badge }}</span
 					>
 				</div>
@@ -1062,16 +1006,13 @@ onUnmounted(() => {
 				class="absolute top-24 left-1/4 w-5 h-5 bg-yellow-400/30 rounded-full"
 			></div>
 			<div
-				class="absolute bottom-32 right-1/3 w-4 h-4 bg-yellow-400/40 rounded-full animate-pulse"
-			></div>
-			<div
 				class="absolute top-1/3 left-16 w-6 h-6 rotate-45 border-2 border-yellow-400/30"
 			></div>
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 				<div v-fade-up class="text-center mb-10 lg:mb-12">
 					<span
-						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 uppercase tracking-wider mb-4"
+						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 mb-4"
 					>
 						<span class="w-8 h-[2px] bg-pink-500"></span>
 						Testimonios
@@ -1114,9 +1055,6 @@ onUnmounted(() => {
 				class="absolute bottom-1/4 left-1/4 w-4 h-4 bg-yellow-400/30 rounded-full"
 			></div>
 			<div
-				class="absolute top-1/4 right-10 w-5 h-5 bg-yellow-400/40 rounded-full animate-pulse"
-			></div>
-			<div
 				class="absolute bottom-40 right-1/3 w-3 h-3 bg-yellow-300/50 rounded-full"
 			></div>
 
@@ -1143,7 +1081,7 @@ onUnmounted(() => {
 				<!-- Section Header -->
 				<div v-fade-up class="text-center mb-8 lg:mb-12">
 					<span
-						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 uppercase tracking-wider mb-4"
+						class="inline-flex items-center gap-2 text-sm font-semibold text-pink-500 mb-4"
 					>
 						<span class="w-8 h-[2px] bg-pink-500"></span>
 						Contacto
@@ -1166,7 +1104,7 @@ onUnmounted(() => {
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
 					<!-- Corporativo Card - Principal -->
 					<div
-						class="group relative p-6 lg:p-8 bg-gradient-to-br from-[#0f2a5c] via-[#143366] to-[#1a3a6c] rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+						class="group relative overflow-hidden rounded-2xl border border-[#24477c] bg-[#0f2a5c] p-6 shadow-sm lg:p-8"
 					>
 						<!-- Decorative elements -->
 						<div
@@ -1179,7 +1117,7 @@ onUnmounted(() => {
 						<div class="relative z-10">
 							<div class="flex items-center gap-4 mb-6">
 								<div
-									class="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300"
+									class="w-14 h-14 bg-yellow-400 rounded-xl flex items-center justify-center flex-shrink-0"
 								>
 									<svg
 										class="w-8 h-8 text-[#0f2a5c]"
@@ -1197,7 +1135,7 @@ onUnmounted(() => {
 								</div>
 								<div>
 									<span
-										class="text-yellow-400/80 text-sm font-medium uppercase tracking-wider"
+										class="text-yellow-300 text-sm font-medium"
 										>Contacto Principal</span
 									>
 									<h3 class="font-bold text-white text-2xl">
@@ -1209,7 +1147,7 @@ onUnmounted(() => {
 							<div class="flex flex-col sm:flex-row gap-4">
 								<a
 									href="tel:+522223994072"
-									class="flex-1 inline-flex items-center justify-center gap-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold px-6 py-4 rounded-xl transition-all duration-300 border border-white/20 hover:border-white/40"
+									class="flex-1 inline-flex items-center justify-center gap-3 bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-4 rounded-lg transition-colors duration-300 border border-white/20 hover:border-white/30"
 								>
 									<svg
 										class="w-5 h-5"
@@ -1229,7 +1167,7 @@ onUnmounted(() => {
 								<a
 									href="https://wa.me/522223994072?text=%C2%A1Hola!%20Me%20gustar%C3%ADa%20agendar%20una%20cita."
 									target="_blank"
-									class="flex-1 inline-flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-300 text-[#0f2a5c] font-bold px-6 py-4 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-yellow-400/25"
+									class="flex-1 inline-flex items-center justify-center gap-3 bg-yellow-400 hover:bg-yellow-300 text-[#0f2a5c] font-semibold px-6 py-4 rounded-lg transition-colors duration-300"
 								>
 									<svg
 										class="w-5 h-5"
@@ -1249,7 +1187,7 @@ onUnmounted(() => {
 					<!-- Email Card -->
 					<a
 						href="mailto:cetincorporativo@gmail.com"
-					class="group relative p-6 lg:p-8 bg-gradient-to-br from-pink-500 via-pink-500 to-pink-600 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+					class="group relative overflow-hidden rounded-2xl border border-pink-400 bg-pink-500 p-6 shadow-sm lg:p-8"
 					>
 						<!-- Decorative elements -->
 						<div
@@ -1264,7 +1202,7 @@ onUnmounted(() => {
 						>
 							<div class="flex items-center gap-4 mb-6">
 								<div
-									class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300"
+									class="w-14 h-14 bg-white rounded-xl flex items-center justify-center flex-shrink-0"
 								>
 									<svg
 										class="w-8 h-8 text-pink-500"
@@ -1282,7 +1220,7 @@ onUnmounted(() => {
 								</div>
 								<div>
 									<span
-										class="text-slate-300 text-sm font-medium uppercase tracking-wider"
+										class="text-pink-100 text-sm font-medium"
 										>Escríbenos</span
 									>
 									<h3 class="font-bold text-slate-100 text-2xl">
@@ -1292,7 +1230,7 @@ onUnmounted(() => {
 							</div>
 
 							<div
-								class="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 group-hover:bg-white/20 transition-all"
+								class="bg-white/10 rounded-lg px-6 py-4 border border-white/20 transition-colors group-hover:bg-white/15"
 							>
 								<p
 									class="text-white font-semibold text-lg break-all"
@@ -1307,11 +1245,11 @@ onUnmounted(() => {
 				<!-- Sucursales Section Title -->
 				<div class="flex items-center gap-4 mb-6">
 					<div
-						class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-slate-700 to-transparent"
+						class="h-px flex-1 bg-gray-200 dark:bg-slate-700"
 					></div>
 					<h2 class="text-2xl font-bold text-[#0f2a5c] dark:text-white">Nuestras Sucursales</h2>
 					<div
-						class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 dark:via-slate-700 to-transparent"
+						class="h-px flex-1 bg-gray-200 dark:bg-slate-700"
 					></div>
 				</div>
 
@@ -1320,13 +1258,13 @@ onUnmounted(() => {
 					<article
 						v-for="(sucursal, index) in content.sucursales"
 						:key="sucursal.id"
-						class="branch-card group flex h-full flex-col overflow-hidden rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+						class="branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
 						:class="getBranchLayoutClass(index, content.sucursales.length)"
 					>
 						<img
 							:src="getSucursalCover(sucursal.id)"
 							:alt="`Portada de ${sucursal.name}`"
-							class="branch-card-image transition-transform duration-700 group-hover:scale-105"
+							class="branch-card-image"
 						/>
 						<div class="branch-card-content flex flex-1 items-end gap-4 p-6">
 							<div>
@@ -1366,7 +1304,7 @@ onUnmounted(() => {
 									:href="sucursal.mapsUrl"
 									target="_blank"
 									rel="noopener noreferrer"
-									class="mt-5 flex items-center justify-between rounded-xl bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pink-500 hover:shadow-md"
+									class="mt-5 flex items-center justify-between rounded-lg bg-[#0f2a5c] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-pink-500"
 								>
 									Ver ubicación <span aria-hidden="true">→</span>
 								</a>
@@ -1378,7 +1316,7 @@ onUnmounted(() => {
 				<!-- Map with all locations -->
 				<div class="relative">
 					<div
-						class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden"
+						class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
 						style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.1);"
 					>
 						<div id="cetin-map" style="width:100%;height:360px;min-height:320px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
@@ -1399,7 +1337,7 @@ onUnmounted(() => {
 									<div :key="selectedMapBranch.id" class="flex h-full flex-col">
 								<div class="flex items-start justify-between gap-4">
 									<div>
-										<p class="text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">Sucursal</p>
+										<p class="text-sm font-semibold text-pink-500">Sucursal</p>
 										<h3 class="mt-1 text-2xl font-bold text-[#0f2a5c] dark:text-white">{{ selectedMapBranch.name }}</h3>
 									</div>
 									<button type="button" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl text-slate-500 transition hover:bg-slate-200 hover:text-slate-800 dark:bg-slate-800 dark:text-slate-300" aria-label="Cerrar información de sucursal" @click="selectedMapBranch = null">×</button>
@@ -1442,7 +1380,7 @@ onUnmounted(() => {
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 				<div class="mx-auto mb-10 max-w-2xl text-center">
-					<span class="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.16em] text-pink-500">Nuestro compromiso</span>
+					<span class="mb-3 inline-block text-sm font-semibold text-pink-500">Nuestro compromiso</span>
 					<h2 class="text-3xl font-bold text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-4xl">
 						Cuidado confiable en cada etapa
 					</h2>
@@ -1452,10 +1390,10 @@ onUnmounted(() => {
 				</div>
 
 				<div class="relative grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-5">
-					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cetin-coral/50 hover:bg-white hover:shadow-xl hover:shadow-slate-900/5 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
-						<div class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-cetin-coral transition-transform duration-300 group-hover:scale-x-100"></div>
+					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-colors duration-300 hover:border-cetin-coral/50 hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
+						<div class="absolute inset-x-0 top-0 h-1 bg-cetin-coral"></div>
 						<div
-							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-coral/20 transition-transform duration-300 group-hover:scale-105 dark:bg-cetin-coral/30"
+							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-coral/20 dark:bg-cetin-coral/30"
 						>
 							<svg
 								class="h-6 w-6 text-cetin-coral"
@@ -1482,10 +1420,10 @@ onUnmounted(() => {
 						</p>
 					</div>
 
-					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cetin-turquoise/50 hover:bg-white hover:shadow-xl hover:shadow-slate-900/5 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
-						<div class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-cetin-turquoise transition-transform duration-300 group-hover:scale-x-100"></div>
+					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-colors duration-300 hover:border-cetin-turquoise/50 hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
+						<div class="absolute inset-x-0 top-0 h-1 bg-cetin-turquoise"></div>
 						<div
-							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-turquoise/20 transition-transform duration-300 group-hover:scale-105 dark:bg-cetin-turquoise/30"
+							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-turquoise/20 dark:bg-cetin-turquoise/30"
 						>
 							<svg
 								class="h-6 w-6 text-cetin-turquoise"
@@ -1512,10 +1450,10 @@ onUnmounted(() => {
 						</p>
 					</div>
 
-					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cetin-gold/50 hover:bg-white hover:shadow-xl hover:shadow-slate-900/5 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
-						<div class="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-cetin-gold transition-transform duration-300 group-hover:scale-x-100"></div>
+					<div class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-colors duration-300 hover:border-cetin-gold/50 hover:bg-white dark:border-slate-700 dark:bg-slate-800/60 dark:hover:bg-slate-800 lg:p-7">
+						<div class="absolute inset-x-0 top-0 h-1 bg-cetin-gold"></div>
 						<div
-							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-gold/20 transition-transform duration-300 group-hover:scale-105 dark:bg-cetin-gold/30"
+							class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cetin-gold/20 dark:bg-cetin-gold/30"
 						>
 							<svg
 								class="h-6 w-6 text-cetin-gold"
@@ -1589,24 +1527,20 @@ onUnmounted(() => {
 	min-width: 0;
 	aspect-ratio: 16 / 9;
 	overflow: hidden;
-	border: 4px solid rgb(255 255 255 / 0.9);
-	border-radius: 1.75rem;
-	box-shadow: 0 18px 45px rgb(15 42 92 / 0.14);
-	transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease;
+	border: 1px solid rgb(226 232 240);
+	border-radius: 1rem;
+	box-shadow: 0 8px 24px rgb(15 42 92 / 0.09);
+	transition: border-color 240ms ease, box-shadow 240ms ease;
 }
 
 .dark .video-tile {
-	border-color: rgb(51 65 85 / 0.9);
-	box-shadow: 0 18px 45px rgb(2 6 23 / 0.38);
+	border-color: rgb(51 65 85);
+	box-shadow: 0 8px 24px rgb(2 6 23 / 0.28);
 }
 
 .video-tile:hover {
-	transform: translateY(-5px) rotate(-0.35deg);
-	box-shadow: 0 24px 55px rgb(15 42 92 / 0.22);
-}
-
-.video-tile:nth-child(even):hover {
-	transform: translateY(-5px) rotate(0.35deg);
+	border-color: rgb(236 22 140 / 0.45);
+	box-shadow: 0 12px 30px rgb(15 42 92 / 0.13);
 }
 
 .video-tile-shade {
@@ -1616,21 +1550,6 @@ onUnmounted(() => {
 .video-episode,
 .video-play {
 	background: #ec168c;
-}
-
-.video-tile:nth-child(2) .video-episode,
-.video-tile:nth-child(2) .video-play {
-	background: #2563eb;
-}
-
-.video-tile:nth-child(3) .video-episode,
-.video-tile:nth-child(3) .video-play {
-	background: #e7ad09;
-}
-
-.video-tile:nth-child(4) .video-episode,
-.video-tile:nth-child(4) .video-play {
-	background: #19a9a2;
 }
 
 .video-tile > div {
@@ -1705,30 +1624,10 @@ onUnmounted(() => {
 	}
 }
 
-.parallax-img {
-	transition: transform 90ms linear;
-}
-
-@media (max-width: 767px) {
-	.parallax-img {
-		transform: translate3d(0, 0, 0) scale(1.06) !important;
-		transition: none;
-		will-change: auto;
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.video-tile,
-	.video-tile:hover,
-	.video-tile:nth-child(even):hover {
-		transform: none;
+	.video-tile:hover {
 		transition: none;
-	}
-
-	.parallax-img {
-		transform: translate3d(0, 0, 0) scale(1.06) !important;
-		transition: none;
-		will-change: auto;
 	}
 
 	.map-panel-enter-active,
