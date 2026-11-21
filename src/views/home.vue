@@ -22,26 +22,6 @@ const openAppointmentForm = () => {
 };
 
 const activeVideoIds = ref<Set<string>>(new Set());
-const appointmentStory = ref<HTMLElement | null>(null);
-const activeAppointmentStep = ref(0);
-let appointmentFrame: number | null = null;
-
-const updateAppointmentStory = () => {
-	if (appointmentFrame !== null) return;
-	appointmentFrame = window.requestAnimationFrame(() => {
-		appointmentFrame = null;
-		const section = appointmentStory.value;
-		if (!section) return;
-		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			activeAppointmentStep.value = 4;
-			return;
-		}
-		const rect = section.getBoundingClientRect();
-		const distance = Math.max(1, section.offsetHeight - window.innerHeight);
-		const progress = Math.min(1, Math.max(0, -rect.top / distance));
-		activeAppointmentStep.value = Math.min(4, Math.floor(progress * 5));
-	});
-};
 
 const getYouTubeId = (url: string) => {
 	const match = url.match(/(?:embed\/|youtu\.be\/|watch\?v=)([\w-]{11})/);
@@ -202,15 +182,9 @@ const initMap = async () => {
 
 onMounted(() => {
 	void initMap();
-	window.addEventListener('scroll', updateAppointmentStory, { passive: true });
-	window.addEventListener('resize', updateAppointmentStory, { passive: true });
-	updateAppointmentStory();
 });
 
 onUnmounted(() => {
-	window.removeEventListener('scroll', updateAppointmentStory);
-	window.removeEventListener('resize', updateAppointmentStory);
-	if (appointmentFrame !== null) window.cancelAnimationFrame(appointmentFrame);
 	mapInstance?.remove();
 	mapInstance = null;
 	mapMarkerElements.clear();
@@ -543,43 +517,32 @@ onUnmounted(() => {
 		<!-- How to Book Section -->
 		<section
 			id="services"
-			ref="appointmentStory"
-			class="editorial-section order-5 relative h-[420vh] bg-[#0f2a5c]"
+			class="editorial-section order-5 relative bg-[#0f2a5c] py-20 lg:py-28"
 		>
-			<div class="sticky top-0 flex min-h-screen items-center overflow-hidden py-20">
-				<div class="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-12">
-					<div class="text-center">
-						<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
-						<h2 class="text-3xl font-semibold text-slate-100 lg:text-4xl">¿Cómo agendar una cita?</h2>
-						<p class="mt-3 text-lg text-blue-100/80">Desliza para conocer el proceso</p>
-					</div>
+			<div class="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-12">
+				<div class="mb-14 text-center lg:mb-20">
+					<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
+					<h2 class="text-3xl font-semibold text-slate-100 lg:text-4xl">¿Cómo agendar una cita?</h2>
+					<p class="mt-3 text-lg text-blue-100/80">Baja para descubrir cada paso</p>
+				</div>
 
-					<div class="mx-auto mt-10 max-w-2xl">
-						<div class="space-y-1.5">
-							<div class="flex min-h-16 items-center justify-between rounded-xl border px-5 py-3 text-left transition-[opacity,transform,background-color] duration-500" :class="activeAppointmentStep >= 1 ? 'translate-y-0 opacity-100 ' + (activeAppointmentStep === 1 ? 'border-pink-300 bg-pink-50' : 'border-slate-300 bg-slate-200') : 'translate-y-10 opacity-0'">
-								<div class="flex items-center gap-4"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">1</span><h3 class="text-lg font-semibold text-[#0f2a5c]">Ubica tu CETIN</h3></div><span class="text-sm font-semibold text-slate-500">Sucursal</span>
-							</div>
-							<div class="flex min-h-16 items-center justify-between rounded-xl border px-5 py-3 text-left transition-[opacity,transform,background-color] duration-500" :class="activeAppointmentStep >= 2 ? 'translate-y-0 opacity-100 ' + (activeAppointmentStep === 2 ? 'border-pink-300 bg-pink-50' : 'border-slate-300 bg-slate-200') : 'translate-y-10 opacity-0'">
-								<div class="flex items-center gap-4"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">2</span><h3 class="text-lg font-semibold text-[#0f2a5c]">Elige fecha y hora</h3></div><span class="text-sm font-semibold text-slate-500">Agenda</span>
-							</div>
-							<div class="flex min-h-16 items-center justify-between rounded-xl border px-5 py-3 text-left transition-[opacity,transform,background-color] duration-500" :class="activeAppointmentStep >= 3 ? 'translate-y-0 opacity-100 ' + (activeAppointmentStep >= 3 ? 'border-pink-300 bg-pink-50' : 'border-slate-300 bg-slate-200') : 'translate-y-10 opacity-0'">
-								<div class="flex items-center gap-4"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-500 text-sm font-semibold text-white">3</span><h3 class="text-lg font-semibold text-[#0f2a5c]">Acude a tu cita</h3></div><span class="text-sm font-semibold text-slate-500">CETIN</span>
-							</div>
-						</div>
-
-						<div class="relative mt-1.5 min-h-48 overflow-hidden rounded-2xl border border-white/10 bg-[#0a1730] p-7 text-center shadow-2xl sm:p-9">
-							<Transition name="appointment-detail" mode="out-in">
-								<div v-if="activeAppointmentStep === 0" key="intro" class="flex min-h-32 items-center justify-center text-blue-100/65">Continúa bajando para comenzar</div>
-								<div v-else-if="activeAppointmentStep === 1" key="step-1" class="flex min-h-32 flex-col items-center justify-center"><p class="text-sm font-semibold text-pink-300">Paso 1</p><p class="mt-3 text-xl font-semibold text-white">Encuentra la sucursal más cercana a tu domicilio.</p></div>
-								<div v-else-if="activeAppointmentStep === 2" key="step-2" class="flex min-h-32 flex-col items-center justify-center"><p class="text-sm font-semibold text-pink-300">Paso 2</p><p class="mt-3 text-xl font-semibold text-white">Llámanos y elige la fecha y hora que mejor te convenga.</p></div>
-								<div v-else-if="activeAppointmentStep === 3" key="step-3" class="flex min-h-32 flex-col items-center justify-center"><p class="text-sm font-semibold text-pink-300">Paso 3</p><p class="mt-3 text-xl font-semibold text-white">Visítanos en el lugar y hora acordada. ¡Te esperamos!</p></div>
-								<div v-else key="action" class="flex min-h-32 flex-col items-center justify-center"><p class="mb-5 text-xl font-semibold text-white">Todo listo para cuidar la salud de tu bebé</p><button type="button" @click="openAppointmentForm" class="inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">Agendar mi cita <span aria-hidden="true">→</span></button></div>
-							</Transition>
-						</div>
-					</div>
-					<div class="mx-auto mt-8 flex max-w-xs gap-2" aria-hidden="true">
-						<span v-for="step in 4" :key="step" class="h-1 flex-1 rounded-full transition-colors duration-300" :class="activeAppointmentStep >= step ? 'bg-pink-400' : 'bg-white/15'"></span>
-					</div>
+				<div class="appointment-stack mx-auto max-w-2xl">
+					<article class="appointment-stack-card appointment-card-pink">
+						<header class="appointment-stack-header"><span class="appointment-stack-number">1</span><h3>Ubica tu CETIN</h3><span class="appointment-stack-label">Sucursal</span></header>
+						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Elige el lugar ideal</p><p>Encuentra la sucursal más cercana a tu domicilio.</p></div>
+					</article>
+					<article class="appointment-stack-card appointment-card-blue">
+						<header class="appointment-stack-header"><span class="appointment-stack-number">2</span><h3>Elige fecha y hora</h3><span class="appointment-stack-label">Agenda</span></header>
+						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Nos adaptamos a ti</p><p>Llámanos y elige el horario que mejor te convenga.</p></div>
+					</article>
+					<article class="appointment-stack-card appointment-card-coral">
+						<header class="appointment-stack-header"><span class="appointment-stack-number">3</span><h3>Acude a tu cita</h3><span class="appointment-stack-label">CETIN</span></header>
+						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Nosotros te acompañamos</p><p>Visítanos en el lugar y la hora acordados. ¡Te esperamos!</p></div>
+					</article>
+					<article class="appointment-stack-card appointment-card-action">
+						<header class="appointment-stack-header"><span class="appointment-stack-number">✓</span><h3>Todo listo</h3><span class="appointment-stack-label">Tu cita</span></header>
+						<div class="appointment-stack-detail"><p class="appointment-stack-kicker">Cuidemos la salud de tu bebé</p><button type="button" @click="openAppointmentForm" class="mt-6 inline-flex items-center gap-3 rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">Agendar mi cita <span aria-hidden="true">→</span></button></div>
+					</article>
 				</div>
 			</div>
 		</section>
@@ -1455,29 +1418,99 @@ onUnmounted(() => {
 	}
 }
 
-.appointment-detail-enter-active,
-.appointment-detail-leave-active {
-	transition: opacity 240ms ease, transform 240ms ease;
+.appointment-stack {
+	--stack-top: 5.5rem;
+	--stack-gap: 4.5rem;
+	padding-bottom: 10rem;
 }
 
-.appointment-detail-enter-from {
-	opacity: 0;
-	transform: translateY(12px);
+.appointment-stack-card {
+	position: sticky;
+	min-height: 19rem;
+	margin-bottom: 8rem;
+	overflow: hidden;
+	border: 1px solid rgb(255 255 255 / 0.16);
+	border-radius: 1.25rem;
+	background: #f8fafc;
+	box-shadow: 0 24px 65px rgb(2 6 23 / 0.28);
 }
 
-.appointment-detail-leave-to {
-	opacity: 0;
-	transform: translateY(-8px);
+.appointment-stack-card:nth-child(1) { top: var(--stack-top); }
+.appointment-stack-card:nth-child(2) { top: calc(var(--stack-top) + var(--stack-gap)); }
+.appointment-stack-card:nth-child(3) { top: calc(var(--stack-top) + var(--stack-gap) * 2); }
+.appointment-stack-card:nth-child(4) { top: calc(var(--stack-top) + var(--stack-gap) * 3); margin-bottom: 0; }
+
+.appointment-stack-header {
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	align-items: center;
+	min-height: 4.5rem;
+	gap: 1rem;
+	padding: 0.8rem 1.25rem;
+	color: #0f2a5c;
+}
+
+.appointment-stack-header h3 { font-size: 1.125rem; font-weight: 650; }
+
+.appointment-stack-number {
+	display: inline-flex;
+	height: 2.5rem;
+	width: 2.5rem;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.75rem;
+	background: #ec4899;
+	color: white;
+	font-size: 0.875rem;
+	font-weight: 700;
+}
+
+.appointment-stack-label { font-size: 0.8rem; font-weight: 650; color: #64748b; }
+
+.appointment-stack-detail {
+	display: flex;
+	min-height: 14.5rem;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem;
+	text-align: center;
+	color: #0f2a5c;
+}
+
+.appointment-stack-detail > p:last-child {
+	max-width: 30rem;
+	font-size: clamp(1.3rem, 3vw, 1.75rem);
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.appointment-stack-kicker {
+	margin-bottom: 0.75rem;
+	font-size: 0.85rem !important;
+	font-weight: 650 !important;
+	color: #db2777;
+}
+
+.appointment-card-pink .appointment-stack-header { background: #fce7f3; }
+.appointment-card-blue .appointment-stack-header { background: #dbeafe; }
+.appointment-card-blue .appointment-stack-number { background: #2563eb; }
+.appointment-card-coral .appointment-stack-header { background: #ffe4e6; }
+.appointment-card-coral .appointment-stack-number { background: #f43f5e; }
+.appointment-card-action .appointment-stack-header { background: #e0f2fe; }
+.appointment-card-action .appointment-stack-number { background: #0f2a5c; }
+
+@media (max-width: 640px) {
+	.appointment-stack { --stack-top: 4.5rem; --stack-gap: 4rem; padding-bottom: 7rem; }
+	.appointment-stack-card { min-height: 17rem; margin-bottom: 7rem; border-radius: 1rem; }
+	.appointment-stack-header { min-height: 4rem; gap: 0.75rem; padding: 0.7rem 0.9rem; }
+	.appointment-stack-header h3 { font-size: 1rem; }
+	.appointment-stack-number { height: 2.25rem; width: 2.25rem; }
+	.appointment-stack-detail { min-height: 13rem; padding: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	#services {
-		height: auto !important;
-	}
-
-	#services > .sticky {
-		position: relative;
-	}
+	.appointment-stack-card { position: relative; top: auto !important; }
 }
 
 </style>
