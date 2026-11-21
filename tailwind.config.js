@@ -141,8 +141,8 @@ module.exports = {
 			},
 		},
 		fontFamily: {
-			sans: ['Inter', 'sans-serif'],
-			heading: ['Nunito Sans', 'sans-serif'],
+			sans: ['Satoshi', 'system-ui', 'sans-serif'],
+			heading: ['General Sans', 'Satoshi', 'system-ui', 'sans-serif'],
 		},
 		letterSpacing: {
 			1: '0em',

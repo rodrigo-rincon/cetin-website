@@ -82,9 +82,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para Google Fonts - Cache First
-  if (url.hostname.includes('fonts.googleapis.com') || 
-      url.hostname.includes('fonts.gstatic.com')) {
+  // Para el sistema tipográfico CETIN en Fontshare - Cache First
+  if (url.hostname.includes('api.fontshare.com') ||
+      url.hostname.includes('cdn.fontshare.com')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {

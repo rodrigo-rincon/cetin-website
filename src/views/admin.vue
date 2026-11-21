@@ -1557,14 +1557,14 @@ const openPublicSite = () => window.open('/', '_blank', 'noopener');
 
 <style scoped>
 .admin-page {
-	font-family: 'Satoshi', 'Inter', system-ui, sans-serif;
+	font-family: 'Satoshi', system-ui, sans-serif;
 	letter-spacing: -0.01em;
 }
 
 .admin-page h1,
 .admin-page h2,
 .admin-page h3 {
-	font-family: 'General Sans', 'Satoshi', 'Inter', system-ui, sans-serif;
+	font-family: 'General Sans', 'Satoshi', system-ui, sans-serif;
 	letter-spacing: -0.03em;
 }
 
