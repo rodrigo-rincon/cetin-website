@@ -1,3 +1,5 @@
+import proximamenteSucursalImage from '../assets/images/proximamente-sucursal.jpg';
+
 // Contenido editable del sitio web CETIN
 export interface HeroContent {
   badge: string;
@@ -226,7 +228,7 @@ export const defaultContent: SiteContent = {
     title: 'Crecemos para estar cada vez más',
     titleHighlight: 'cerca de ti',
     subtitle: 'Una nueva sucursal está por llegar.',
-    backgroundImage: '/src/assets/images/cetin_ciudad_de_mexico.jpg',
+    backgroundImage: proximamenteSucursalImage,
     backgroundImageKey: '',
   },
   sucursales: [

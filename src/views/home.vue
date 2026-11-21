@@ -17,6 +17,10 @@ import {
 
 const { content } = useReadonlyContent();
 
+const openAppointmentForm = () => {
+	window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
+};
+
 const activeVideoIds = ref<Set<string>>(new Set());
 
 const getYouTubeId = (url: string) => {
@@ -76,30 +80,45 @@ watch(selectedMapBranch, (selectedBranch) => {
 
 // Parallax refs
 const parallaxSucursal = ref<HTMLElement | null>(null);
+let parallaxFrame: number | null = null;
 
 // Parallax scroll handler
 const handleParallax = () => {
-	if (parallaxSucursal.value) {
-		const rect = parallaxSucursal.value.getBoundingClientRect();
-		const scrolled = window.innerHeight - rect.top;
-		if (scrolled > 0 && rect.bottom > 0) {
-			const parallaxValue = scrolled * 0.3;
-			const img = parallaxSucursal.value.querySelector(
-				'.parallax-img',
-			) as HTMLElement;
-			if (img) {
-				img.style.transform = `translateY(${-parallaxValue}px) scale(1.2)`;
-			}
+	if (parallaxFrame !== null) return;
+	parallaxFrame = window.requestAnimationFrame(() => {
+		parallaxFrame = null;
+		const section = parallaxSucursal.value;
+		if (!section) return;
+
+		const img = section.querySelector('.parallax-img') as HTMLElement | null;
+		if (!img) return;
+
+		const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (window.innerWidth < 768 || shouldReduceMotion) {
+			img.style.transform = 'translate3d(0, 0, 0) scale(1.06)';
+			return;
 		}
-	}
+
+		const rect = section.getBoundingClientRect();
+		const progress = Math.min(
+			1,
+			Math.max(0, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)),
+		);
+		const offset = (0.5 - progress) * 40;
+		img.style.transform = `translate3d(0, ${offset}px, 0) scale(1.06)`;
+	});
 };
 
 onMounted(() => {
 	window.addEventListener('scroll', handleParallax, { passive: true });
+	window.addEventListener('resize', handleParallax, { passive: true });
+	handleParallax();
 });
 
 onUnmounted(() => {
 	window.removeEventListener('scroll', handleParallax);
+	window.removeEventListener('resize', handleParallax);
+	if (parallaxFrame !== null) window.cancelAnimationFrame(parallaxFrame);
 });
 
 let mapInstance: MapLibreMap | null = null;
@@ -262,97 +281,43 @@ onUnmounted(() => {
 				v-fade-up="{ delay: 200 }"
 				class="mx-auto mt-10 w-full px-6 lg:mt-12 lg:px-8 xl:px-12"
 			>
-				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-					<!-- Dynamic Videos -->
-					<div v-for="video in content.videosSection.videos" :key="video.id" class="group">
-						<div
-							class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
-						>
-							<!-- Video: el reproductor se carga solo cuando el usuario lo solicita -->
-							<div class="relative aspect-video overflow-hidden bg-slate-950">
-								<iframe
-									v-if="activeVideoIds.has(video.id)"
-									class="w-full h-full"
-									:src="`${video.youtubeUrl}${video.youtubeUrl.includes('?') ? '&' : '?'}autoplay=1`"
-									:title="video.title"
-									loading="lazy"
-									frameborder="0"
-									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-									allowfullscreen
-								></iframe>
-								<button
-									v-else
-									type="button"
-									class="group/play absolute inset-0 flex w-full items-center justify-center overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-pink-400"
-									:aria-label="`Reproducir ${video.title}`"
-									@click="activateVideo(video.id)"
-								>
-									<img v-if="getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover/play:scale-105 group-hover/play:opacity-65" />
-									<span class="absolute flex h-14 w-14 items-center justify-center rounded-full bg-pink-500 text-white shadow-xl transition duration-300 group-hover/play:scale-110 group-hover/play:bg-pink-600" aria-hidden="true">
-										<svg class="ml-1 h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-									</span>
-								</button>
-							</div>
-							<!-- Caption -->
-							<div
-								class="bg-[#0f2a5c] px-4 py-3.5"
+				<div class="video-bento-grid">
+					<article
+						v-for="(video, index) in content.videosSection.videos"
+						:key="video.id"
+						class="video-tile group"
+					>
+						<div class="relative h-full min-h-64 overflow-hidden bg-slate-950">
+							<iframe
+								v-if="activeVideoIds.has(video.id)"
+								class="absolute inset-0 z-20 h-full w-full"
+								:src="`${video.youtubeUrl}${video.youtubeUrl.includes('?') ? '&' : '?'}autoplay=1`"
+								:title="video.title"
+								loading="lazy"
+								frameborder="0"
+								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+								allowfullscreen
+							></iframe>
+							<button
+								v-else
+								type="button"
+								class="group/play absolute inset-0 flex w-full items-center justify-center overflow-hidden text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white"
+								:aria-label="`Reproducir ${video.title}`"
+								@click="activateVideo(video.id)"
 							>
-								<div class="hidden">
-									<div
-										class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-											/>
-										</svg>
-									</div>
-									<div
-										class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center ring-2 ring-[#0f2a5c]"
-									>
-										<svg
-											class="w-4 h-4 text-white"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</div>
-								</div>
-								<h3 class="mb-1 text-sm font-bold text-white">{{ video.title }}</h3>
-								<p class="text-xs leading-relaxed text-slate-300">
-									{{ video.description }}
-								</p>
-							</div>
+								<img v-if="getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-90 transition duration-700 group-hover/play:scale-105" />
+								<span class="video-tile-shade absolute inset-0"></span>
+								<span class="video-episode absolute left-5 top-5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white">Video {{ String(index + 1).padStart(2, '0') }}</span>
+								<span class="video-play absolute right-5 top-5 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl transition duration-300 group-hover/play:rotate-6 group-hover/play:scale-110" aria-hidden="true">
+									<svg class="ml-1 h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+								</span>
+								<span class="absolute inset-x-0 bottom-0 z-10 p-5 text-white lg:p-6">
+									<span class="video-title mb-1 block text-lg font-bold leading-tight lg:text-xl">{{ video.title }}</span>
+									<span class="video-description block max-w-xl text-sm leading-relaxed text-white/80">{{ video.description }}</span>
+								</span>
+							</button>
 						</div>
-					</div>
+					</article>
 				</div>
 			</div>
 		</section>
@@ -964,8 +929,9 @@ onUnmounted(() => {
 
 				<!-- CTA -->
 				<div class="mt-12 text-center">
-					<a
-						href="#contact"
+					<button
+						type="button"
+						@click="openAppointmentForm"
 						class="group inline-flex items-center gap-3 rounded-full bg-pink-500 px-8 py-4 font-semibold text-white shadow-lg shadow-pink-950/20 transition-all duration-300 hover:bg-pink-600 hover:shadow-xl active:scale-[0.98]"
 					>
 						Agendar mi cita
@@ -982,7 +948,7 @@ onUnmounted(() => {
 								d="M17 8l4 4m0 0l-4 4m4-4H3"
 							/>
 						</svg>
-					</a>
+					</button>
 				</div>
 			</div>
 		</section>
@@ -1016,8 +982,8 @@ onUnmounted(() => {
 				<img
 					:src="content.proximamente.backgroundImage || defaultSucursalCover"
 					alt="Nueva sucursal CETIN"
-					class="parallax-img w-full h-[140%] object-cover will-change-transform"
-					style="transform: translateY(0) scale(1.2)"
+					class="parallax-img h-[108%] w-full object-cover object-center will-change-transform lg:object-[65%_center]"
+					style="transform: translate3d(0, 0, 0) scale(1.06)"
 				/>
 				<!-- Overlay gradient -->
 				<div
@@ -1614,7 +1580,157 @@ onUnmounted(() => {
 	transform: translateX(-10px);
 }
 
+.video-bento-grid {
+	display: grid;
+	gap: 1.25rem;
+}
+
+.video-tile {
+	min-width: 0;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	border: 4px solid rgb(255 255 255 / 0.9);
+	border-radius: 1.75rem;
+	box-shadow: 0 18px 45px rgb(15 42 92 / 0.14);
+	transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease;
+}
+
+.dark .video-tile {
+	border-color: rgb(51 65 85 / 0.9);
+	box-shadow: 0 18px 45px rgb(2 6 23 / 0.38);
+}
+
+.video-tile:hover {
+	transform: translateY(-5px) rotate(-0.35deg);
+	box-shadow: 0 24px 55px rgb(15 42 92 / 0.22);
+}
+
+.video-tile:nth-child(even):hover {
+	transform: translateY(-5px) rotate(0.35deg);
+}
+
+.video-tile-shade {
+	background: linear-gradient(to top, rgb(6 18 48 / 0.96) 0%, rgb(6 18 48 / 0.48) 48%, rgb(6 18 48 / 0.04) 78%);
+}
+
+.video-episode,
+.video-play {
+	background: #ec168c;
+}
+
+.video-tile:nth-child(2) .video-episode,
+.video-tile:nth-child(2) .video-play {
+	background: #2563eb;
+}
+
+.video-tile:nth-child(3) .video-episode,
+.video-tile:nth-child(3) .video-play {
+	background: #e7ad09;
+}
+
+.video-tile:nth-child(4) .video-episode,
+.video-tile:nth-child(4) .video-play {
+	background: #19a9a2;
+}
+
+.video-tile > div {
+	height: 100%;
+	min-height: 0;
+}
+
+@media (min-width: 640px) {
+	.video-bento-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1024px) {
+	.video-bento-grid {
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		grid-template-rows: repeat(2, 14rem);
+		gap: 0.75rem;
+	}
+
+	.video-tile {
+		aspect-ratio: auto;
+		grid-column: span 3;
+		margin-top: 0;
+	}
+
+	.video-tile:nth-child(1) {
+		grid-column: 1 / span 6;
+		grid-row: 1 / span 2;
+	}
+
+	.video-tile:nth-child(2) {
+		grid-column: 7 / span 3;
+		grid-row: 1;
+	}
+
+	.video-tile:nth-child(3) {
+		grid-column: 10 / span 3;
+		grid-row: 1;
+	}
+
+	.video-tile:nth-child(4) {
+		grid-column: 7 / span 6;
+		grid-row: 2;
+	}
+
+	.video-tile:nth-child(2) .video-title,
+	.video-tile:nth-child(3) .video-title {
+		font-size: 1rem;
+	}
+
+	.video-tile:nth-child(2) .video-description,
+	.video-tile:nth-child(3) .video-description {
+		display: -webkit-box;
+		overflow: hidden;
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+	}
+
+	.video-tile:nth-child(2) .video-play,
+	.video-tile:nth-child(3) .video-play {
+		height: 2.5rem;
+		width: 2.5rem;
+	}
+
+	.video-tile:nth-child(2) .video-episode,
+	.video-tile:nth-child(3) .video-episode {
+		padding: 0.3rem 0.65rem;
+		font-size: 0.625rem;
+	}
+}
+
+.parallax-img {
+	transition: transform 90ms linear;
+}
+
+@media (max-width: 767px) {
+	.parallax-img {
+		transform: translate3d(0, 0, 0) scale(1.06) !important;
+		transition: none;
+		will-change: auto;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
+	.video-tile,
+	.video-tile:hover,
+	.video-tile:nth-child(even):hover {
+		transform: none;
+		transition: none;
+	}
+
+	.parallax-img {
+		transform: translate3d(0, 0, 0) scale(1.06) !important;
+		transition: none;
+		will-change: auto;
+	}
+
 	.map-panel-enter-active,
 	.map-panel-leave-active,
 	.branch-detail-enter-active,

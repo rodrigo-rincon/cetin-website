@@ -1,127 +1,25 @@
-<template>
-  <div style="min-height:100vh;display:flex;background:#0f2a5c;">
-    <!-- Left side - Branding -->
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(135deg, #0f2a5c 0%, #1a4a8a 100%);padding:40px;position:relative;overflow:hidden;">
-      <!-- Decorative circles -->
-      <div style="position:absolute;top:10%;left:10%;width:200px;height:200px;border:2px solid rgba(255,255,255,0.1);border-radius:50%;"></div>
-      <div style="position:absolute;bottom:20%;right:10%;width:150px;height:150px;border:2px solid rgba(233,30,140,0.3);border-radius:50%;"></div>
-      <div style="position:absolute;top:40%;right:30%;width:80px;height:80px;background:rgba(233,30,140,0.2);border-radius:50%;"></div>
-      
-      <div style="text-align:center;z-index:1;">
-        <div style="width:80px;height:80px;background:#e91e8c;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 10px 40px rgba(233,30,140,0.4);">
-          <svg style="width:40px;height:40px;fill:#fff;" viewBox="0 0 24 24">
-            <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
-          </svg>
-        </div>
-        <h1 style="font-size:36px;font-weight:800;color:#fff;margin:0 0 8px;font-family:'Nunito Sans',sans-serif;">CETIN</h1>
-        <p style="color:rgba(255,255,255,0.7);font-size:16px;margin:0;">Centro de Tamizaje Infantil</p>
-      </div>
-    </div>
-
-    <!-- Right side - Login Form -->
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;background:#f8fafc;padding:40px;">
-      <div style="width:100%;max-width:400px;">
-        <div style="margin-bottom:32px;">
-          <h2 style="font-size:28px;font-weight:700;color:#0f2a5c;margin:0 0 8px;font-family:'Nunito Sans',sans-serif;">Bienvenido</h2>
-          <p style="color:#64748b;font-size:16px;margin:0;">Ingresa tus credenciales para continuar</p>
-        </div>
-
-        <form @submit.prevent="handleLogin" style="display:flex;flex-direction:column;gap:20px;">
-          <div>
-            <label for="email" style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:8px;">Email</label>
-            <div style="position:relative;">
-              <svg style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;#9ca3af;fill:#9ca3af;" viewBox="0 0 24 24">
-                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-              <input 
-                id="email" 
-                v-model="email" 
-                type="email" 
-                placeholder="correo@ejemplo.com"
-                required 
-                style="width:100%;padding:16px 16px 16px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;transition:border-color 0.2s,box-shadow 0.2s;outline:none;box-sizing:border-box;"
-                @focus="setBorderColor($event, '#e91e8c')"
-                @blur="setBorderColor($event, '#e2e8f0')"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label for="password" style="display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:8px;">Password</label>
-            <div style="position:relative;">
-              <svg style="position:absolute;left:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;#9ca3af;fill:#9ca3af;" viewBox="0 0 24 24">
-                <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-              </svg>
-              <input 
-                id="password" 
-                v-model="password" 
-                type="password" 
-                placeholder="••••••••"
-                required 
-                style="width:100%;padding:16px 16px 16px 48px;border:2px solid #e2e8f0;border-radius:12px;font-size:16px;transition:border-color 0.2s,box-shadow 0.2s;outline:none;box-sizing:border-box;"
-                @focus="setBorderColor($event, '#e91e8c')"
-                @blur="setBorderColor($event, '#e2e8f0')"
-              />
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            style="width:100%;background:linear-gradient(135deg, #e91e8c 0%, #d4177d 100%);color:#fff;font-weight:600;padding:16px;border-radius:12px;border:none;cursor:pointer;font-size:16px;box-shadow:0 4px 15px rgba(233,30,140,0.3);transition:transform 0.2s,box-shadow 0.2s;"
-            @mouseover="setTransform($event, 'translateY(-2px)')"
-            @mouseout="setTransform($event, 'translateY(0)')"
-          >
-            Iniciar Sesión
-          </button>
-
-          <button
-            v-if="isLocalPreviewEnabled"
-            type="button"
-            style="width:100%;background:#fff;color:#0f2a5c;font-weight:600;padding:14px;border-radius:12px;border:2px solid #0f2a5c;cursor:pointer;font-size:15px;"
-            @click="handleLocalPreview"
-          >
-            Ver gestor en modo demostración
-          </button>
-          
-          <p v-if="error" style="color:#ef4444;font-size:14px;text-align:center;padding:12px;background:#fef2f2;border-radius:8px;">{{ error }}</p>
-        </form>
-
-        <div style="margin-top:32px;text-align:center;">
-          <a href="/" style="color:#64748b;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
-            <svg style="width:16px;height:16px;fill:currentColor;" viewBox="0 0 24 24">
-              <path d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Volver al inicio
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import { useRouter } from 'vue-router';
+import loginBackground from '../assets/images/cetin-login-background.png';
+import cetinLogo from '../assets/images/cetin_logo.png';
 
 const { login, loginForLocalPreview, error } = useAuth();
 const router = useRouter();
 const email = ref('');
 const password = ref('');
+const showPassword = ref(false);
+const isLoading = ref(false);
 const isLocalPreviewEnabled = import.meta.env.DEV && import.meta.env.VITE_DEV_ADMIN_BYPASS === 'true';
 
-function setBorderColor(event: Event, color: string) {
-  (event.currentTarget as HTMLElement).style.borderColor = color;
-}
-
-function setTransform(event: Event, transform: string) {
-  (event.currentTarget as HTMLElement).style.transform = transform;
-}
-
 async function handleLogin() {
-  const success = await login(email.value, password.value);
-  if (success) {
-    router.push('/admin');
+  if (isLoading.value) return;
+  isLoading.value = true;
+  try {
+    if (await login(email.value, password.value)) await router.push('/admin');
+  } finally {
+    isLoading.value = false;
   }
 }
 
@@ -129,3 +27,57 @@ function handleLocalPreview() {
   if (loginForLocalPreview()) router.push('/admin');
 }
 </script>
+
+<template>
+  <main class="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#edf6fd] px-4 py-7 transition-colors dark:bg-slate-950 sm:px-8 lg:px-0">
+    <img :src="loginBackground" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover object-[38%_center] lg:object-center" />
+    <div class="absolute inset-0 bg-white/30 transition-colors dark:bg-slate-950/45 sm:bg-white/15 lg:bg-transparent"></div>
+
+    <section class="relative z-10 w-full max-w-[475px] rounded-[24px] border border-white/90 bg-white/[0.88] px-7 py-9 shadow-[0_22px_70px_rgba(49,95,143,0.16)] backdrop-blur-xl transition-colors dark:border-slate-700/80 dark:bg-slate-900/[0.92] dark:shadow-black/35 sm:px-11 sm:py-10 lg:absolute lg:left-[50.4%] lg:top-1/2 lg:-translate-y-1/2">
+      <div class="text-center">
+        <div class="mx-auto mb-2 flex h-28 w-28 items-center justify-center">
+          <img :src="cetinLogo" class="h-28 w-28 object-contain" alt="CETIN" />
+        </div>
+        <h1 class="text-[28px] font-extrabold tracking-tight text-[#0f2a5c] dark:text-white">Bienvenido</h1>
+        <p class="mt-1.5 text-[15px] text-slate-500 dark:text-slate-400">Inicia sesión para continuar</p>
+      </div>
+
+      <form class="mt-7 space-y-4" @submit.prevent="handleLogin">
+        <div>
+          <label for="email" class="sr-only">Correo electrónico</label>
+          <div class="relative">
+            <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-10a4 4 0 100-8 4 4 0 000 8z" /></svg>
+            <input id="email" v-model.trim="email" type="email" autocomplete="username" placeholder="Correo electrónico" required class="h-14 w-full rounded-xl border border-slate-200 bg-white/65 pl-12 pr-4 text-[15px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#3296d4] focus:bg-white focus:ring-4 focus:ring-blue-100/80 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-sky-400 dark:focus:bg-slate-800 dark:focus:ring-sky-500/20" />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="sr-only">Contraseña</label>
+          <div class="relative">
+            <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 10V8a6 6 0 0112 0v2m-13 0h14a2 2 0 012 2v8H3v-8a2 2 0 012-2z" /></svg>
+            <input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Contraseña" required class="h-14 w-full rounded-xl border border-slate-200 bg-white/65 pl-12 pr-12 text-[15px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#3296d4] focus:bg-white focus:ring-4 focus:ring-blue-100/80 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-sky-400 dark:focus:bg-slate-800 dark:focus:ring-sky-500/20" />
+            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition hover:bg-blue-50 hover:text-[#0f5fa0] dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-sky-300" :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" @click="showPassword = !showPassword">
+              <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.2A10.7 10.7 0 0112 4c5 0 8.5 4 9.5 6.3a4 4 0 010 3.4 14 14 0 01-2 3M6.6 6.6A14.3 14.3 0 002.5 10.3a4 4 0 000 3.4C3.5 16 7 20 12 20a10.7 10.7 0 004.1-.8" /></svg>
+              <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.5 12S6 5 12 5s9.5 7 9.5 7S18 19 12 19 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" stroke-width="1.8" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <p v-if="error" class="rounded-lg bg-red-50 px-3 py-2.5 text-center text-sm text-red-600 dark:bg-red-950/45 dark:text-red-300">{{ error }}</p>
+
+        <button type="submit" :disabled="isLoading" class="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#147fc8] to-[#2999dc] text-[15px] font-bold text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60">
+          <svg v-if="isLoading" class="h-5 w-5 animate-spin" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" /></svg>
+          {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+        </button>
+
+        <button v-if="isLocalPreviewEnabled" type="button" class="w-full rounded-xl border border-[#0f2a5c]/25 bg-white/70 px-5 py-3 text-sm font-semibold text-[#0f2a5c] transition hover:bg-white dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700" @click="handleLocalPreview">Ver gestor en modo demostración</button>
+      </form>
+
+      <div class="mt-7 flex items-center justify-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 3v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3z" /></svg>
+        Acceso exclusivo para personal autorizado
+      </div>
+      <a href="/" class="mt-5 flex items-center justify-center gap-2 text-xs font-medium text-slate-500 transition hover:text-[#0f5fa0] dark:text-slate-400 dark:hover:text-sky-300">← Volver al inicio</a>
+    </section>
+  </main>
+</template>

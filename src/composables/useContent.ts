@@ -4,6 +4,8 @@ import { API_CONFIG } from '../config/api';
 
 const STORAGE_KEY = 'cetin_site_content';
 const JWT_TOKEN_KEY = 'cetin_jwt_token';
+const PROXIMAMENTE_IMAGE_VERSION_KEY = 'cetin_proximamente_image_version';
+const PROXIMAMENTE_IMAGE_VERSION = '2026-09-10-clinic';
 
 // Estado global reactivo
 const content = ref<SiteContent>(loadContent());
@@ -14,6 +16,14 @@ function loadContent(): SiteContent {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
+      if (localStorage.getItem(PROXIMAMENTE_IMAGE_VERSION_KEY) !== PROXIMAMENTE_IMAGE_VERSION) {
+        parsed.proximamente = {
+          ...parsed.proximamente,
+          backgroundImage: defaultContent.proximamente.backgroundImage,
+          backgroundImageKey: '',
+        };
+        localStorage.setItem(PROXIMAMENTE_IMAGE_VERSION_KEY, PROXIMAMENTE_IMAGE_VERSION);
+      }
       // Merge con defaultContent para asegurar que tenemos todas las propiedades
       return mergeSiteContent(parsed);
     }
@@ -25,6 +35,15 @@ function loadContent(): SiteContent {
 
 function mergeSiteContent(source: Partial<SiteContent>): SiteContent {
   const merged = deepMerge(defaultContent, source);
+
+  // Migra el fondo local anterior sin sustituir imágenes cargadas desde el gestor.
+  if (
+    !merged.proximamente.backgroundImage ||
+    merged.proximamente.backgroundImage.includes('cetin_ciudad_de_mexico')
+  ) {
+    merged.proximamente.backgroundImage = defaultContent.proximamente.backgroundImage;
+  }
+
   if (Array.isArray(source.sucursales)) {
     const storedBranches = source.sucursales as Array<
       Partial<SiteContent['sucursales'][number]> & Pick<SiteContent['sucursales'][number], 'id'>

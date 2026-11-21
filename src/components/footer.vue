@@ -117,28 +117,28 @@ const currentYear = new Date().getFullYear();
 					<ul class="space-y-3">
 						<li>
 							<a
-								href="#us"
+								href="/#us"
 								class="text-gray-400 hover:text-pink-500 transition-colors"
 								>Nosotros</a
 							>
 						</li>
 						<li>
 							<a
-								href="#services-info"
+								href="/#services-info"
 								class="text-gray-400 hover:text-pink-500 transition-colors"
 								>Servicios</a
 							>
 						</li>
 						<li>
 							<a
-								href="#clients"
+								href="/#clients"
 								class="text-gray-400 hover:text-pink-500 transition-colors"
 								>Testimonios</a
 							>
 						</li>
 						<li>
 							<a
-								href="#contact"
+								href="/#contact"
 								class="text-gray-400 hover:text-pink-500 transition-colors"
 								>Contacto</a
 							>
@@ -161,13 +161,13 @@ const currentYear = new Date().getFullYear();
 						</span>
 						Contáctanos al
 					</h4>
-					<div class="flex gap-3 justify-center md:justify-start">
+					<div class="social-links">
 						<a
 							href="https://www.facebook.com/cetinpuebla"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar Facebook de CETIN"
-							class="w-14 h-14 bg-gray-800 hover:bg-blue-600 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/30"
+							class="social-link social-link--facebook group"
 						>
 							<svg
 								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
@@ -178,13 +178,15 @@ const currentYear = new Date().getFullYear();
 									d="M9.602 21.026v-7.274H6.818a.545.545 0 0 1-.545-.545V10.33a.545.545 0 0 1 .545-.545h2.773V7a4.547 4.547 0 0 1 4.86-4.989h2.32a.556.556 0 0 1 .557.546v2.436a.557.557 0 0 1-.557.545h-1.45c-1.566 0-1.867.742-1.867 1.833v2.413h3.723a.533.533 0 0 1 .546.603l-.337 2.888a.545.545 0 0 1-.545.476h-3.364v7.274a.96.96 0 0 1-.975.974h-1.937a.96.96 0 0 1-.963-.974"
 								/>
 							</svg>
+							<span class="social-label">Facebook</span>
+							<span class="social-arrow" aria-hidden="true">↗</span>
 						</a>
 						<a
 							href="https://www.instagram.com/cetin.puebla/"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar Instagram de CETIN"
-							class="w-14 h-14 bg-gray-800 hover:bg-gradient-to-br hover:from-purple-600 hover:via-pink-500 hover:to-orange-400 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-500/30"
+							class="social-link social-link--instagram group"
 						>
 							<svg
 								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
@@ -195,13 +197,15 @@ const currentYear = new Date().getFullYear();
 									d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
 								/>
 							</svg>
+							<span class="social-label">Instagram</span>
+							<span class="social-arrow" aria-hidden="true">↗</span>
 						</a>
 						<a
 							href="https://www.tiktok.com/@cetinpuebla"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar TikTok de CETIN"
-							class="w-14 h-14 bg-gray-800 hover:bg-black rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-500/30"
+							class="social-link social-link--tiktok group"
 						>
 							<svg
 								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
@@ -212,13 +216,15 @@ const currentYear = new Date().getFullYear();
 									d="M16 8.245V15.5a6.5 6.5 0 1 1-5-6.326v3.163a3.5 3.5 0 1 0 2 3.163V2h3a5 5 0 0 0 5 5v3a7.97 7.97 0 0 1-5-1.755"
 								/>
 							</svg>
+							<span class="social-label">TikTok</span>
+							<span class="social-arrow" aria-hidden="true">↗</span>
 						</a>
 						<a
-							href="https://www.youtube.com/@CETINPuebla"
+							href="https://www.youtube.com/@CETINco"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar YouTube de CETIN"
-							class="w-14 h-14 bg-gray-800 hover:bg-red-600 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-110 hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/30"
+							class="social-link social-link--youtube group"
 						>
 							<svg
 								class="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
@@ -229,6 +235,8 @@ const currentYear = new Date().getFullYear();
 									d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
 								/>
 							</svg>
+							<span class="social-label">YouTube</span>
+							<span class="social-arrow" aria-hidden="true">↗</span>
 						</a>
 					</div>
 				</div>
@@ -245,14 +253,130 @@ const currentYear = new Date().getFullYear();
 						© {{ currentYear }} CETIN - Centro de Tamizaje Infantil. Todos los
 						derechos reservados.
 					</p>
-					<div class="flex items-center gap-2">
-						<span class="w-2 h-2 bg-pink-500 rounded-full"></span>
-						<span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-						<span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
-						<span class="w-2 h-2 bg-red-500 rounded-full"></span>
-					</div>
+					<nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-semibold text-gray-400" aria-label="Enlaces legales">
+						<router-link class="transition-colors hover:text-white" to="/aviso-de-privacidad">Aviso de privacidad</router-link>
+						<router-link class="transition-colors hover:text-white" to="/terminos-y-condiciones">Términos y condiciones</router-link>
+						<router-link class="transition-colors hover:text-white" to="/politica-de-cookies">Cookies y tecnologías</router-link>
+					</nav>
 				</div>
 			</div>
 		</div>
 	</footer>
 </template>
+
+<style scoped>
+.social-links {
+	display: grid;
+	gap: 0.65rem;
+}
+
+.social-link {
+	position: relative;
+	display: grid;
+	grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.75rem;
+	overflow: hidden;
+	min-height: 3.5rem;
+	padding: 0.45rem 0.75rem 0.45rem 0.5rem;
+	border: 1px solid rgb(255 255 255 / 0.1);
+	border-radius: 1rem;
+	background: rgb(31 41 55 / 0.72);
+	color: white;
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+	transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
+}
+
+.social-link::before {
+	position: absolute;
+	inset: 0;
+	content: '';
+	opacity: 0;
+	transition: opacity 240ms ease;
+}
+
+.social-link svg,
+.social-label,
+.social-arrow {
+	position: relative;
+	z-index: 1;
+}
+
+.social-link svg {
+	width: 2.5rem;
+	height: 2.5rem;
+	padding: 0.65rem;
+	border-radius: 0.75rem;
+	background: rgb(255 255 255 / 0.1);
+	transition: transform 240ms ease, background 240ms ease;
+}
+
+.social-label {
+	font-size: 0.875rem;
+	font-weight: 650;
+	text-align: left;
+}
+
+.social-arrow {
+	font-size: 1rem;
+	color: rgb(156 163 175);
+	transition: transform 240ms ease, color 240ms ease;
+}
+
+.social-link:hover,
+.social-link:focus-visible {
+	transform: translateX(5px);
+	border-color: rgb(255 255 255 / 0.24);
+	box-shadow: 0 12px 30px rgb(0 0 0 / 0.24);
+	outline: none;
+}
+
+.social-link:hover::before,
+.social-link:focus-visible::before {
+	opacity: 1;
+}
+
+.social-link:hover svg,
+.social-link:focus-visible svg {
+	transform: rotate(-5deg) scale(1.08);
+	background: rgb(255 255 255 / 0.18);
+}
+
+.social-link:hover .social-arrow,
+.social-link:focus-visible .social-arrow {
+	transform: translate(2px, -2px);
+	color: white;
+}
+
+.social-link--facebook::before {
+	background: linear-gradient(100deg, #1877f2 0%, #0d5bc4 100%);
+}
+
+.social-link--instagram::before {
+	background: linear-gradient(100deg, #833ab4 0%, #e1306c 52%, #f77737 100%);
+}
+
+.social-link--tiktok::before {
+	background: linear-gradient(100deg, #050505 0%, #17202a 55%, #00f2ea 160%);
+}
+
+.social-link--youtube::before {
+	background: linear-gradient(100deg, #ff0033 0%, #c80027 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.social-link,
+	.social-link::before,
+	.social-link svg,
+	.social-arrow {
+		transition: none;
+	}
+
+	.social-link:hover,
+	.social-link:focus-visible,
+	.social-link:hover svg,
+	.social-link:focus-visible svg {
+		transform: none;
+	}
+}
+</style>

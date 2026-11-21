@@ -71,6 +71,11 @@ const hideMenuModal = () => {
 	showModal.value = false;
 };
 
+const openAppointmentForm = () => {
+	hideMenuModal();
+	window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
+};
+
 const getSection = (section: string) => {
 	switch (section) {
 		case 'home':
@@ -233,8 +238,9 @@ const toSection = (section: string) => {
 					</svg>
 				</button>
 
-				<a
-					href="#contact"
+				<button
+					type="button"
+					@click="openAppointmentForm"
 					class="group inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-pink-600 hover:shadow-lg hover:shadow-pink-500/25 active:scale-[0.98]"
 				>
 					<svg
@@ -250,8 +256,8 @@ const toSection = (section: string) => {
 							d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
 						/>
 					</svg>
-					Contáctanos
-				</a>
+					Agendar cita
+				</button>
 			</div>
 
 			<!-- Menú móvil -->
@@ -411,9 +417,9 @@ const toSection = (section: string) => {
 
 				<!-- CTA en mobile -->
 				<div class="p-6 border-t dark:border-slate-700">
-					<a
-						href="#contact"
-						@click="hideMenuModal"
+					<button
+						type="button"
+						@click="openAppointmentForm"
 						class="flex items-center justify-center w-full bg-primary hover:bg-pink-600 text-white font-semibold px-6 py-4 rounded-xl transition"
 					>
 						<svg
@@ -429,8 +435,8 @@ const toSection = (section: string) => {
 								d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
 							/>
 						</svg>
-						Contáctanos
-					</a>
+						Agendar cita
+					</button>
 				</div>
 			</div>
 		</transition>

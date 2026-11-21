@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useContent } from '../composables/useContent';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
@@ -31,8 +31,10 @@ const {
   resetContent 
 } = useContent();
 
-// Tabs
-const activeTab = ref<'hero' | 'videos' | 'stats' | 'services' | 'altruista' | 'proximamente' | 'sucursales' | 'contact' | 'footer'>('hero');
+type AdminSection = 'hero' | 'videos' | 'stats' | 'services' | 'altruista' | 'proximamente' | 'sucursales' | 'contact' | 'footer';
+
+// Navigation
+const activeTab = ref<AdminSection>('hero');
 
 // Hero Form
 const heroForm = reactive({
@@ -181,8 +183,15 @@ onMounted(() => {
 
 // Notification
 const notification = ref('');
+const saveStatus = ref('Sin cambios guardados en esta sesión');
+const savedAt = ref('');
 const showNotification = (message: string) => {
   notification.value = message;
+  saveStatus.value = message;
+  savedAt.value = new Intl.DateTimeFormat('es-MX', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date());
   setTimeout(() => {
     notification.value = '';
   }, 3000);
@@ -649,42 +658,82 @@ const handleLogout = () => {
   router.replace('/login');
 };
 
-const tabs = [
-  { id: 'hero', label: 'Hero' },
-  { id: 'videos', label: 'Videos' },
-  { id: 'stats', label: 'Estadísticas' },
-  { id: 'services', label: 'Servicios' },
-  { id: 'altruista', label: 'Labor Altruista' },
-  { id: 'proximamente', label: 'Próximamente' },
-  { id: 'sucursales', label: 'Sucursales' },
-  { id: 'contact', label: 'Contacto' },
-  { id: 'footer', label: 'Footer' },
+interface NavigationGroup {
+  label: string;
+  items: Array<{ id: AdminSection; label: string; description: string }>;
+}
+
+const navigationGroups: NavigationGroup[] = [
+  {
+    label: 'PÁGINA PRINCIPAL',
+    items: [
+      { id: 'hero', label: 'Portada', description: 'Mensaje principal y llamados a la acción.' },
+      { id: 'videos', label: 'Videos', description: 'Encabezado y cápsulas informativas.' },
+      { id: 'stats', label: 'Estadísticas', description: 'Cifras visibles en la página.' },
+    ],
+  },
+  {
+    label: 'CONTENIDO',
+    items: [
+      { id: 'services', label: 'Servicios', description: 'Tamices, textos y tarjetas de servicio.' },
+      { id: 'altruista', label: 'Labor altruista', description: 'Visibilidad, texto y video de la iniciativa.' },
+      { id: 'proximamente', label: 'Próximamente', description: 'Anuncio de apertura y su imagen de fondo.' },
+    ],
+  },
+  {
+    label: 'INFORMACIÓN INSTITUCIONAL',
+    items: [
+      { id: 'sucursales', label: 'Sucursales', description: 'Datos de contacto, ubicación y portada.' },
+      { id: 'contact', label: 'Contacto', description: 'Canales de atención del sitio.' },
+      { id: 'footer', label: 'Pie de página', description: 'Redes sociales y aviso de copyright.' },
+    ],
+  },
 ];
+
+const activeSection = computed(() =>
+  navigationGroups.flatMap(group => group.items).find(item => item.id === activeTab.value)
+  ?? navigationGroups[0].items[0],
+);
+
+const openPublicSite = () => window.open('/', '_blank', 'noopener');
 </script>
 
 <template>
   <div class="admin-page min-h-screen bg-gray-100">
     <!-- Header -->
-    <header class="bg-[#0f2a5c] text-white shadow-lg sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0f2a5c] text-white shadow-lg">
+      <div class="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div class="flex min-w-0 items-center gap-3">
           <img
             :src="cetinLogo"
             alt="CETIN"
-            class="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-white object-contain p-1"
+            class="h-10 w-10 shrink-0 rounded-lg bg-white object-contain p-1 sm:h-11 sm:w-11"
           />
-          <h1 class="text-2xl font-bold">Gestor de Contenido</h1>
+          <div class="min-w-0">
+            <p class="text-[10px] font-semibold tracking-[0.16em] text-white/60">ADMINISTRACIÓN WEB</p>
+            <h1 class="truncate text-lg font-bold sm:text-xl">Gestor de contenido</h1>
+          </div>
         </div>
-        <div class="flex items-center gap-2 sm:gap-3">
-          <button 
-            @click="handleReset"
-            class="px-3 sm:px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors text-sm font-medium"
+        <div class="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            @click="openPublicSite"
+            class="hidden items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-[#0f2a5c] transition hover:bg-slate-100 sm:inline-flex"
           >
-            Restaurar Todo
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3h6m0 0v6m0-6L10 14m-2 7H5a2 2 0 01-2-2V6a2 2 0 012-2h7" /></svg>
+            Ver sitio
           </button>
           <button
+            type="button"
+            @click="handleReset"
+            class="hidden rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white lg:inline-flex"
+          >
+            Restaurar contenido
+          </button>
+          <button
+            type="button"
             @click="handleLogout"
-            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 border border-white/40 hover:bg-white/10 rounded-lg transition-colors text-sm font-medium"
+            class="inline-flex items-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-sm font-medium transition hover:bg-white/10"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
@@ -715,23 +764,65 @@ const tabs = [
       </div>
     </Transition>
 
-    <div class="max-w-7xl mx-auto px-6 py-8">
-      <!-- Tabs -->
-      <div class="flex flex-wrap gap-2 mb-8 bg-white rounded-xl p-2 shadow-sm">
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          @click="activeTab = tab.id as any"
-          :class="[
-            'px-4 py-2 rounded-lg font-medium transition-all text-sm',
-            activeTab === tab.id 
-              ? 'bg-pink-500 text-white shadow-md' 
-              : 'text-gray-600 hover:bg-gray-100'
-          ]"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
+    <div class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:py-8">
+      <section class="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.14em] text-pink-600">Contenido público</p>
+          <h2 class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">Edita el sitio de forma ordenada</h2>
+          <p class="mt-1 text-sm text-slate-500">Selecciona una sección, realiza los ajustes y guarda únicamente ese bloque.</p>
+        </div>
+        <div class="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-slate-100">
+          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+          </span>
+          <div>
+            <p class="text-sm font-semibold text-slate-700">{{ saveStatus }}</p>
+            <p class="text-xs text-slate-500">{{ savedAt ? `Última acción: ${savedAt}` : 'Los cambios se guardan por sección.' }}</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:sticky lg:top-24">
+          <div class="border-b border-slate-100 px-5 py-4">
+            <p class="text-sm font-bold text-slate-800">Secciones del sitio</p>
+            <p class="mt-1 text-xs leading-5 text-slate-500">Organizadas según dónde aparecen en la página pública.</p>
+          </div>
+          <nav class="max-h-[calc(100vh-9rem)] overflow-y-auto p-3" aria-label="Secciones administrables">
+            <div v-for="group in navigationGroups" :key="group.label" class="mb-5 last:mb-0">
+              <p class="px-2 pb-2 text-[10px] font-bold tracking-[0.14em] text-slate-400">{{ group.label }}</p>
+              <button
+                v-for="tab in group.items"
+                :key="tab.id"
+                type="button"
+                @click="activeTab = tab.id"
+                :class="[
+                  'mb-1 flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition',
+                  activeTab === tab.id ? 'bg-[#0f2a5c] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                ]"
+              >
+                <span :class="['mt-1 h-2 w-2 shrink-0 rounded-full', activeTab === tab.id ? 'bg-pink-400' : 'bg-slate-300']"></span>
+                <span class="min-w-0">
+                  <span class="block text-sm font-semibold">{{ tab.label }}</span>
+                  <span :class="['mt-0.5 block text-xs leading-4', activeTab === tab.id ? 'text-white/70' : 'text-slate-400']">{{ tab.description }}</span>
+                </span>
+              </button>
+            </div>
+          </nav>
+          <div class="border-t border-slate-100 p-3">
+            <button type="button" @click="handleReset" class="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-600">Restaurar contenido predeterminado</button>
+          </div>
+        </aside>
+
+        <main class="min-w-0">
+          <div class="mb-4 flex items-start gap-3 px-1">
+            <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-pink-500"></span>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Editando ahora</p>
+              <h2 class="text-lg font-bold text-slate-900">{{ activeSection.label }}</h2>
+              <p class="text-sm text-slate-500">{{ activeSection.description }}</p>
+            </div>
+          </div>
 
       <!-- Hero Tab -->
       <div v-show="activeTab === 'hero'" class="bg-white rounded-2xl shadow-sm p-8">
@@ -1319,13 +1410,13 @@ const tabs = [
                   <p><span class="font-medium text-gray-500">Plus Code:</span> <span class="text-gray-800">{{ sucursal.plus || 'Pendiente' }}</span></p>
                 </div>
               </div>
-              <div class="flex gap-2 lg:justify-self-end">
-                <button @click="startEditSucursal(sucursal.id)" class="p-2 text-gray-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors">
+              <div class="flex shrink-0 self-start items-start gap-2 lg:justify-self-end">
+                <button @click="startEditSucursal(sucursal.id)" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-pink-50 hover:text-pink-500" aria-label="Editar sucursal">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </button>
-                <button @click="handleRemoveSucursal(sucursal.id)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                <button @click="handleRemoveSucursal(sucursal.id)" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500" aria-label="Eliminar sucursal">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
@@ -1406,6 +1497,8 @@ const tabs = [
           </div>
         </div>
       </div>
+        </main>
+      </div>
     </div>
 
     <Teleport to="body">
@@ -1463,6 +1556,30 @@ const tabs = [
 </template>
 
 <style scoped>
+.admin-page {
+	font-family: 'Satoshi', 'Inter', system-ui, sans-serif;
+	letter-spacing: -0.01em;
+}
+
+.admin-page h1,
+.admin-page h2,
+.admin-page h3 {
+	font-family: 'General Sans', 'Satoshi', 'Inter', system-ui, sans-serif;
+	letter-spacing: -0.03em;
+}
+
+.admin-page button,
+.admin-page input,
+.admin-page textarea,
+.admin-page select {
+	font-family: inherit;
+}
+
+.admin-page .font-mono {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	letter-spacing: 0;
+}
+
 .admin-page input:not([type='checkbox']),
 .admin-page textarea,
 .admin-page select {

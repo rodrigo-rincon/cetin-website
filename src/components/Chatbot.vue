@@ -296,7 +296,7 @@ const handleKeyPress = (e: KeyboardEvent) => {
               @keypress="handleKeyPress"
               type="text"
               placeholder="Escribe un mensaje..."
-              class="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-700 rounded-xl text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              class="flex-1 rounded-xl border border-transparent bg-gray-100 px-4 py-2.5 text-sm text-gray-700 placeholder:text-gray-400 outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-pink-400/70 dark:focus:ring-pink-400/20"
             />
             <button
               @click="sendMessage"

@@ -4,9 +4,11 @@ import { useRoute } from 'vue-router';
 import Header from '../components/header.vue';
 import Footer from '../components/footer.vue';
 import Chatbot from '../components/Chatbot.vue';
+import AppointmentWhatsAppModal from '../components/AppointmentWhatsAppModal.vue';
 
 const route = useRoute();
 const showLayout = computed(() => route.path === '/');
+const showFooter = computed(() => showLayout.value || route.meta.legalDocument);
 </script>
 
 <template>
@@ -20,9 +22,10 @@ const showLayout = computed(() => route.path === '/');
 		<div class="container-section w-full overflow-hidden relative" :class="{ 'pt-0': !showLayout }">
 			<router-view></router-view>
 		</div>
-		<Footer v-if="showLayout"></Footer>
+		<Footer v-if="showFooter"></Footer>
 
 		<!-- Chatbot -->
 		<Chatbot v-if="showLayout" />
+		<AppointmentWhatsAppModal v-if="showLayout" />
 	</div>
 </template>

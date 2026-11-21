@@ -89,8 +89,9 @@
 					<div
 						class="mt-2 flex flex-col justify-center gap-3 sm:flex-row sm:justify-start"
 					>
-						<a
-							href="#contact"
+						<button
+							type="button"
+							@click="openAppointmentForm"
 							class="group inline-flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/40 active:scale-95"
 						>
 							<svg
@@ -107,7 +108,7 @@
 								/>
 							</svg>
 							{{ content.hero.ctaPrimary }}
-						</a>
+						</button>
 						<a
 							href="#services-info"
 							class="group inline-flex items-center justify-center bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 font-semibold px-7 py-3.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
@@ -255,6 +256,10 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useReadonlyContent } from '../composables/useContent';
 
 const { content } = useReadonlyContent();
+
+const openAppointmentForm = () => {
+	window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
+};
 
 // Parallax refs
 const parallaxBg = ref<HTMLElement | null>(null);

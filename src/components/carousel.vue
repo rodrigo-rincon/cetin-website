@@ -78,7 +78,7 @@ const sourceLabel = (testimonial: Testimonial) =>
 				Sucursal
 				<select
 					v-model="selectedBranch"
-					class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:focus:ring-pink-900/30"
+					class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-pink-400 dark:focus:ring-pink-400/20"
 					@change="selectBranch"
 				>
 					<option value="">Todas</option>
