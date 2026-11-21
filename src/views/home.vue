@@ -929,9 +929,11 @@ onUnmounted(() => {
 					alt="Nueva sucursal CETIN"
 					class="h-full w-full object-cover object-center lg:object-[65%_center]"
 				/>
-				<!-- Overlay gradient -->
+				<!-- Dark overlay that preserves the image while guaranteeing text contrast -->
+				<div class="absolute inset-0" style="background: rgba(2, 6, 23, 0.68)"></div>
 				<div
-					class="absolute inset-0 bg-[#0f2a5c]/68 dark:bg-[#071a38]/78"
+					class="absolute inset-0"
+					style="background: linear-gradient(to bottom, rgba(7, 26, 56, 0.28), rgba(7, 26, 56, 0.72), rgba(7, 26, 56, 0.5))"
 				></div>
 			</div>
 
@@ -948,11 +950,11 @@ onUnmounted(() => {
 
 			<div
 				v-scale-up
-				class="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10"
+				class="relative z-10 mx-auto max-w-4xl px-6 text-center lg:px-12"
 			>
 				<!-- Badge -->
 				<div
-					class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6"
+					class="mb-6 inline-flex items-center gap-2 rounded-lg border border-white/20 bg-slate-950/35 px-4 py-2 backdrop-blur-sm"
 				>
 					<span class="relative flex h-2 w-2">
 						<span
@@ -969,12 +971,12 @@ onUnmounted(() => {
 				</div>
 
 				<h2
-					class="text-3xl md:text-4xl font-bold text-slate-100 leading-tight mb-4"
+					class="mb-4 text-3xl font-bold leading-tight text-white [text-shadow:0_2px_14px_rgba(0,0,0,0.45)] md:text-4xl"
 				>
 					{{ content.proximamente.title }}
 					<span class="text-pink-400">{{ content.proximamente.titleHighlight }}</span>
 				</h2>
-				<p class="text-xl lg:text-2xl text-slate-300">
+				<p class="text-xl font-medium text-white/90 [text-shadow:0_2px_10px_rgba(0,0,0,0.45)] lg:text-2xl">
 					{{ content.proximamente.subtitle }}
 				</p>
 			</div>
