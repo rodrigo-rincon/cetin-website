@@ -12,7 +12,7 @@ const showFooter = computed(() => showLayout.value || route.meta.legalDocument);
 </script>
 
 <template>
-	<div class="bg-white dark:bg-slate-900 w-full relative">
+	<div class="bg-white dark:bg-slate-900 w-full relative" :class="{ 'public-site': showLayout }">
 		<div
 			v-if="showLayout"
 			class="fixed bg-white dark:bg-slate-900 flex justify-center items-center w-full z-50"

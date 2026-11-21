@@ -30,6 +30,44 @@ h1, h2, h3, h4, h5, h6,
 	font-family: 'General Sans', 'Satoshi', system-ui, sans-serif;
 }
 
+/* A restrained, shared response for controls on the public website. */
+.public-site :where(button:not(:disabled), a[class*='bg-'], a[class*='border-']) {
+	position: relative;
+	top: 0;
+	transition-property: top, color, background-color, border-color, box-shadow, opacity, transform;
+	transition-duration: 180ms;
+	transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.public-site :where(button:not(:disabled), a[class*='bg-'], a[class*='border-']):hover {
+		top: -1px;
+		box-shadow: 0 8px 20px rgb(15 42 92 / 0.12);
+	}
+}
+
+.public-site :where(button:not(:disabled), a[class*='bg-'], a[class*='border-']):active {
+	top: 1px;
+	box-shadow: 0 2px 8px rgb(15 42 92 / 0.1);
+	transition-duration: 90ms;
+}
+
+.public-site :where(button, a[class*='bg-'], a[class*='border-']):focus-visible {
+	outline: 2px solid rgb(236 72 153 / 0.75);
+	outline-offset: 3px;
+}
+
+.dark .public-site :where(button:not(:disabled), a[class*='bg-'], a[class*='border-']):hover {
+	box-shadow: 0 8px 20px rgb(0 0 0 / 0.24);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.public-site :where(button, a[class*='bg-'], a[class*='border-']) {
+		top: 0 !important;
+		transition-duration: 0.01ms;
+	}
+}
+
 .nav-link {
 	font-weight: 600;
 	position: relative;
