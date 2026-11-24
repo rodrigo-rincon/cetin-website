@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Carousel from '../components/carousel.vue';
@@ -25,21 +26,31 @@ const activeVideoIds = ref<Set<string>>(new Set());
 const appointmentStory = ref<HTMLElement | null>(null);
 const appointmentProgress = ref(0);
 const compactAppointmentScene = ref(false);
-let appointmentFrame: number | null = null;
+let appointmentTrigger: ScrollTrigger | null = null;
 
 const clamp = (value: number, min = 0, max = 1) =>
 	Math.min(max, Math.max(min, value));
 
-const updateAppointmentStory = () => {
-	if (appointmentFrame !== null) return;
-	appointmentFrame = window.requestAnimationFrame(() => {
-		appointmentFrame = null;
-		const section = appointmentStory.value;
-		if (!section) return;
-		compactAppointmentScene.value = window.innerWidth < 720;
-		const rect = section.getBoundingClientRect();
-		const distance = Math.max(1, section.offsetHeight - window.innerHeight);
-		appointmentProgress.value = clamp(-rect.top / distance);
+const updateAppointmentLayout = () => {
+	compactAppointmentScene.value = window.innerWidth < 720;
+};
+
+const initAppointmentStory = () => {
+	appointmentTrigger?.kill();
+	const section = appointmentStory.value;
+	const scene = section?.querySelector<HTMLElement>('.appointment-sticky');
+	if (!section || !scene || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+	appointmentTrigger = ScrollTrigger.create({
+		trigger: section,
+		start: 'top top',
+		end: 'bottom bottom',
+		pin: scene,
+		pinSpacing: false,
+		invalidateOnRefresh: true,
+		onUpdate: ({ progress }) => {
+			appointmentProgress.value = progress;
+		},
 	});
 };
 
@@ -220,15 +231,15 @@ const initMap = async () => {
 
 onMounted(() => {
 	void initMap();
-	window.addEventListener('scroll', updateAppointmentStory, { passive: true });
-	window.addEventListener('resize', updateAppointmentStory, { passive: true });
-	updateAppointmentStory();
+	window.addEventListener('resize', updateAppointmentLayout, { passive: true });
+	updateAppointmentLayout();
+	initAppointmentStory();
 });
 
 onUnmounted(() => {
-	window.removeEventListener('scroll', updateAppointmentStory);
-	window.removeEventListener('resize', updateAppointmentStory);
-	if (appointmentFrame !== null) window.cancelAnimationFrame(appointmentFrame);
+	window.removeEventListener('resize', updateAppointmentLayout);
+	appointmentTrigger?.kill();
+	appointmentTrigger = null;
 	mapInstance?.remove();
 	mapInstance = null;
 	mapMarkerElements.clear();
@@ -563,7 +574,7 @@ onUnmounted(() => {
 			ref="appointmentStory"
 			class="editorial-section order-5 relative h-[500vh] bg-[#0f2a5c]"
 		>
-			<div class="sticky top-0 h-screen overflow-hidden">
+			<div class="appointment-sticky relative h-screen overflow-hidden">
 				<div class="appointment-scene-title absolute inset-x-0 top-[10vh] z-10 px-6 text-center" :style="{ opacity: Math.max(0.25, 1 - appointmentProgress * 2.2), transform: `translateY(${-appointmentProgress * 32}px)` }">
 					<p class="mb-3 text-sm font-semibold text-pink-300">Tu cita en tres pasos</p>
 					<h2 class="text-3xl font-semibold text-white lg:text-5xl">¿Cómo agendar una cita?</h2>
@@ -1675,7 +1686,7 @@ onUnmounted(() => {
 
 @media (prefers-reduced-motion: reduce) {
 	#services { height: auto !important; padding: 5rem 1.5rem; }
-	#services > .sticky { position: relative; height: auto; overflow: visible; }
+	#services > .appointment-sticky { position: relative; height: auto; overflow: visible; }
 	.appointment-scene-title { position: relative; top: auto; opacity: 1 !important; transform: none !important; }
 	.appointment-scene { position: relative; display: grid; gap: 1rem; margin-top: 3rem; }
 	.appointment-scene-card { position: relative; top: auto; left: auto; width: 100%; min-height: auto; opacity: 1 !important; transform: none !important; }
