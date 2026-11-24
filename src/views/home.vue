@@ -338,7 +338,7 @@ onUnmounted(() => {
 
 				<div class="grid items-stretch gap-10 lg:grid-cols-12 lg:gap-16">
 					<div v-slide-right class="lg:col-span-5">
-						<div class="flex h-full min-h-[29rem] flex-col rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-sm transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9">
+						<div class="clay-card flex h-full min-h-[29rem] flex-col rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-sm transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9">
 							<span class="text-sm font-semibold text-pink-500">Nuestro respaldo</span>
 							<h3 class="mt-6 text-2xl font-semibold leading-tight text-[#0f2a5c] dark:text-white lg:text-[1.75rem]">
 								Tecnología avanzada para detectar enfermedades con precisión
@@ -358,7 +358,7 @@ onUnmounted(() => {
 								</div>
 							</div>
 
-							<a href="#services-info" class="mt-4 inline-flex items-center justify-center rounded-lg bg-pink-500 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
+							<a href="#services-info" class="clay-action mt-4 inline-flex items-center justify-center rounded-lg bg-pink-500 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300">
 								Conocer nuestros tamices <span class="ml-2" aria-hidden="true">→</span>
 							</a>
 						</div>
@@ -478,7 +478,7 @@ onUnmounted(() => {
 						<!-- Glow effect -->
 
 						<div
-							class="labor-media-frame relative bg-white rounded-2xl p-6 lg:p-8 overflow-hidden"
+						class="clay-card labor-media-frame relative bg-white rounded-2xl p-6 lg:p-8 overflow-hidden"
 						>
 							<!-- Video wrapper with aspect ratio -->
 							<div
@@ -816,7 +816,7 @@ onUnmounted(() => {
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
 					<!-- Corporativo Card - Principal -->
 					<div
-						class="group relative overflow-hidden rounded-2xl border border-[#24477c] bg-[#0f2a5c] p-6 shadow-sm lg:p-8"
+					class="clay-card clay-card--dark group relative overflow-hidden rounded-2xl border border-[#24477c] bg-[#0f2a5c] p-6 shadow-sm lg:p-8"
 					>
 						<!-- Decorative elements -->
 						<div
@@ -899,7 +899,7 @@ onUnmounted(() => {
 					<!-- Email Card -->
 					<a
 						href="mailto:cetincorporativo@gmail.com"
-					class="group relative overflow-hidden rounded-2xl border border-pink-400 bg-pink-500 p-6 shadow-sm lg:p-8"
+					class="clay-card clay-card--accent group relative overflow-hidden rounded-2xl border border-pink-400 bg-pink-500 p-6 shadow-sm lg:p-8"
 					>
 						<!-- Decorative elements -->
 						<div
@@ -970,7 +970,7 @@ onUnmounted(() => {
 					<article
 						v-for="(sucursal, index) in content.sucursales"
 						:key="sucursal.id"
-						class="branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
+						class="clay-card clay-card--dark branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
 						:class="[getBranchLayoutClass(index, content.sucursales.length), { 'is-active': selectedMapBranch?.id === sucursal.id }]"
 					>
 						<img
@@ -1028,7 +1028,7 @@ onUnmounted(() => {
 				<!-- Map with all locations -->
 				<div class="relative">
 					<div
-						class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+						class="clay-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
 						style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.1);"
 					>
 						<div id="cetin-map" style="width:100%;height:360px;min-height:320px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
@@ -1096,7 +1096,7 @@ onUnmounted(() => {
 					</p>
 				</div>
 
-				<div class="commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900/60 sm:px-8">
+				<div class="clay-card commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900/60 sm:px-8">
 					<div v-fade-up="{ delay: 80 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 py-7 sm:gap-6 sm:py-8">
 						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-pink-200 bg-pink-50 text-pink-500 dark:border-pink-400/20 dark:bg-pink-400/10">
 							<svg

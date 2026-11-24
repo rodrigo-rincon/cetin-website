@@ -70,7 +70,7 @@
 						<button
 							type="button"
 							@click="openAppointmentForm"
-							class="group inline-flex items-center justify-center rounded-lg bg-pink-600 px-7 py-3.5 font-semibold text-white transition-colors duration-150 hover:bg-pink-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500 active:bg-pink-800"
+							class="clay-action group inline-flex items-center justify-center rounded-lg bg-pink-600 px-7 py-3.5 font-semibold text-white transition-colors duration-150 hover:bg-pink-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500 active:bg-pink-800"
 						>
 							<svg
 								class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12"
@@ -89,7 +89,7 @@
 						</button>
 						<a
 							href="#services-info"
-							class="group inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/75 px-7 py-3.5 font-semibold text-slate-700 transition-colors duration-150 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-white/20 dark:bg-slate-900/50 dark:text-gray-100 dark:hover:bg-slate-800"
+							class="clay-action clay-action--light group inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/75 px-7 py-3.5 font-semibold text-slate-700 transition-colors duration-150 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-white/20 dark:bg-slate-900/50 dark:text-gray-100 dark:hover:bg-slate-800"
 						>
 							{{ content.hero.ctaSecondary }}
 							<svg

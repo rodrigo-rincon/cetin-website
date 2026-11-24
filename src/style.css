@@ -61,6 +61,90 @@ h1, h2, h3, h4, h5, h6,
 	box-shadow: 0 8px 20px rgb(0 0 0 / 0.24);
 }
 
+/* CETIN clay material: soft pediatric surfaces with restrained depth. */
+.clay-site {
+	--clay-border: rgb(255 255 255 / 0.74);
+	--clay-shadow-dark: rgb(15 42 92 / 0.14);
+	--clay-shadow-deep: rgb(15 42 92 / 0.09);
+	--clay-highlight: rgb(255 255 255 / 0.88);
+}
+
+.clay-site :where(.clay-card, .video-tile, .testimonial-deck-card) {
+	border-color: var(--clay-border);
+	box-shadow:
+		inset 2px 2px 0 var(--clay-highlight),
+		inset -5px -5px 12px var(--clay-shadow-deep),
+		12px 14px 30px var(--clay-shadow-dark),
+		-8px -8px 20px rgb(255 255 255 / 0.62);
+	transition-property: transform, box-shadow, border-color, background-color;
+	transition-duration: 240ms;
+	transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.clay-site :where(.clay-card--accent, .clay-card--dark, .branch-card) {
+	box-shadow:
+		inset 2px 2px 0 rgb(255 255 255 / 0.2),
+		inset -6px -7px 14px rgb(2 6 23 / 0.18),
+		12px 16px 30px rgb(15 42 92 / 0.2),
+		-6px -6px 18px rgb(255 255 255 / 0.26);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.clay-site :where(.clay-card, .video-tile):hover {
+		transform: translateY(-3px);
+		box-shadow:
+			inset 2px 2px 0 var(--clay-highlight),
+			inset -5px -5px 12px var(--clay-shadow-deep),
+			16px 20px 38px rgb(15 42 92 / 0.17),
+			-9px -9px 22px rgb(255 255 255 / 0.68);
+	}
+}
+
+.clay-site .clay-action,
+.clay-site .branch-card-content > div:last-child > a:last-child {
+	border: 1px solid rgb(255 255 255 / 0.22);
+	box-shadow:
+		inset 2px 2px 0 rgb(255 255 255 / 0.3),
+		inset -3px -4px 8px rgb(2 6 23 / 0.16),
+		0 7px 14px rgb(15 42 92 / 0.18);
+}
+
+.clay-site .clay-action--light {
+	box-shadow:
+		inset 2px 2px 0 rgb(255 255 255 / 0.9),
+		inset -3px -4px 8px rgb(15 42 92 / 0.08),
+		0 7px 16px rgb(15 42 92 / 0.13);
+}
+
+.clay-site header {
+	box-shadow: 0 8px 24px rgb(15 42 92 / 0.08);
+}
+
+.dark .clay-site {
+	--clay-border: rgb(255 255 255 / 0.1);
+	--clay-shadow-dark: rgb(0 0 0 / 0.34);
+	--clay-shadow-deep: rgb(0 0 0 / 0.2);
+	--clay-highlight: rgb(255 255 255 / 0.08);
+}
+
+.dark .clay-site :where(.clay-card, .video-tile, .testimonial-deck-card) {
+	box-shadow:
+		inset 2px 2px 0 var(--clay-highlight),
+		inset -6px -7px 14px var(--clay-shadow-deep),
+		12px 16px 30px var(--clay-shadow-dark),
+		-5px -5px 16px rgb(255 255 255 / 0.025);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.clay-site :where(.clay-card, .video-tile, .testimonial-deck-card) {
+		transition: none;
+	}
+
+	.clay-site :where(.clay-card, .video-tile):hover {
+		transform: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.public-site :where(button, a[class*='bg-'], a[class*='border-']) {
 		top: 0 !important;

@@ -80,7 +80,7 @@
 				<!-- Service 1 - Metabólico (Featured - Large) -->
 				<div
 					v-fade-up="{ delay: 0 }"
-					class="group relative overflow-hidden rounded-2xl bg-pink-500 p-6 lg:col-span-2 lg:p-8"
+					class="clay-card clay-card--accent group relative overflow-hidden rounded-2xl bg-pink-500 p-6 lg:col-span-2 lg:p-8"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -135,7 +135,7 @@
 				<!-- Service 2 - Cardiológico -->
 				<div
 					v-fade-up="{ delay: 80 }"
-					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="clay-card group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -169,7 +169,7 @@
 				<!-- Service 3 - Auditivo -->
 				<div
 					v-fade-up="{ delay: 140 }"
-					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="clay-card group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -203,7 +203,7 @@
 				<!-- Service 4 - Visual -->
 				<div
 					v-fade-up="{ delay: 200 }"
-					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="clay-card group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -237,7 +237,7 @@
 				<!-- Service 5 - Cadera -->
 				<div
 					v-fade-up="{ delay: 260 }"
-					class="group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
+					class="clay-card group relative rounded-2xl border border-slate-200 bg-white p-6 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800"
 				>
 					<div
 						class="absolute top-6 right-6 w-14 h-14 rounded-xl flex items-center justify-center"
@@ -271,7 +271,7 @@
 				<!-- CTA Card - Paquetes -->
 				<div
 					v-fade-up="{ delay: 320 }"
-					class="group relative overflow-hidden rounded-2xl bg-[#0f2a5c] p-8 lg:col-span-3 lg:p-10"
+					class="clay-card clay-card--dark group relative overflow-hidden rounded-2xl bg-[#0f2a5c] p-8 lg:col-span-3 lg:p-10"
 				>
 					<!-- Background pattern -->
 					<div class="absolute inset-0 opacity-10">
@@ -328,7 +328,7 @@
 						</div>
 						<a
 							href="#contact"
-							class="group mt-auto inline-flex items-center justify-center gap-2 self-start rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
+							class="clay-action group mt-auto inline-flex items-center justify-center gap-2 self-start rounded-lg bg-pink-500 px-8 py-4 font-semibold text-white transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
 						>
 							Ver Paquetes
 							<svg

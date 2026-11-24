@@ -72,7 +72,7 @@ const sendToWhatsApp = () => {
 	<Teleport to="body">
 		<Transition name="appointment-drawer">
 			<div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4" @click.self="close">
-				<section class="appointment-panel relative w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-900 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="public-appointment-title">
+				<section class="clay-card appointment-panel relative w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl dark:bg-slate-900 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="public-appointment-title">
 					<button type="button" class="absolute right-3 top-3 rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" aria-label="Cerrar pre-cita" @click="close">✕</button>
 					<template v-if="!submitted">
 						<h2 id="public-appointment-title" class="pr-8 text-xl font-bold text-[#0f2a5c] dark:text-white">Solicita tu pre-cita</h2>
@@ -90,7 +90,7 @@ const sendToWhatsApp = () => {
 								<input v-model="form.privacyConsent" required type="checkbox" class="mt-0.5 h-4 w-4 flex-none accent-pink-600" />
 								<span>Confirmo que soy mayor de edad y, en su caso, madre, padre, tutor o representante del paciente. Consiento expresamente el tratamiento y envío por WhatsApp de estos datos para gestionar la pre-cita.</span>
 							</label>
-							<button type="submit" :disabled="!isValid" class="w-full rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-slate-950 hover:bg-[#20bd5a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:cursor-not-allowed disabled:opacity-45">Continuar en WhatsApp</button>
+							<button type="submit" :disabled="!isValid" class="clay-action w-full rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-slate-950 hover:bg-[#20bd5a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:cursor-not-allowed disabled:opacity-45">Continuar en WhatsApp</button>
 						</form>
 					</template>
 					<div v-else role="status" aria-live="polite" class="py-8 text-center">

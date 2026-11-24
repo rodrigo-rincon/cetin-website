@@ -241,7 +241,7 @@ const toSection = (section: string) => {
 				<button
 					type="button"
 					@click="openAppointmentForm"
-					class="group inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2"
+					class="clay-action group inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-pink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2"
 				>
 					<svg
 						class="w-4 h-4 mr-2"
