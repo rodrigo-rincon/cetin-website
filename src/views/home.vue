@@ -965,21 +965,7 @@ onUnmounted(() => {
 				</div>
 
 				<!-- Sucursales Grid -->
-				<div
-					v-gsap-reveal="{
-						children: '.branch-card',
-						alternate: true,
-						x: 150,
-						y: 80,
-						rotation: 9,
-						scale: 0.76,
-						stagger: 0.16,
-						duration: 1.05,
-						ease: 'back.out(1.6)',
-						start: 'top 82%',
-					}"
-					class="branch-layout grid grid-cols-1 items-stretch gap-6 md:grid-cols-6 lg:gap-7 mb-12"
-				>
+				<div v-gsap-reveal="{ children: '.branch-card', stagger: 0.07, y: 20 }" class="branch-layout grid grid-cols-1 items-stretch gap-6 md:grid-cols-6 lg:gap-7 mb-12">
 					<article
 						v-for="(sucursal, index) in content.sucursales"
 						:key="sucursal.id"
