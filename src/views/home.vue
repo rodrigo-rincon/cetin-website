@@ -103,26 +103,31 @@ const getSucursal = (id: string) =>
 const getSucursalCover = (id: string) =>
 	getSucursal(id)?.image || defaultSucursalCover;
 
-const getBranchLayoutClass = (index: number, total: number) => {
-	const classes = ['md:col-span-3', 'lg:col-start-auto'];
+const branchRail = ref<HTMLElement | null>(null);
+const activeBranchIndex = ref(0);
 
-	if (total % 2 === 1 && index === total - 1) {
-		classes.push('md:col-span-4', 'md:col-start-2');
-	}
+const updateActiveBranch = () => {
+	const rail = branchRail.value;
+	if (!rail) return;
+	const cards = Array.from(rail.querySelectorAll<HTMLElement>('.branch-card'));
+	if (!cards.length) return;
+	const railStart = rail.getBoundingClientRect().left;
+	activeBranchIndex.value = cards.reduce((closest, card, index) => {
+		const currentDistance = Math.abs(card.getBoundingClientRect().left - railStart);
+		const closestDistance = Math.abs(cards[closest].getBoundingClientRect().left - railStart);
+		return currentDistance < closestDistance ? index : closest;
+	}, 0);
+};
 
-	if (total === 1) {
-		classes.push('lg:col-span-6');
-	} else if (total === 2 || total === 4) {
-		classes.push('lg:col-span-3');
-	} else if (total === 5) {
-		classes.push(index < 2 ? 'lg:col-span-3' : 'lg:col-span-2');
-	} else {
-		const remainder = total % 3;
-		const balancedTailSize = remainder === 1 ? 4 : remainder;
-		classes.push(index >= total - balancedTailSize ? 'lg:col-span-3' : 'lg:col-span-2');
-	}
-
-	return classes;
+const moveBranchRail = (direction: -1 | 1) => {
+	const rail = branchRail.value;
+	if (!rail) return;
+	const cards = Array.from(rail.querySelectorAll<HTMLElement>('.branch-card'));
+	const nextIndex = clamp(activeBranchIndex.value + direction, 0, cards.length - 1);
+	const target = cards[nextIndex];
+	if (!target) return;
+	activeBranchIndex.value = nextIndex;
+	rail.scrollTo({ left: target.offsetLeft - rail.offsetLeft, behavior: 'smooth' });
 };
 
 const selectedMapBranch = ref<Sucursal | null>(null);
@@ -939,24 +944,30 @@ onUnmounted(() => {
 					</a>
 				</div>
 
-				<!-- Sucursales Section Title -->
-				<div class="flex items-center gap-4 mb-6">
-					<div
-						class="h-px flex-1 bg-gray-200 dark:bg-slate-700"
-					></div>
-					<h2 class="text-2xl font-bold text-[#0f2a5c] dark:text-white">Nuestras Sucursales</h2>
-					<div
-						class="h-px flex-1 bg-gray-200 dark:bg-slate-700"
-					></div>
+				<!-- Sucursales editorial rail -->
+				<div class="branch-rail-header mb-6">
+					<div>
+						<p class="text-sm font-semibold text-pink-500">Encuentra tu CETIN</p>
+						<h2 class="mt-1 text-2xl font-bold text-[#0f2a5c] dark:text-white">Nuestras sucursales</h2>
+						<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Desliza para conocer cada sede y sus datos de contacto</p>
+					</div>
+					<div class="branch-rail-controls" aria-label="Navegación de sucursales">
+						<span class="branch-rail-count"><strong>{{ String(activeBranchIndex + 1).padStart(2, '0') }}</strong> / {{ String(content.sucursales.length).padStart(2, '0') }}</span>
+						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Sucursal anterior" :disabled="activeBranchIndex === 0" @click="moveBranchRail(-1)">←</button>
+						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Siguiente sucursal" :disabled="activeBranchIndex >= content.sucursales.length - 1" @click="moveBranchRail(1)">→</button>
+					</div>
 				</div>
 
-				<!-- Sucursales Grid -->
-				<div v-gsap-reveal="{ children: '.branch-card', stagger: 0.07, y: 20 }" class="branch-layout grid grid-cols-1 items-stretch gap-6 md:grid-cols-6 lg:gap-7 mb-12">
+				<div
+					ref="branchRail"
+					class="branch-rail mb-4"
+					@scroll.passive="updateActiveBranch"
+				>
 					<article
 						v-for="(sucursal, index) in content.sucursales"
 						:key="sucursal.id"
 						class="branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
-						:class="[getBranchLayoutClass(index, content.sucursales.length), { 'is-active': selectedMapBranch?.id === sucursal.id }]"
+						:class="{ 'is-active': activeBranchIndex === index || selectedMapBranch?.id === sucursal.id }"
 					>
 						<img
 							:src="getSucursalCover(sucursal.id)"
@@ -1009,6 +1020,7 @@ onUnmounted(() => {
 						</div>
 					</article>
 				</div>
+				<div class="branch-rail-progress mb-12" aria-hidden="true"><span :style="{ width: `${((activeBranchIndex + 1) / Math.max(content.sucursales.length, 1)) * 100}%` }"></span></div>
 
 				<!-- Map with all locations -->
 				<div class="relative">
@@ -1407,10 +1419,82 @@ onUnmounted(() => {
 	container-type: inline-size;
 	min-height: 30rem;
 	background: #0f172a;
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
 	transition: opacity 260ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease;
 }
 
-.branch-layout:has(.branch-card.is-active) .branch-card:not(.is-active) { opacity: 0.68; }
+.branch-rail-header {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.branch-rail-controls {
+	display: flex;
+	align-items: center;
+	gap: .6rem;
+}
+
+.branch-rail-count {
+	margin-right: .35rem;
+	color: #64748b;
+	font-size: .78rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.branch-rail-count strong {
+	color: #ec4899;
+	font-size: 1rem;
+}
+
+.branch-rail-controls button {
+	display: inline-flex;
+	width: 2.75rem;
+	height: 2.75rem;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #cbd5e1;
+	border-radius: 50%;
+	background: white;
+	color: #0f2a5c;
+	font-size: 1.1rem;
+}
+
+.branch-rail-controls button:disabled { cursor: not-allowed; opacity: .35; transform: none; box-shadow: none; }
+
+.branch-rail {
+	display: grid;
+	grid-auto-columns: 46%;
+	grid-auto-flow: column;
+	gap: 1.5rem;
+	overflow-x: auto;
+	padding: .5rem .15rem 1.5rem;
+	overscroll-behavior-inline: contain;
+	scroll-behavior: smooth;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+
+.branch-rail::-webkit-scrollbar { display: none; }
+
+.branch-rail:has(.branch-card.is-active) .branch-card:not(.is-active) { opacity: 0.82; }
+
+.branch-rail-progress {
+	height: .22rem;
+	overflow: hidden;
+	border-radius: 999px;
+	background: rgb(148 163 184 / .2);
+}
+
+.branch-rail-progress span {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: #ec4899;
+	transition: width 320ms cubic-bezier(.22, 1, .36, 1);
+}
 
 .branch-card.is-active {
 	transform: translateY(-0.35rem);
@@ -1433,7 +1517,10 @@ onUnmounted(() => {
 	width: 100%;
 	object-fit: cover;
 	object-position: center;
+	transition: transform 700ms cubic-bezier(.22, 1, .36, 1), filter 400ms ease;
 }
+
+.branch-card.is-active .branch-card-image { transform: scale(1.035); }
 
 .branch-card-content {
 	position: relative;
@@ -1533,9 +1620,17 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
+	.branch-rail-header { align-items: flex-start; }
+	.branch-rail-header > div:first-child { max-width: 70%; }
+	.branch-rail-count { display: none; }
+	.branch-rail { grid-auto-columns: 88%; gap: 1rem; }
 	.branch-card {
 		min-height: 26rem;
 	}
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+	.branch-rail { grid-auto-columns: 68%; }
 }
 
 .appointment-scene-title {
