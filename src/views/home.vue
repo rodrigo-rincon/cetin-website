@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import Carousel from '../components/carousel.vue';
 import HeroSection from '../components/HeroSection.vue';
 import InfoSection from '../components/InfoSection.vue';
+import CetinPlayfulDecor from '../components/CetinPlayfulDecor.vue';
 import { useReadonlyContent } from '../composables/useContent';
 import { useCookieConsent } from '../composables/useCookieConsent';
 import type { Sucursal } from '../data/content';
@@ -273,29 +274,16 @@ onUnmounted(() => {
 
 		<!-- Copy Section -->
 		<section
-			class="editorial-section order-4 relative overflow-hidden bg-white py-14 dark:bg-slate-900 lg:py-16"
+			class="editorial-section cetin-organic-section order-4 relative overflow-hidden bg-white py-14 dark:bg-slate-900 lg:py-16"
 		>
-			<!-- Decorative elements with secondary colors -->
-			<div
-				class="absolute -top-10 -left-10 w-40 h-40 rounded-full border-2 border-cetin-lavender/40 dark:border-cetin-lavender/20 opacity-50"
-			></div>
-			<div
-				class="absolute top-1/2 -right-16 w-32 h-32 rounded-full border border-cetin-turquoise/40 dark:border-cetin-turquoise/20 opacity-40"
-			></div>
-			<!-- Colorful decorative elements -->
-			<div
-				class="absolute top-20 right-1/4 w-6 h-6 bg-cetin-gold/30 rounded-full"
-			></div>
-			<div
-				class="absolute bottom-32 left-20 w-4 h-4 bg-cetin-lime/35 rounded-full"
-			></div>
+			<CetinPlayfulDecor variant="stories" />
 
 			<div
 				v-fade-up
 				class="max-w-4xl mx-auto px-6 lg:px-12 text-center relative z-10"
 			>
 				<h2
-					class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-4"
+					class="cetin-sketch-title cetin-sketch-title--center text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-4"
 				>
 					{{ content.videosSection.title }}
 				</h2>
@@ -731,31 +719,9 @@ onUnmounted(() => {
 		<!-- Testimonials Section -->
 		<section
 			id="clients"
-			class="editorial-section order-6 relative overflow-hidden bg-white py-16 dark:bg-slate-900 lg:py-20"
+			class="editorial-section cetin-organic-section order-6 relative overflow-hidden bg-white py-16 dark:bg-slate-900 lg:py-20"
 		>
-			<!-- Decorative shapes -->
-			<div
-				class="absolute top-10 right-20 w-32 h-32 border border-pink-200 dark:border-pink-800 rounded-full opacity-30"
-			></div>
-			<div
-				class="absolute bottom-20 left-10 w-20 h-20 border border-pink-200 dark:border-pink-800 rounded-full opacity-25"
-			></div>
-			<!-- Cross pattern -->
-			<div class="absolute top-1/2 right-10 w-8 h-8 opacity-20">
-				<div
-					class="absolute top-1/2 left-0 w-full h-[2px] bg-pink-300 dark:bg-pink-700 -translate-y-1/2"
-				></div>
-				<div
-					class="absolute left-1/2 top-0 h-full w-[2px] bg-pink-300 dark:bg-pink-700 -translate-x-1/2"
-				></div>
-			</div>
-			<!-- Yellow accent elements -->
-			<div
-				class="absolute top-24 left-1/4 w-5 h-5 bg-yellow-400/30 rounded-full"
-			></div>
-			<div
-				class="absolute top-1/3 left-16 w-6 h-6 rotate-45 border-2 border-yellow-400/30"
-			></div>
+			<CetinPlayfulDecor variant="stories" />
 
 			<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 				<div v-fade-up class="text-center mb-10 lg:mb-12">
@@ -767,7 +733,7 @@ onUnmounted(() => {
 						<span class="w-8 h-[2px] bg-pink-500"></span>
 					</span>
 					<h2
-						class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
+						class="cetin-sketch-title cetin-sketch-title--center text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight"
 					>
 						Lo que dicen nuestros
 						<span class="text-pink-500">clientes</span>
@@ -785,26 +751,9 @@ onUnmounted(() => {
 		<!-- Contact Section -->
 		<section
 			id="contact"
-			class="editorial-section order-7 relative overflow-hidden bg-gray-50 py-16 dark:bg-slate-800 lg:py-20"
+			class="editorial-section cetin-organic-section order-7 relative overflow-hidden bg-gray-50 py-16 dark:bg-slate-800 lg:py-20"
 		>
-			<!-- Decorative shapes -->
-			<div
-				class="absolute -left-16 top-1/3 w-32 h-32 border border-pink-200 dark:border-pink-800 rounded-full opacity-30"
-			></div>
-			<div
-				class="absolute right-20 bottom-20 w-24 h-24 border border-blue-200 dark:border-blue-800 rounded-full opacity-25"
-			></div>
-			<!-- Diamond shape -->
-			<div
-				class="absolute top-20 right-1/4 w-6 h-6 border-2 border-yellow-400 dark:border-yellow-600 rotate-45 opacity-40"
-			></div>
-			<!-- Yellow accent elements -->
-			<div
-				class="absolute bottom-1/4 left-1/4 w-4 h-4 bg-yellow-400/30 rounded-full"
-			></div>
-			<div
-				class="absolute bottom-40 right-1/3 w-3 h-3 bg-yellow-300/50 rounded-full"
-			></div>
+			<CetinPlayfulDecor variant="contact" />
 
 			<!-- Dr. Blue waving -->
 			<div
@@ -1114,15 +1063,16 @@ onUnmounted(() => {
 
 		<!-- Footer Values -->
 		<section
-			class="editorial-section order-11 relative overflow-hidden border-t border-gray-100 bg-slate-50 py-20 transition-colors duration-500 dark:border-slate-800 dark:bg-[#0d172b] lg:py-28"
+			class="editorial-section cetin-organic-section order-11 relative overflow-hidden border-t border-gray-100 bg-slate-50 py-20 transition-colors duration-500 dark:border-slate-800 dark:bg-[#0d172b] lg:py-28"
 		>
+			<CetinPlayfulDecor variant="care" />
 			<div class="relative z-10 mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-20 lg:px-12">
 				<div v-fade-up class="max-w-xl lg:pr-8">
 					<span class="mb-4 inline-flex items-center gap-3 text-sm font-semibold text-pink-500">
 						<span class="h-px w-8 bg-pink-500" aria-hidden="true"></span>
 						Nuestro compromiso
 					</span>
-					<h2 class="max-w-lg text-4xl font-semibold leading-tight text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-5xl">
+					<h2 class="cetin-sketch-title max-w-lg text-4xl font-semibold leading-tight text-[#0f2a5c] transition-colors duration-500 dark:text-white lg:text-5xl">
 						Cuidado confiable en cada etapa
 					</h2>
 					<p class="mt-6 max-w-md text-base leading-7 text-slate-600 dark:text-slate-300 lg:text-lg">

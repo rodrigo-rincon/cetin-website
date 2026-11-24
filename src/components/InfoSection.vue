@@ -1,31 +1,9 @@
 <template>
 	<section
 		id="services-info"
-		class="py-14 lg:py-20 bg-gray-50 dark:bg-slate-900 relative overflow-hidden"
+		class="cetin-organic-section py-14 lg:py-20 bg-gray-50 dark:bg-slate-900 relative overflow-hidden"
 	>
-		<!-- Decorative elements with secondary colors -->
-		<div
-			class="absolute -top-20 -right-20 w-72 h-72 rounded-full border border-cetin-lavender/30 dark:border-cetin-lavender/20 opacity-50"
-		></div>
-		<div
-			class="absolute bottom-20 -left-10 w-48 h-48 rounded-full border border-cetin-turquoise/30 dark:border-cetin-turquoise/20 opacity-40"
-		></div>
-		<!-- Colorful decorative dots -->
-		<div
-			class="absolute top-32 left-1/4 w-5 h-5 bg-cetin-gold/30 rounded-full"
-		></div>
-		<div
-			class="absolute bottom-40 left-20 w-6 h-6 bg-cetin-lime/30 rounded-full"
-		></div>
-		<div
-			class="absolute top-1/2 right-1/4 w-3 h-3 bg-cetin-coral/40 rounded-full"
-		></div>
-		<div
-			class="absolute bottom-24 right-10 w-5 h-5 rotate-45 border-2 border-cetin-turquoise/30"
-		></div>
-		<div
-			class="absolute top-40 right-1/3 w-4 h-4 bg-cetin-lavender/25 rounded-full"
-		></div>
+		<CetinPlayfulDecor variant="care" />
 
 		<div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 			<!-- Section header with Dr. Blue -->
@@ -59,7 +37,7 @@
 					<!-- Text content -->
 					<div class="flex-1 text-center lg:text-left">
 						<h2
-							class="text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-5"
+							class="cetin-sketch-title text-3xl lg:text-4xl font-bold text-[#0f2a5c] dark:text-white leading-tight mb-5"
 						>
 							{{ content.infoSection.title }}
 							<span class="text-pink-500"> {{ content.infoSection.titleHighlight }}</span>
@@ -350,6 +328,7 @@
 <script setup lang="ts">
 import { vFadeUp } from '../directives/scrollReveal';
 import { useReadonlyContent } from '../composables/useContent';
+import CetinPlayfulDecor from './CetinPlayfulDecor.vue';
 
 const { content } = useReadonlyContent();
 </script>
