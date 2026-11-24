@@ -125,7 +125,14 @@ const scrollToBranchCard = (index: number, behavior: ScrollBehavior = 'smooth') 
 	const rail = branchRail.value;
 	const card = rail?.querySelectorAll<HTMLElement>('.branch-card')[index];
 	if (!rail || !card) return;
-	rail.scrollTo({ left: card.offsetLeft - rail.offsetLeft, behavior });
+	const centeredLeft = card.offsetLeft + card.offsetWidth / 2 - rail.clientWidth / 2;
+	if (behavior === 'auto') {
+		rail.style.scrollBehavior = 'auto';
+		rail.scrollLeft = centeredLeft;
+		window.requestAnimationFrame(() => rail.style.removeProperty('scroll-behavior'));
+		return;
+	}
+	rail.scrollTo({ left: centeredLeft, behavior });
 };
 
 const advanceBranchRail = () => {
@@ -156,10 +163,13 @@ const updateActiveBranch = () => {
 	if (!rail) return;
 	const cards = Array.from(rail.querySelectorAll<HTMLElement>('.branch-card'));
 	if (!cards.length) return;
-	const railStart = rail.getBoundingClientRect().left;
+	const railRect = rail.getBoundingClientRect();
+	const railCenter = railRect.left + railRect.width / 2;
 	const closestIndex = cards.reduce((closest, card, index) => {
-		const currentDistance = Math.abs(card.getBoundingClientRect().left - railStart);
-		const closestDistance = Math.abs(cards[closest].getBoundingClientRect().left - railStart);
+		const currentRect = card.getBoundingClientRect();
+		const closestRect = cards[closest].getBoundingClientRect();
+		const currentDistance = Math.abs(currentRect.left + currentRect.width / 2 - railCenter);
+		const closestDistance = Math.abs(closestRect.left + closestRect.width / 2 - railCenter);
 		return currentDistance < closestDistance ? index : closest;
 	}, 0);
 	physicalBranchIndex.value = closestIndex;
@@ -1505,9 +1515,9 @@ onUnmounted(() => {
 	container-type: inline-size;
 	min-height: 30rem;
 	background: #0f172a;
-	scroll-snap-align: start;
+	scroll-snap-align: center;
 	scroll-snap-stop: always;
-	transition: opacity 260ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease;
+	transition: opacity 360ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 320ms ease;
 }
 
 .branch-rail-header {
@@ -1558,21 +1568,26 @@ onUnmounted(() => {
 	overflow-x: auto;
 	padding: .5rem .15rem 1.5rem;
 	overscroll-behavior-inline: contain;
-	scroll-behavior: smooth;
 	scroll-snap-type: x mandatory;
 	scrollbar-width: none;
 }
 
 .branch-rail::-webkit-scrollbar { display: none; }
 
-.branch-rail:has(.branch-card.is-active) .branch-card:not(.is-active) { opacity: 0.82; }
+.branch-rail:has(.branch-card.is-active) .branch-card:not(.is-active) {
+	opacity: 0.54;
+	transform: scale(0.94);
+}
 
 .branch-card.is-clone { pointer-events: none; }
 
 .branch-card.is-active {
-	transform: translateY(-0.35rem);
+	z-index: 2;
+	transform: translateY(-0.55rem) scale(1.015);
 	border-color: rgb(236 72 153 / 0.8) !important;
-	box-shadow: 0 18px 44px rgb(15 42 92 / 0.2);
+	box-shadow:
+		0 0 0 2px rgb(236 72 153 / 0.28),
+		0 24px 56px rgb(15 42 92 / 0.3);
 }
 
 .branch-card::after {
@@ -1593,7 +1608,10 @@ onUnmounted(() => {
 	transition: transform 700ms cubic-bezier(.22, 1, .36, 1), filter 400ms ease;
 }
 
-.branch-card.is-active .branch-card-image { transform: scale(1.035); }
+.branch-card.is-active .branch-card-image {
+	transform: scale(1.075);
+	filter: saturate(1.08) brightness(1.03);
+}
 
 .branch-card-content {
 	position: relative;
