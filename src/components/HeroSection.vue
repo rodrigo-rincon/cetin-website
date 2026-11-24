@@ -1,22 +1,26 @@
 <template>
 	<section
 		id="home"
+		ref="heroSection"
 		class="relative min-h-[720px] overflow-hidden bg-white transition-colors duration-700 ease-in-out dark:bg-slate-900 lg:min-h-[min(820px,calc(100vh-2rem))]"
 	>
 		<!-- Fondos optimizados para cada tema -->
-		<div class="absolute inset-0">
+		<div class="hero-background absolute inset-0">
 			<img
 				src="../assets/images/hero-cetin-light.png"
 				alt=""
-				class="absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-100 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-0 sm:object-center"
+				class="hero-background-layer absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-100 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-0 sm:object-center"
 				aria-hidden="true"
 			/>
 			<img
 				src="../assets/images/hero-cetin-dark.png"
 				alt=""
-				class="absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-0 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-100 sm:object-center"
+				class="hero-background-layer absolute inset-0 h-full w-full object-cover object-[68%_center] opacity-0 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-100 sm:object-center"
 				aria-hidden="true"
 			/>
+		</div>
+		<div class="hero-ambient-orbit" aria-hidden="true">
+			<span></span><span></span><span></span>
 		</div>
 		<div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/5 opacity-100 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-0 sm:via-white/55 lg:via-white/20"></div>
 		<div class="absolute inset-0 bg-gradient-to-r from-[#061a3a]/95 via-[#061a3a]/78 to-transparent opacity-0 transition-opacity duration-700 ease-in-out motion-reduce:duration-0 dark:opacity-100 sm:via-[#061a3a]/50 lg:via-[#061a3a]/15"></div>
@@ -207,13 +211,64 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useReadonlyContent } from '../composables/useContent';
 
+gsap.registerPlugin(ScrollTrigger);
+
 const { content } = useReadonlyContent();
+const heroSection = ref<HTMLElement | null>(null);
+let heroContext: gsap.Context | null = null;
 
 const openAppointmentForm = () => {
 	window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
 };
+
+onMounted(() => {
+	const hero = heroSection.value;
+	if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+	heroContext = gsap.context(() => {
+		gsap.to('.hero-background-layer', {
+			scale: 1.065,
+			yPercent: 4,
+			ease: 'none',
+			scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 1.15 },
+		});
+
+		gsap.to('.hero-content', {
+			opacity: 0.76,
+			y: 42,
+			ease: 'none',
+			scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom 25%', scrub: 1.1 },
+		});
+
+		const orbit = gsap.to('.hero-ambient-orbit', {
+			rotation: 360,
+			duration: 26,
+			ease: 'none',
+			repeat: -1,
+			paused: true,
+		});
+
+		ScrollTrigger.create({
+			trigger: hero,
+			start: 'top bottom',
+			end: 'bottom top',
+			onEnter: () => orbit.play(),
+			onEnterBack: () => orbit.play(),
+			onLeave: () => orbit.pause(),
+			onLeaveBack: () => orbit.pause(),
+		});
+	}, hero);
+});
+
+onBeforeUnmount(() => {
+	heroContext?.revert();
+	heroContext = null;
+});
 
 </script>
 
@@ -221,6 +276,54 @@ const openAppointmentForm = () => {
 /* Hero animations */
 .hero-content {
 	animation: heroEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-background {
+	overflow: hidden;
+}
+
+.hero-background-layer {
+	will-change: transform;
+}
+
+.hero-ambient-orbit {
+	position: absolute;
+	right: 24%;
+	bottom: 16%;
+	z-index: 4;
+	width: clamp(8rem, 13vw, 12rem);
+	aspect-ratio: 1;
+	border: 1px solid rgb(96 165 250 / .22);
+	border-radius: 50%;
+	pointer-events: none;
+	transform-origin: center;
+}
+
+.hero-ambient-orbit::before {
+	position: absolute;
+	inset: 18%;
+	border: 1px dashed rgb(236 72 153 / .2);
+	border-radius: 50%;
+	content: '';
+}
+
+.hero-ambient-orbit span {
+	position: absolute;
+	width: .55rem;
+	height: .55rem;
+	border-radius: 50%;
+	background: #ec4899;
+	box-shadow: 0 0 0 5px rgb(236 72 153 / .1);
+}
+
+.hero-ambient-orbit span:nth-child(1) { left: 12%; top: 12%; }
+.hero-ambient-orbit span:nth-child(2) { right: -2%; top: 48%; background: #60a5fa; box-shadow: 0 0 0 5px rgb(96 165 250 / .1); }
+.hero-ambient-orbit span:nth-child(3) { bottom: 4%; left: 28%; width: .4rem; height: .4rem; background: #f59e0b; box-shadow: 0 0 0 5px rgb(245 158 11 / .1); }
+
+@media (max-width: 767px) {
+	.hero-ambient-orbit {
+		display: none;
+	}
 }
 
 .hero-image {
