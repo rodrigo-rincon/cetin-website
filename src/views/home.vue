@@ -106,6 +106,7 @@ const getSucursalCover = (id: string) =>
 const branchRail = ref<HTMLElement | null>(null);
 const activeBranchIndex = ref(0);
 const physicalBranchIndex = ref(0);
+const branchViewMode = ref<'carousel' | 'grid'>('carousel');
 const branchSlides = computed(() => {
 	const branches = content.value.sucursales;
 	return branches.length > 1 ? [...branches, ...branches, ...branches] : branches;
@@ -146,11 +147,24 @@ const advanceBranchRail = () => {
 const startBranchAutoplay = () => {
 	if (
 		branchAutoplayTimer !== null ||
+		branchViewMode.value !== 'carousel' ||
 		!branchRailVisible ||
 		content.value.sucursales.length < 2 ||
 		window.matchMedia('(prefers-reduced-motion: reduce)').matches
 	) return;
 	branchAutoplayTimer = window.setInterval(advanceBranchRail, 4400);
+};
+
+const setBranchViewMode = (mode: 'carousel' | 'grid') => {
+	branchViewMode.value = mode;
+	if (mode === 'grid') {
+		stopBranchAutoplay();
+		return;
+	}
+	void nextTick(() => {
+		scrollToBranchCard(physicalBranchIndex.value, 'auto');
+		startBranchAutoplay();
+	});
 };
 
 const resumeBranchAutoplay = () => {
@@ -1037,14 +1051,21 @@ onUnmounted(() => {
 						<h2 class="mt-1 text-2xl font-bold text-[#0f2a5c] dark:text-white">Nuestras sucursales</h2>
 						<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Desliza para conocer cada sede y sus datos de contacto</p>
 					</div>
-					<div class="branch-rail-controls" aria-label="Navegación de sucursales">
-						<span class="branch-rail-count"><strong>{{ String(activeBranchIndex + 1).padStart(2, '0') }}</strong> / {{ String(content.sucursales.length).padStart(2, '0') }}</span>
-						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Sucursal anterior" :disabled="content.sucursales.length < 2" @click="moveBranchRail(-1)">←</button>
-						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Siguiente sucursal" :disabled="content.sucursales.length < 2" @click="moveBranchRail(1)">→</button>
+					<div class="branch-header-actions">
+						<div class="branch-view-switch" role="group" aria-label="Forma de mostrar las sucursales">
+							<button type="button" :class="{ 'is-selected': branchViewMode === 'carousel' }" :aria-pressed="branchViewMode === 'carousel'" @click="setBranchViewMode('carousel')">Carrusel</button>
+							<button type="button" :class="{ 'is-selected': branchViewMode === 'grid' }" :aria-pressed="branchViewMode === 'grid'" @click="setBranchViewMode('grid')">Bento</button>
+						</div>
+						<div v-show="branchViewMode === 'carousel'" class="branch-rail-controls" aria-label="Navegación de sucursales">
+							<span class="branch-rail-count"><strong>{{ String(activeBranchIndex + 1).padStart(2, '0') }}</strong> / {{ String(content.sucursales.length).padStart(2, '0') }}</span>
+							<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Sucursal anterior" :disabled="content.sucursales.length < 2" @click="moveBranchRail(-1)">←</button>
+							<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Siguiente sucursal" :disabled="content.sucursales.length < 2" @click="moveBranchRail(1)">→</button>
+						</div>
 					</div>
 				</div>
 
 				<div
+					v-show="branchViewMode === 'carousel'"
 					ref="branchRail"
 					class="branch-rail mb-4"
 					@scroll.passive="updateActiveBranch"
@@ -1113,6 +1134,26 @@ onUnmounted(() => {
 								>
 									Google Maps <span aria-hidden="true">↗</span>
 								</a>
+							</div>
+						</div>
+					</article>
+				</div>
+
+				<div v-if="branchViewMode === 'grid'" class="branch-bento mb-8">
+					<article v-for="(sucursal, index) in content.sucursales" :key="sucursal.id" class="branch-bento-card group">
+						<img :src="getSucursalCover(sucursal.id)" :alt="`Portada de ${sucursal.name}`" />
+						<div class="branch-bento-overlay"></div>
+						<div class="branch-bento-content">
+							<div>
+								<p class="branch-bento-label">Sucursal {{ String(index + 1).padStart(2, '0') }}</p>
+								<h3>{{ sucursal.name }}</h3>
+								<p class="branch-bento-address">{{ sucursal.address }}</p>
+								<a v-if="sucursal.email" :href="`mailto:${sucursal.email}`" class="branch-bento-email">{{ sucursal.email }}</a>
+							</div>
+							<div class="branch-bento-links">
+								<a v-if="sucursal.phone" :href="`tel:${sucursal.phone.replace(/\s/g, '')}`">{{ sucursal.phone }}</a>
+								<a v-if="sucursal.facebook" :href="sucursal.facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
+								<a v-if="sucursal.mapsUrl" :href="sucursal.mapsUrl" target="_blank" rel="noopener noreferrer" class="branch-bento-map">Google Maps <span aria-hidden="true">↗</span></a>
 							</div>
 						</div>
 					</article>
@@ -1527,6 +1568,53 @@ onUnmounted(() => {
 	gap: 2rem;
 }
 
+.branch-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.branch-view-switch {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.3rem;
+	border: 1px solid rgb(255 255 255 / 0.48);
+	border-radius: 999px;
+	background: rgb(255 255 255 / 0.58);
+	box-shadow: 0 10px 30px rgb(15 42 92 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.75);
+	backdrop-filter: blur(16px) saturate(1.25);
+}
+
+:global(.dark) .branch-view-switch {
+	border-color: rgb(148 163 184 / 0.2);
+	background: rgb(15 23 42 / 0.58);
+	box-shadow: 0 12px 32px rgb(2 6 23 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+.branch-view-switch button {
+	min-width: 5.25rem;
+	padding: 0.58rem 0.9rem;
+	border-radius: 999px;
+	color: #64748b;
+	font-size: 0.78rem;
+	font-weight: 700;
+	transition: color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.branch-view-switch button:hover { color: #0f2a5c; }
+
+.branch-view-switch button.is-selected {
+	background: rgb(255 255 255 / 0.9);
+	color: #0f2a5c;
+	box-shadow: 0 5px 14px rgb(15 42 92 / 0.14);
+	transform: translateY(-1px);
+}
+
+:global(.dark) .branch-view-switch button { color: #94a3b8; }
+:global(.dark) .branch-view-switch button:hover { color: white; }
+:global(.dark) .branch-view-switch button.is-selected { background: rgb(51 65 85 / 0.86); color: white; }
+
 .branch-rail-controls {
 	display: flex;
 	align-items: center;
@@ -1580,6 +1668,92 @@ onUnmounted(() => {
 }
 
 .branch-card.is-clone { pointer-events: none; }
+
+.branch-bento {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-auto-rows: minmax(15rem, 1fr);
+	gap: 1rem;
+}
+
+.branch-bento-card {
+	position: relative;
+	min-height: 15rem;
+	overflow: hidden;
+	border: 1px solid rgb(255 255 255 / 0.34);
+	border-radius: 1.5rem;
+	background: #0f172a;
+	box-shadow: 0 14px 36px rgb(15 42 92 / 0.14);
+}
+
+.branch-bento-card:first-child {
+	grid-column: span 2;
+	grid-row: span 2;
+}
+
+.branch-bento-card > img {
+	position: absolute;
+	inset: 0;
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+	transition: transform 650ms cubic-bezier(.22, 1, .36, 1), filter 400ms ease;
+}
+
+.branch-bento-card:hover > img { transform: scale(1.055); filter: saturate(1.06); }
+
+.branch-bento-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to top, rgb(2 6 23 / 0.88), rgb(2 6 23 / 0.12) 75%);
+}
+
+.branch-bento-content {
+	position: absolute;
+	inset: auto 0.8rem 0.8rem;
+	z-index: 1;
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem;
+	border: 1px solid rgb(255 255 255 / 0.18);
+	border-radius: 1.1rem;
+	background: rgb(8 20 43 / 0.58);
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
+	backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.branch-bento-label { margin-bottom: 0.3rem; color: #f9a8d4; font-size: 0.68rem; font-weight: 700; }
+.branch-bento-content h3 { color: white; font-size: 1.15rem; font-weight: 700; line-height: 1.15; }
+.branch-bento-address { display: -webkit-box; overflow: hidden; margin-top: 0.4rem; color: #cbd5e1; font-size: 0.75rem; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.branch-bento-email { display: block; overflow: hidden; margin-top: 0.45rem; color: #e2e8f0; font-size: 0.7rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.branch-bento-links {
+	display: flex;
+	flex-shrink: 0;
+	flex-direction: column;
+	align-items: end;
+	gap: 0.35rem;
+}
+
+.branch-bento-links a { color: #f8fafc; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.branch-bento-links a:hover { color: #f9a8d4; }
+.branch-bento-map { padding: 0.42rem 0.65rem; border: 1px solid rgb(255 255 255 / 0.24); border-radius: 999px; background: rgb(255 255 255 / 0.1); }
+
+.branch-bento-card:not(:first-child) .branch-bento-content {
+	align-items: stretch;
+	flex-direction: column;
+	gap: 0.7rem;
+}
+
+.branch-bento-card:not(:first-child) .branch-bento-links {
+	align-items: center;
+	flex-flow: row wrap;
+	justify-content: flex-start;
+}
+
+.branch-bento-card:not(:first-child) .branch-bento-email { max-width: 100%; }
 
 .branch-card.is-active {
 	z-index: 2;
@@ -1711,17 +1885,27 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
-	.branch-rail-header { align-items: flex-start; }
-	.branch-rail-header > div:first-child { max-width: 70%; }
+	.branch-rail-header { align-items: stretch; flex-direction: column; gap: 1rem; }
+	.branch-header-actions { align-items: center; justify-content: space-between; }
+	.branch-view-switch { flex: 1; }
+	.branch-view-switch button { flex: 1; min-width: 0; }
 	.branch-rail-count { display: none; }
 	.branch-rail { grid-auto-columns: 88%; gap: 1rem; }
 	.branch-card {
 		min-height: 26rem;
 	}
+	.branch-bento { grid-template-columns: 1fr; grid-auto-rows: auto; }
+	.branch-bento-card,
+	.branch-bento-card:first-child { grid-column: auto; grid-row: auto; min-height: 25rem; }
+	.branch-bento-content { align-items: stretch; flex-direction: column; }
+	.branch-bento-links { align-items: start; flex-flow: row wrap; }
 }
 
 @media (min-width: 641px) and (max-width: 1023px) {
 	.branch-rail { grid-auto-columns: 68%; }
+	.branch-rail-header { align-items: flex-start; flex-direction: column; gap: 1rem; }
+	.branch-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.branch-bento-card:first-child { grid-column: span 2; grid-row: auto; min-height: 24rem; }
 }
 
 .appointment-scene-title {
