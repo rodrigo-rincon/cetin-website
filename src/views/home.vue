@@ -1783,6 +1783,24 @@ onUnmounted(() => {
 .appointment-scene-card-coral { background: #ffe4e6; }
 .appointment-scene-card-action { background: #f8fafc; }
 
+:global(.dark .appointment-scene-card) {
+	border-color: rgb(255 255 255 / 0.12);
+	background: rgb(15 23 42 / 0.9);
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 28px 72px rgb(2 6 23 / 0.5);
+	color: #f8fafc;
+	backdrop-filter: blur(18px) saturate(1.1);
+}
+
+:global(.dark .appointment-scene-card-pink) { background: rgb(50 24 49 / 0.92); }
+:global(.dark .appointment-scene-card-blue) { background: rgb(19 40 75 / 0.92); }
+:global(.dark .appointment-scene-card-coral) { background: rgb(55 28 42 / 0.92); }
+:global(.dark .appointment-scene-card-action) { background: rgb(15 23 42 / 0.94); }
+:global(.dark .appointment-scene-step),
+:global(.dark .appointment-scene-card > p:last-child) { color: #cbd5e1; }
+:global(.dark .appointment-scene-card-pink .appointment-scene-number) { color: #f472b6; }
+:global(.dark .appointment-scene-card-blue .appointment-scene-number) { color: #60a5fa; }
+:global(.dark .appointment-scene-card-coral .appointment-scene-number) { color: #fb7185; }
+
 .appointment-scene-mark {
 	display: flex;
 	width: 5.5rem;
@@ -1794,6 +1812,12 @@ onUnmounted(() => {
 	background: #0f2a5c;
 	color: white;
 	font-size: 2.5rem;
+}
+
+:global(.dark .appointment-scene-mark) {
+	border: 1px solid rgb(244 114 182 / 0.4);
+	background: rgb(236 72 153 / 0.16);
+	color: #f9a8d4;
 }
 
 .appointment-scene-button {
