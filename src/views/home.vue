@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -105,9 +105,10 @@ const getSucursalCover = (id: string) =>
 
 const branchRail = ref<HTMLElement | null>(null);
 const activeBranchIndex = ref(0);
+const physicalBranchIndex = ref(0);
 const branchSlides = computed(() => {
 	const branches = content.value.sucursales;
-	return branches.length > 1 ? [...branches, branches[0]] : branches;
+	return branches.length > 1 ? [...branches, ...branches, ...branches] : branches;
 });
 let branchAutoplayTimer: number | null = null;
 let branchLoopTimer: number | null = null;
@@ -130,16 +131,9 @@ const scrollToBranchCard = (index: number, behavior: ScrollBehavior = 'smooth') 
 const advanceBranchRail = () => {
 	const total = content.value.sucursales.length;
 	if (total < 2) return;
-	if (activeBranchIndex.value < total - 1) {
-		activeBranchIndex.value += 1;
-		scrollToBranchCard(activeBranchIndex.value);
-		return;
-	}
-
-	activeBranchIndex.value = 0;
-	scrollToBranchCard(total);
-	if (branchLoopTimer !== null) window.clearTimeout(branchLoopTimer);
-	branchLoopTimer = window.setTimeout(() => scrollToBranchCard(0, 'auto'), 720);
+	physicalBranchIndex.value += 1;
+	activeBranchIndex.value = physicalBranchIndex.value % total;
+	scrollToBranchCard(physicalBranchIndex.value);
 };
 
 const startBranchAutoplay = () => {
@@ -168,23 +162,30 @@ const updateActiveBranch = () => {
 		const closestDistance = Math.abs(cards[closest].getBoundingClientRect().left - railStart);
 		return currentDistance < closestDistance ? index : closest;
 	}, 0);
-	activeBranchIndex.value = closestIndex >= content.value.sucursales.length ? 0 : closestIndex;
+	physicalBranchIndex.value = closestIndex;
+	activeBranchIndex.value = closestIndex % content.value.sucursales.length;
+	if (branchLoopTimer !== null) window.clearTimeout(branchLoopTimer);
+	branchLoopTimer = window.setTimeout(normalizeBranchRail, 180);
+};
+
+const normalizeBranchRail = () => {
+	const total = content.value.sucursales.length;
+	if (total < 2) return;
+	let normalizedIndex = physicalBranchIndex.value;
+	if (normalizedIndex < total) normalizedIndex += total;
+	if (normalizedIndex >= total * 2) normalizedIndex -= total;
+	if (normalizedIndex === physicalBranchIndex.value) return;
+	physicalBranchIndex.value = normalizedIndex;
+	scrollToBranchCard(normalizedIndex, 'auto');
 };
 
 const moveBranchRail = (direction: -1 | 1) => {
 	const total = content.value.sucursales.length;
 	if (total < 2) return;
 	stopBranchAutoplay();
-	if (direction === 1 && activeBranchIndex.value === total - 1) {
-		advanceBranchRail();
-		resumeBranchAutoplay();
-		return;
-	}
-	const nextIndex = direction === -1 && activeBranchIndex.value === 0
-		? total - 1
-		: clamp(activeBranchIndex.value + direction, 0, total - 1);
-	activeBranchIndex.value = nextIndex;
-	scrollToBranchCard(nextIndex);
+	physicalBranchIndex.value += direction;
+	activeBranchIndex.value = ((physicalBranchIndex.value % total) + total) % total;
+	scrollToBranchCard(physicalBranchIndex.value);
 	resumeBranchAutoplay();
 };
 
@@ -309,6 +310,10 @@ onMounted(() => {
 	updateAppointmentLayout();
 	initAppointmentStory();
 	if (branchRail.value) {
+		void nextTick(() => {
+			physicalBranchIndex.value = content.value.sucursales.length;
+			scrollToBranchCard(physicalBranchIndex.value, 'auto');
+		});
 		branchRailObserver = new IntersectionObserver(([entry]) => {
 			branchRailVisible = entry.isIntersecting;
 			if (entry.isIntersecting) startBranchAutoplay();
@@ -1045,11 +1050,11 @@ onUnmounted(() => {
 						:key="`${sucursal.id}-${index}`"
 						class="branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
 						:class="{
-							'is-active': index < content.sucursales.length && (activeBranchIndex === index || selectedMapBranch?.id === sucursal.id),
-							'is-clone': index === content.sucursales.length,
+							'is-active': activeBranchIndex === index % content.sucursales.length || selectedMapBranch?.id === sucursal.id,
+							'is-clone': index < content.sucursales.length || index >= content.sucursales.length * 2,
 						}"
-						:aria-hidden="index === content.sucursales.length ? 'true' : undefined"
-						:inert="index === content.sucursales.length"
+						:aria-hidden="index < content.sucursales.length || index >= content.sucursales.length * 2 ? 'true' : undefined"
+						:inert="index < content.sucursales.length || index >= content.sucursales.length * 2"
 					>
 						<img
 							:src="getSucursalCover(sucursal.id)"
@@ -1102,7 +1107,6 @@ onUnmounted(() => {
 						</div>
 					</article>
 				</div>
-				<div class="branch-rail-progress mb-12" aria-hidden="true"><span :style="{ width: `${((activeBranchIndex + 1) / Math.max(content.sucursales.length, 1)) * 100}%` }"></span></div>
 
 				<!-- Map with all locations -->
 				<div class="relative">
@@ -1564,21 +1568,6 @@ onUnmounted(() => {
 .branch-rail:has(.branch-card.is-active) .branch-card:not(.is-active) { opacity: 0.82; }
 
 .branch-card.is-clone { pointer-events: none; }
-
-.branch-rail-progress {
-	height: .22rem;
-	overflow: hidden;
-	border-radius: 999px;
-	background: rgb(148 163 184 / .2);
-}
-
-.branch-rail-progress span {
-	display: block;
-	height: 100%;
-	border-radius: inherit;
-	background: #ec4899;
-	transition: width 320ms cubic-bezier(.22, 1, .36, 1);
-}
 
 .branch-card.is-active {
 	transform: translateY(-0.35rem);
