@@ -7,6 +7,7 @@ import Carousel from '../components/carousel.vue';
 import HeroSection from '../components/HeroSection.vue';
 import InfoSection from '../components/InfoSection.vue';
 import { useReadonlyContent } from '../composables/useContent';
+import { useCookieConsent } from '../composables/useCookieConsent';
 import type { Sucursal } from '../data/content';
 import defaultSucursalCover from '../assets/images/cetin_ciudad_de_mexico.jpg';
 import {
@@ -17,6 +18,11 @@ import {
 } from '../directives/scrollReveal';
 
 const { content } = useReadonlyContent();
+const { externalMediaAllowed } = useCookieConsent();
+
+const requestExternalMedia = () => {
+	window.dispatchEvent(new CustomEvent('open-cetin-cookie-settings'));
+};
 
 const openAppointmentForm = () => {
 	window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
@@ -83,6 +89,10 @@ const getVideoThumbnail = (url: string) => {
 };
 
 const activateVideo = (id: string) => {
+	if (!externalMediaAllowed.value) {
+		requestExternalMedia();
+		return;
+	}
 	activeVideoIds.value = new Set(activeVideoIds.value).add(id);
 };
 
@@ -230,10 +240,21 @@ const initMap = async () => {
 };
 
 onMounted(() => {
-	void initMap();
+	if (externalMediaAllowed.value) void initMap();
 	window.addEventListener('resize', updateAppointmentLayout, { passive: true });
 	updateAppointmentLayout();
 	initAppointmentStory();
+});
+
+watch(externalMediaAllowed, (allowed) => {
+	if (allowed) {
+		void initMap();
+		return;
+	}
+	mapInstance?.remove();
+	mapInstance = null;
+	mapReady.value = false;
+	activeVideoIds.value = new Set();
 });
 
 onUnmounted(() => {
@@ -313,7 +334,7 @@ onUnmounted(() => {
 								:aria-label="`Reproducir ${video.title}`"
 								@click="activateVideo(video.id)"
 							>
-								<img v-if="getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover/play:opacity-100" />
+								<img v-if="externalMediaAllowed && getVideoThumbnail(video.youtubeUrl)" :src="getVideoThumbnail(video.youtubeUrl)" alt="" loading="lazy" class="h-full w-full object-cover opacity-90 transition-opacity duration-300 group-hover/play:opacity-100" />
 								<span class="video-tile-shade absolute inset-0"></span>
 								<span class="video-episode absolute left-5 top-5 rounded-md px-3 py-1.5 text-[11px] font-semibold text-white">Video {{ String(index + 1).padStart(2, '0') }}</span>
 								<span class="video-play absolute right-5 top-5 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-sm transition-colors duration-300" aria-hidden="true">
@@ -495,6 +516,7 @@ onUnmounted(() => {
 								class="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-lg"
 							>
 								<iframe
+									v-if="externalMediaAllowed"
 									loading="lazy"
 									class="w-full h-full"
 									:src="content.laborAltruista.videoUrl"
@@ -503,6 +525,10 @@ onUnmounted(() => {
 									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share;"
 									allowfullscreen
 								></iframe>
+								<button v-else type="button" class="flex h-full w-full flex-col items-center justify-center gap-3 bg-slate-100 px-6 text-center text-[#0f2a5c]" @click="requestExternalMedia">
+									<span class="flex h-12 w-12 items-center justify-center rounded-full bg-pink-500 text-xl text-white" aria-hidden="true">▶</span>
+									<span class="font-semibold">Autoriza el contenido externo para ver este video</span>
+								</button>
 							</div>
 
 							<!-- Quote caption -->
@@ -1042,7 +1068,8 @@ onUnmounted(() => {
 						style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.1);"
 					>
 						<div id="cetin-map" style="width:100%;height:360px;min-height:320px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
-							<p style="color:#64748b;font-size:14px;">Cargando mapa...</p>
+							<button v-if="!externalMediaAllowed" type="button" class="mx-6 rounded-xl bg-[#0f2a5c] px-5 py-3 text-sm font-semibold text-white hover:bg-pink-500" @click="requestExternalMedia">Activar mapa de sucursales</button>
+							<p v-else style="color:#64748b;font-size:14px;">Cargando mapa...</p>
 						</div>
 						<div v-if="mapError && !mapReady" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-100/95 px-6 text-center dark:bg-slate-900/95">
 							<p class="font-semibold text-[#0f2a5c] dark:text-white">No pudimos cargar el mapa</p>

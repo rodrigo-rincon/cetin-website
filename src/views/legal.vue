@@ -131,7 +131,7 @@ const title = computed(() => ({
 				</ul>
 
 				<h2>3. Cómo controlar estas tecnologías</h2>
-				<p>Puede borrar el almacenamiento del sitio desde la configuración de su navegador, bloquear contenido de terceros o navegar con protecciones adicionales. Si elimina el almacenamiento local, se restablecerán preferencias como el tema visual y se cerrará cualquier sesión administrativa.</p>
+				<p>Puede aceptar o impedir la carga de contenido externo desde el aviso de privacidad o mediante “Preferencias de cookies” en el pie de página. También puede borrar el almacenamiento del sitio desde la configuración de su navegador. Si lo elimina, se restablecerán preferencias como el tema visual, el consentimiento y cualquier sesión administrativa.</p>
 
 				<h2>4. Cambios futuros</h2>
 				<p>Si incorporamos analítica, publicidad u otras tecnologías no esenciales, actualizaremos esta política y, cuando corresponda, solicitaremos consentimiento antes de activarlas.</p>

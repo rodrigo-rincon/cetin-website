@@ -8,6 +8,7 @@ import Header from '../components/header.vue';
 import Footer from '../components/footer.vue';
 import Chatbot from '../components/Chatbot.vue';
 import AppointmentWhatsAppModal from '../components/AppointmentWhatsAppModal.vue';
+import CookieConsent from '../components/CookieConsent.vue';
 
 const route = useRoute();
 const showLayout = computed(() => route.path === '/');
@@ -98,5 +99,6 @@ onBeforeUnmount(() => {
 		<!-- Chatbot -->
 		<Chatbot v-if="showLayout" />
 		<AppointmentWhatsAppModal v-if="showLayout" />
+		<CookieConsent v-if="showLayout" />
 	</div>
 </template>

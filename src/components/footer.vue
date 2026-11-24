@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear();
+const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-cetin-cookie-settings'));
 </script>
 
 <template>
@@ -236,6 +237,7 @@ const currentYear = new Date().getFullYear();
 						<router-link class="transition-colors hover:text-white" to="/aviso-de-privacidad">Aviso de privacidad</router-link>
 						<router-link class="transition-colors hover:text-white" to="/terminos-y-condiciones">Términos y condiciones</router-link>
 						<router-link class="transition-colors hover:text-white" to="/politica-de-cookies">Cookies y tecnologías</router-link>
+						<button type="button" class="transition-colors hover:text-white" @click="openCookieSettings">Preferencias de cookies</button>
 					</nav>
 				</div>
 			</div>
