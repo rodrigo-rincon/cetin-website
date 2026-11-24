@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -105,6 +105,57 @@ const getSucursalCover = (id: string) =>
 
 const branchRail = ref<HTMLElement | null>(null);
 const activeBranchIndex = ref(0);
+const branchSlides = computed(() => {
+	const branches = content.value.sucursales;
+	return branches.length > 1 ? [...branches, branches[0]] : branches;
+});
+let branchAutoplayTimer: number | null = null;
+let branchLoopTimer: number | null = null;
+let branchResumeTimer: number | null = null;
+let branchRailObserver: IntersectionObserver | null = null;
+let branchRailVisible = false;
+
+const stopBranchAutoplay = () => {
+	if (branchAutoplayTimer !== null) window.clearInterval(branchAutoplayTimer);
+	branchAutoplayTimer = null;
+};
+
+const scrollToBranchCard = (index: number, behavior: ScrollBehavior = 'smooth') => {
+	const rail = branchRail.value;
+	const card = rail?.querySelectorAll<HTMLElement>('.branch-card')[index];
+	if (!rail || !card) return;
+	rail.scrollTo({ left: card.offsetLeft - rail.offsetLeft, behavior });
+};
+
+const advanceBranchRail = () => {
+	const total = content.value.sucursales.length;
+	if (total < 2) return;
+	if (activeBranchIndex.value < total - 1) {
+		activeBranchIndex.value += 1;
+		scrollToBranchCard(activeBranchIndex.value);
+		return;
+	}
+
+	activeBranchIndex.value = 0;
+	scrollToBranchCard(total);
+	if (branchLoopTimer !== null) window.clearTimeout(branchLoopTimer);
+	branchLoopTimer = window.setTimeout(() => scrollToBranchCard(0, 'auto'), 720);
+};
+
+const startBranchAutoplay = () => {
+	if (
+		branchAutoplayTimer !== null ||
+		!branchRailVisible ||
+		content.value.sucursales.length < 2 ||
+		window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	) return;
+	branchAutoplayTimer = window.setInterval(advanceBranchRail, 4400);
+};
+
+const resumeBranchAutoplay = () => {
+	if (branchResumeTimer !== null) window.clearTimeout(branchResumeTimer);
+	branchResumeTimer = window.setTimeout(startBranchAutoplay, 3200);
+};
 
 const updateActiveBranch = () => {
 	const rail = branchRail.value;
@@ -112,22 +163,29 @@ const updateActiveBranch = () => {
 	const cards = Array.from(rail.querySelectorAll<HTMLElement>('.branch-card'));
 	if (!cards.length) return;
 	const railStart = rail.getBoundingClientRect().left;
-	activeBranchIndex.value = cards.reduce((closest, card, index) => {
+	const closestIndex = cards.reduce((closest, card, index) => {
 		const currentDistance = Math.abs(card.getBoundingClientRect().left - railStart);
 		const closestDistance = Math.abs(cards[closest].getBoundingClientRect().left - railStart);
 		return currentDistance < closestDistance ? index : closest;
 	}, 0);
+	activeBranchIndex.value = closestIndex >= content.value.sucursales.length ? 0 : closestIndex;
 };
 
 const moveBranchRail = (direction: -1 | 1) => {
-	const rail = branchRail.value;
-	if (!rail) return;
-	const cards = Array.from(rail.querySelectorAll<HTMLElement>('.branch-card'));
-	const nextIndex = clamp(activeBranchIndex.value + direction, 0, cards.length - 1);
-	const target = cards[nextIndex];
-	if (!target) return;
+	const total = content.value.sucursales.length;
+	if (total < 2) return;
+	stopBranchAutoplay();
+	if (direction === 1 && activeBranchIndex.value === total - 1) {
+		advanceBranchRail();
+		resumeBranchAutoplay();
+		return;
+	}
+	const nextIndex = direction === -1 && activeBranchIndex.value === 0
+		? total - 1
+		: clamp(activeBranchIndex.value + direction, 0, total - 1);
 	activeBranchIndex.value = nextIndex;
-	rail.scrollTo({ left: target.offsetLeft - rail.offsetLeft, behavior: 'smooth' });
+	scrollToBranchCard(nextIndex);
+	resumeBranchAutoplay();
 };
 
 const selectedMapBranch = ref<Sucursal | null>(null);
@@ -250,6 +308,14 @@ onMounted(() => {
 	window.addEventListener('resize', updateAppointmentLayout, { passive: true });
 	updateAppointmentLayout();
 	initAppointmentStory();
+	if (branchRail.value) {
+		branchRailObserver = new IntersectionObserver(([entry]) => {
+			branchRailVisible = entry.isIntersecting;
+			if (entry.isIntersecting) startBranchAutoplay();
+			else stopBranchAutoplay();
+		}, { threshold: 0.35 });
+		branchRailObserver.observe(branchRail.value);
+	}
 });
 
 watch(externalMediaAllowed, (allowed) => {
@@ -270,6 +336,11 @@ onUnmounted(() => {
 	mapInstance?.remove();
 	mapInstance = null;
 	mapMarkerElements.clear();
+	stopBranchAutoplay();
+	if (branchLoopTimer !== null) window.clearTimeout(branchLoopTimer);
+	if (branchResumeTimer !== null) window.clearTimeout(branchResumeTimer);
+	branchRailObserver?.disconnect();
+	branchRailObserver = null;
 });
 </script>
 
@@ -953,8 +1024,8 @@ onUnmounted(() => {
 					</div>
 					<div class="branch-rail-controls" aria-label="Navegación de sucursales">
 						<span class="branch-rail-count"><strong>{{ String(activeBranchIndex + 1).padStart(2, '0') }}</strong> / {{ String(content.sucursales.length).padStart(2, '0') }}</span>
-						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Sucursal anterior" :disabled="activeBranchIndex === 0" @click="moveBranchRail(-1)">←</button>
-						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Siguiente sucursal" :disabled="activeBranchIndex >= content.sucursales.length - 1" @click="moveBranchRail(1)">→</button>
+						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Sucursal anterior" :disabled="content.sucursales.length < 2" @click="moveBranchRail(-1)">←</button>
+						<button type="button" class="dark:border-slate-600 dark:bg-slate-800 dark:text-white" aria-label="Siguiente sucursal" :disabled="content.sucursales.length < 2" @click="moveBranchRail(1)">→</button>
 					</div>
 				</div>
 
@@ -962,12 +1033,23 @@ onUnmounted(() => {
 					ref="branchRail"
 					class="branch-rail mb-4"
 					@scroll.passive="updateActiveBranch"
+					@mouseenter="stopBranchAutoplay"
+					@mouseleave="startBranchAutoplay"
+					@focusin="stopBranchAutoplay"
+					@focusout="resumeBranchAutoplay"
+					@pointerdown="stopBranchAutoplay"
+					@pointerup="resumeBranchAutoplay"
 				>
 					<article
-						v-for="(sucursal, index) in content.sucursales"
-						:key="sucursal.id"
+						v-for="(sucursal, index) in branchSlides"
+						:key="`${sucursal.id}-${index}`"
 						class="branch-card group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm transition-colors duration-300 hover:border-pink-200 dark:border-slate-700 dark:hover:border-pink-800"
-						:class="{ 'is-active': activeBranchIndex === index || selectedMapBranch?.id === sucursal.id }"
+						:class="{
+							'is-active': index < content.sucursales.length && (activeBranchIndex === index || selectedMapBranch?.id === sucursal.id),
+							'is-clone': index === content.sucursales.length,
+						}"
+						:aria-hidden="index === content.sucursales.length ? 'true' : undefined"
+						:inert="index === content.sucursales.length"
 					>
 						<img
 							:src="getSucursalCover(sucursal.id)"
@@ -1480,6 +1562,8 @@ onUnmounted(() => {
 .branch-rail::-webkit-scrollbar { display: none; }
 
 .branch-rail:has(.branch-card.is-active) .branch-card:not(.is-active) { opacity: 0.82; }
+
+.branch-card.is-clone { pointer-events: none; }
 
 .branch-rail-progress {
 	height: .22rem;
