@@ -120,7 +120,7 @@ const toSection = (section: string) => {
 	<header
 		class="fixed inset-x-0 top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow] duration-500"
 		:class="showShadow
-			? 'border-slate-200/80 bg-white/90 shadow-[0_10px_35px_rgba(15,42,92,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 dark:shadow-black/20'
+			? 'cetin-glass-nav border-slate-200/80 dark:border-white/10'
 			: 'border-transparent bg-transparent shadow-none'"
 	>
 		<div

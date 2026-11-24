@@ -106,7 +106,7 @@ const sourceLabel = (testimonial: Testimonial) =>
 					<article
 						v-for="item in deckTestimonials"
 						:key="item.testimonial.id"
-						class="testimonial-deck-card"
+						class="cetin-glass testimonial-deck-card"
 						:class="`testimonial-deck-card-${item.position}`"
 						:aria-hidden="item.position !== 'active'"
 						@click="showTestimonial(item.position)"
@@ -190,7 +190,6 @@ const sourceLabel = (testimonial: Testimonial) =>
 	flex-direction: column;
 	border: 1px solid rgb(226 232 240);
 	border-radius: 1.25rem;
-	background: white;
 	padding: 2.25rem;
 	box-shadow: 0 20px 50px rgb(15 23 42 / 0.09);
 	transform-origin: center bottom;
@@ -245,7 +244,6 @@ const sourceLabel = (testimonial: Testimonial) =>
 
 :global(.dark .testimonial-deck-card) {
 	border-color: rgb(51 65 85);
-	background: rgb(30 41 59) !important;
 	box-shadow: 0 22px 52px rgb(2 6 23 / 0.24);
 }
 

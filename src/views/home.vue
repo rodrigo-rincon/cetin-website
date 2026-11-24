@@ -448,7 +448,7 @@ onUnmounted(() => {
 
 				<div class="grid items-stretch gap-10 lg:grid-cols-12 lg:gap-16">
 					<div v-slide-right class="lg:col-span-5">
-						<div class="flex h-full min-h-[29rem] flex-col rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-sm transition-colors duration-500 dark:border-slate-700 dark:bg-slate-900 sm:p-9">
+						<div class="cetin-glass-strong flex h-full min-h-[29rem] flex-col rounded-2xl border border-slate-200 p-7 text-center transition-colors duration-500 dark:border-slate-700 sm:p-9">
 							<span class="text-sm font-semibold text-pink-500">Nuestro respaldo</span>
 							<h3 class="mt-6 text-2xl font-semibold leading-tight text-[#0f2a5c] dark:text-white lg:text-[1.75rem]">
 								Tecnología avanzada para detectar enfermedades con precisión
@@ -588,7 +588,7 @@ onUnmounted(() => {
 						<!-- Glow effect -->
 
 						<div
-							class="labor-media-frame relative bg-white rounded-2xl p-6 lg:p-8 overflow-hidden"
+							class="cetin-glass-strong labor-media-frame relative rounded-2xl p-6 lg:p-8 overflow-hidden"
 						>
 							<!-- Video wrapper with aspect ratio -->
 							<div
@@ -1121,8 +1121,8 @@ onUnmounted(() => {
 				<!-- Map with all locations -->
 				<div class="relative">
 					<div
-						class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
-						style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.1);"
+					class="cetin-glass-strong rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden"
+					style="border-radius:24px;overflow:hidden;"
 					>
 						<div id="cetin-map" style="width:100%;height:360px;min-height:320px;display:flex;align-items:center;justify-content:center;background:#f1f5f9;">
 							<button v-if="!externalMediaAllowed" type="button" class="mx-6 rounded-xl bg-[#0f2a5c] px-5 py-3 text-sm font-semibold text-white hover:bg-pink-500" @click="requestExternalMedia">Activar mapa de sucursales</button>
@@ -1191,7 +1191,7 @@ onUnmounted(() => {
 					</p>
 				</div>
 
-				<div v-gsap-reveal="{ children: '.commitment-row', stagger: 0.1, y: 16 }" class="commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900/60 sm:px-8">
+				<div v-gsap-reveal="{ children: '.commitment-row', stagger: 0.1, y: 16 }" class="cetin-glass commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 px-6 py-3 dark:border-white/10 sm:px-8">
 					<div class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 py-7 sm:gap-6 sm:py-8">
 						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-pink-200 bg-pink-50 text-pink-500 dark:border-pink-400/20 dark:bg-pink-400/10">
 							<svg

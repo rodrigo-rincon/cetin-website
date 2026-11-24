@@ -94,7 +94,7 @@
 						</button>
 						<a
 							href="#services-info"
-							class="group inline-flex items-center justify-center rounded-lg border border-slate-300/80 bg-white/75 px-7 py-3.5 font-semibold text-slate-700 transition-colors duration-150 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-white/20 dark:bg-slate-900/50 dark:text-gray-100 dark:hover:bg-slate-800"
+							class="cetin-glass group inline-flex items-center justify-center rounded-lg border border-slate-300/80 px-7 py-3.5 font-semibold text-slate-700 transition-colors duration-150 hover:bg-white/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-white/20 dark:text-gray-100 dark:hover:bg-slate-800/80"
 						>
 							{{ content.hero.ctaSecondary }}
 							<svg
@@ -174,7 +174,7 @@
 
 					<!-- Simple floating card -->
 					<div
-						class="absolute -bottom-4 -left-4 lg:-left-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-4 border border-gray-100 dark:border-slate-700 hidden sm:flex items-center gap-3"
+						class="cetin-glass-strong absolute -bottom-4 -left-4 lg:-left-8 rounded-2xl p-4 border border-gray-100 dark:border-slate-700 hidden sm:flex items-center gap-3"
 					>
 						<div
 							class="w-10 h-10 bg-pink-100 dark:bg-pink-900/50 rounded-full flex items-center justify-center"
