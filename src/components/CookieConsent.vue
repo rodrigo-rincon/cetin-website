@@ -102,13 +102,16 @@ onBeforeUnmount(() => window.removeEventListener('open-cetin-cookie-settings', o
 .cookie-switch.is-active span { transform: translateX(1.24rem); }
 .cookie-card-enter-active, .cookie-card-leave-active { transition: opacity 280ms ease, transform 420ms cubic-bezier(.22, 1, .36, 1); }
 .cookie-card-enter-from, .cookie-card-leave-to { opacity: 0; transform: translateY(2rem) rotate(1.5deg) scale(.96); }
-:global(.dark) .cookie-consent { border-color: rgb(148 163 184 / .2); background: rgb(15 23 42 / .97); box-shadow: 0 24px 64px rgb(0 0 0 / .4); color: white; }
-:global(.dark) .cookie-consent__copy { color: #cbd5e1; }
-:global(.dark) .cookie-button--secondary { border-color: #475569; background: #1e293b; color: white; }
-:global(.dark) .cookie-button--secondary:hover { background: #334155; }
-:global(.dark) .cookie-button--link, :global(.dark) .cookie-consent__policy { color: #cbd5e1; }
-:global(.dark) .cookie-preference { border-color: #334155; background: #1e293b; }
-:global(.dark) .cookie-preference div span, :global(.dark) .cookie-preference__required { color: #cbd5e1; }
 @media (max-width: 639px) { .cookie-consent { right: .75rem; bottom: .75rem; width: calc(100vw - 1.5rem); } .cookie-consent__doctor { width: 6.4rem; height: 6.4rem; } .cookie-consent__content { padding: 1.25rem; padding-right: 6.25rem; } .cookie-preferences { margin-right: -5rem; } .cookie-consent__actions { display: grid; grid-template-columns: 1fr; } .cookie-button { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .cookie-card-enter-active, .cookie-card-leave-active { transition-duration: .01ms; } }
+</style>
+
+<style>
+html.dark .cookie-consent { border-color: rgb(148 163 184 / .2); background: rgb(15 23 42 / .97); box-shadow: 0 24px 64px rgb(0 0 0 / .4); color: white; }
+html.dark .cookie-consent__copy { color: #cbd5e1; }
+html.dark .cookie-button--secondary { border-color: #475569; background: #1e293b; color: white; }
+html.dark .cookie-button--secondary:hover { background: #334155; }
+html.dark .cookie-button--link, html.dark .cookie-consent__policy { color: #cbd5e1; }
+html.dark .cookie-preference { border-color: #334155; background: #1e293b; }
+html.dark .cookie-preference div span, html.dark .cookie-preference__required { color: #cbd5e1; }
 </style>
