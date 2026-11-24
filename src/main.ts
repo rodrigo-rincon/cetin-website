@@ -5,6 +5,7 @@ import router from './router';
 
 // Directivas de animación scroll
 import { vScrollReveal, vFadeUp, vFadeIn, vSlideLeft, vSlideRight, vScaleUp } from './directives/scrollReveal';
+import { vGsapReveal } from './directives/gsapMotion';
 // Directiva lazy loading
 import { vLazyImg } from './composables/useLazyImage';
 import { useContent } from './composables/useContent';
@@ -18,6 +19,7 @@ app.directive('fade-in', vFadeIn);
 app.directive('slide-left', vSlideLeft);
 app.directive('slide-right', vSlideRight);
 app.directive('scale-up', vScaleUp);
+app.directive('gsap-reveal', vGsapReveal);
 app.directive('lazy-img', vLazyImg);
 
 app.use(router).mount('#app');

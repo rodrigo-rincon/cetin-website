@@ -278,11 +278,10 @@ onUnmounted(() => {
 			<div
 				class="mx-auto mt-10 w-full px-6 lg:mt-12 lg:px-8 xl:px-12"
 			>
-				<div class="video-bento-grid">
+				<div v-gsap-reveal="{ children: '.video-tile', stagger: 0.08, y: 18 }" class="video-bento-grid">
 					<article
 						v-for="(video, index) in content.videosSection.videos"
 						:key="video.id"
-						v-fade-up="{ delay: index * 90 }"
 						class="video-tile group"
 					>
 						<div class="relative h-full min-h-64 overflow-hidden bg-slate-950">
@@ -966,7 +965,7 @@ onUnmounted(() => {
 				</div>
 
 				<!-- Sucursales Grid -->
-				<div class="branch-layout grid grid-cols-1 items-stretch gap-6 md:grid-cols-6 lg:gap-7 mb-12">
+				<div v-gsap-reveal="{ children: '.branch-card', stagger: 0.07, y: 20 }" class="branch-layout grid grid-cols-1 items-stretch gap-6 md:grid-cols-6 lg:gap-7 mb-12">
 					<article
 						v-for="(sucursal, index) in content.sucursales"
 						:key="sucursal.id"
@@ -1096,8 +1095,8 @@ onUnmounted(() => {
 					</p>
 				</div>
 
-				<div class="commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900/60 sm:px-8">
-					<div v-fade-up="{ delay: 80 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 py-7 sm:gap-6 sm:py-8">
+				<div v-gsap-reveal="{ children: '.commitment-row', stagger: 0.1, y: 16 }" class="commitment-flow relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-3 shadow-sm dark:border-white/10 dark:bg-slate-900/60 sm:px-8">
+					<div class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 py-7 sm:gap-6 sm:py-8">
 						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-pink-200 bg-pink-50 text-pink-500 dark:border-pink-400/20 dark:bg-pink-400/10">
 							<svg
 								class="h-6 w-6"
@@ -1120,7 +1119,7 @@ onUnmounted(() => {
 						<span class="pt-1 text-sm font-semibold tabular-nums text-slate-300 dark:text-slate-600">01</span>
 					</div>
 
-					<div v-fade-up="{ delay: 160 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 border-t border-slate-200 py-7 sm:gap-6 sm:py-8 dark:border-white/10">
+					<div class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 border-t border-slate-200 py-7 sm:gap-6 sm:py-8 dark:border-white/10">
 						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-cetin-turquoise/30 bg-cetin-turquoise/10 text-cetin-turquoise dark:border-cetin-turquoise/30 dark:bg-cetin-turquoise/10">
 							<svg
 								class="h-6 w-6"
@@ -1143,7 +1142,7 @@ onUnmounted(() => {
 						<span class="pt-1 text-sm font-semibold tabular-nums text-slate-300 dark:text-slate-600">02</span>
 					</div>
 
-					<div v-fade-up="{ delay: 240 }" class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 border-t border-slate-200 py-7 sm:gap-6 sm:py-8 dark:border-white/10">
+					<div class="commitment-row group grid grid-cols-[auto_1fr_auto] gap-4 border-t border-slate-200 py-7 sm:gap-6 sm:py-8 dark:border-white/10">
 						<div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-cetin-gold/30 bg-cetin-gold/10 text-cetin-gold dark:border-cetin-gold/30 dark:bg-cetin-gold/10">
 							<svg
 								class="h-6 w-6"

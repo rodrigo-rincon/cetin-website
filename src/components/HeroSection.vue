@@ -27,6 +27,7 @@
 		></div>
 
 		<div
+			v-gsap-reveal="{ children: '.gsap-hero-item', stagger: 0.09, y: 18, start: 'top 96%' }"
 			class="relative z-10 mx-auto flex min-h-[720px] w-full max-w-7xl items-center px-6 pb-28 pt-24 lg:min-h-[min(820px,calc(100vh-2rem))] lg:px-12 lg:pb-36 lg:pt-32"
 		>
 			<div
@@ -37,7 +38,7 @@
 					class="hero-content mx-auto flex max-w-xl flex-col gap-6 text-center transition-colors duration-500 ease-in-out sm:mx-0 sm:text-left lg:max-w-[52%]"
 				>
 					<!-- Context label -->
-					<div class="flex justify-center sm:justify-start">
+					<div class="gsap-hero-item flex justify-center sm:justify-start">
 						<span
 							class="inline-flex items-center gap-2 text-sm font-medium text-pink-600 transition-colors duration-300 dark:text-pink-300"
 						>
@@ -50,7 +51,7 @@
 
 					<!-- Main heading -->
 					<h1
-						class="text-4xl font-semibold leading-[1.08] text-[#0f2a5c] transition-colors duration-300 dark:text-white sm:text-5xl lg:text-6xl"
+						class="gsap-hero-item text-4xl font-semibold leading-[1.08] text-[#0f2a5c] transition-colors duration-300 dark:text-white sm:text-5xl lg:text-6xl"
 					>
 						{{ content.hero.title }}
 						<span class="text-pink-500"> {{ content.hero.titleHighlight }}</span>
@@ -58,14 +59,14 @@
 
 					<!-- Subtitle -->
 					<p
-						class="mx-auto max-w-lg text-lg leading-relaxed text-gray-600 transition-colors duration-300 dark:text-gray-300 sm:mx-0 lg:text-xl"
+						class="gsap-hero-item mx-auto max-w-lg text-lg leading-relaxed text-gray-600 transition-colors duration-300 dark:text-gray-300 sm:mx-0 lg:text-xl"
 					>
 						{{ content.hero.subtitle }}
 					</p>
 
 					<!-- CTA Buttons -->
 					<div
-						class="mt-2 flex flex-col justify-center gap-3 sm:flex-row sm:justify-start"
+						class="gsap-hero-item mt-2 flex flex-col justify-center gap-3 sm:flex-row sm:justify-start"
 					>
 						<button
 							type="button"
@@ -110,7 +111,7 @@
 
 					<!-- Stats - Subtle Design -->
 					<div
-						class="mt-6 flex flex-wrap justify-center gap-4 border-t border-slate-300/60 pt-6 transition-colors duration-500 dark:border-white/15 sm:justify-start lg:mt-8 lg:gap-8 lg:pt-8"
+						class="gsap-hero-item mt-6 flex flex-wrap justify-center gap-4 border-t border-slate-300/60 pt-6 transition-colors duration-500 dark:border-white/15 sm:justify-start lg:mt-8 lg:gap-8 lg:pt-8"
 					>
 						<div class="text-center">
 							<p
