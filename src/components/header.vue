@@ -104,7 +104,12 @@ const getSection = (section: string) => {
 
 const toSection = (section: string) => {
 	currentTab.value = section;
-	document.getElementById(section)?.scrollIntoView();
+	const smoothScrollEvent = new CustomEvent('cetin-scroll-to', {
+		cancelable: true,
+		detail: { id: section },
+	});
+	const useNativeScroll = window.dispatchEvent(smoothScrollEvent);
+	if (useNativeScroll) document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
 	setTimeout(() => {
 		hideMenuModal();
 	}, 550);

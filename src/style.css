@@ -6,7 +6,6 @@
 
 * {
 	font-family: 'Satoshi', system-ui, sans-serif;
-	scroll-behavior: smooth;
 	scroll-margin: 8em;
 }
 
@@ -14,6 +13,10 @@
 html {
 	scrollbar-width: thin;
 	scrollbar-color: #94a3b8 transparent;
+}
+
+html:not(.gsap-smooth-active) {
+	scroll-behavior: smooth;
 }
 
 html::-webkit-scrollbar {
