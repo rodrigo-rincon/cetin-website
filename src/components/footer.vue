@@ -1,153 +1,63 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear();
 const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-cetin-cookie-settings'));
+const openAppointmentForm = () => window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
 </script>
 
+
 <template>
-	<footer class="bg-gray-900 text-white">
-		<!-- Main Footer -->
-		<div class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-				<!-- Brand -->
-				<div class="lg:col-span-1 text-center md:text-left">
-					<div
-						class="flex items-center gap-3 mb-6 justify-center md:justify-start"
-					>
-						<img src="../assets/images/cetin_logo.png" alt="Logo CETIN" class="h-12 w-12 object-contain" />
-						<div>
-							<h3 class="text-xl font-bold">CETIN</h3>
-							<p class="text-sm text-gray-400">
-								Centro de Tamizaje Infantil
-							</p>
-						</div>
+	<footer class="site-footer text-white">
+		<div class="mx-auto max-w-7xl px-6 pb-10 pt-12 lg:px-12 lg:pt-16">
+			<section class="footer-cta" aria-labelledby="footer-cta-title">
+				<div>
+					<p class="footer-kicker">Atención con previa cita</p>
+					<h2 id="footer-cta-title">Da el primer paso para cuidar la salud de tu bebé</h2>
+					<p>Elige la sucursal y el horario que mejor se adapten a tu familia</p>
+				</div>
+				<div class="footer-cta-actions">
+					<a href="tel:+522223994072" class="footer-phone">222 399 4072</a>
+					<button type="button" class="footer-appointment" @click="openAppointmentForm">Agendar cita <span aria-hidden="true">→</span></button>
+				</div>
+			</section>
+
+			<div class="footer-grid">
+				<div class="footer-brand">
+					<div class="footer-brand-lockup">
+						<img src="../assets/images/cetin_logo.png" alt="Logo CETIN" />
+						<div><h3>CETIN</h3><p>Centro de Tamizaje Infantil</p></div>
 					</div>
-					<p class="text-gray-400 leading-relaxed">
-						Cuidamos la salud de tu bebé con los más altos
-						estándares de calidad y tecnología de punta.
-					</p>
+					<p class="footer-brand-copy">Cuidamos la salud de tu bebé con procesos confiables, tecnología especializada y respaldo médico.</p>
+					<a href="mailto:cetincorporativo@gmail.com" class="footer-email">cetincorporativo@gmail.com</a>
 				</div>
 
-				<!-- Schedule -->
-				<div class="text-center md:text-left">
-					<h4
-						class="text-lg font-bold mb-6 flex items-center gap-2 justify-center md:justify-start"
-					>
-						<span class="h-px w-5 bg-pink-500" aria-hidden="true"></span>
-						Horarios
-					</h4>
-					<ul class="space-y-3 text-gray-400">
-						<li
-							class="flex items-center gap-3 justify-center md:justify-start"
-						>
-							<svg
-								class="w-5 h-5 text-pink-500 flex-shrink-0"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-							<span>Lun - Vie: 8:00 - 16:00</span>
-						</li>
-						<li
-							class="flex items-center gap-3 justify-center md:justify-start"
-						>
-							<svg
-								class="w-5 h-5 text-pink-500 flex-shrink-0"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-							<span>Sábados: 9:00 - 15:00</span>
-						</li>
-						<li
-							class="flex items-center gap-3 text-yellow-500 justify-center md:justify-start"
-						>
-							<svg
-								class="w-5 h-5 flex-shrink-0"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-							<span>Bajo previa cita</span>
-						</li>
-					</ul>
+				<div class="footer-column">
+					<h4>Explora</h4>
+					<nav aria-label="Enlaces del sitio">
+						<a href="/#us">Nosotros</a>
+						<a href="/#services-info">Servicios</a>
+						<a href="/#clients">Testimonios</a>
+						<a href="/#contact">Sucursales y contacto</a>
+					</nav>
 				</div>
 
-				<!-- Quick Links -->
-				<div class="text-center md:text-left">
-					<h4
-						class="text-lg font-bold mb-6 flex items-center gap-2 justify-center md:justify-start"
-					>
-						<span class="h-px w-5 bg-pink-500" aria-hidden="true"></span>
-						Enlaces Rápidos
-					</h4>
-					<ul class="space-y-3">
-						<li>
-							<a
-								href="/#us"
-								class="text-gray-400 hover:text-pink-500 transition-colors"
-								>Nosotros</a
-							>
-						</li>
-						<li>
-							<a
-								href="/#services-info"
-								class="text-gray-400 hover:text-pink-500 transition-colors"
-								>Servicios</a
-							>
-						</li>
-						<li>
-							<a
-								href="/#clients"
-								class="text-gray-400 hover:text-pink-500 transition-colors"
-								>Testimonios</a
-							>
-						</li>
-						<li>
-							<a
-								href="/#contact"
-								class="text-gray-400 hover:text-pink-500 transition-colors"
-								>Contacto</a
-							>
-						</li>
-					</ul>
+				<div class="footer-column footer-hours">
+					<h4>Horarios</h4>
+					<dl>
+						<div><dt>Lunes a viernes</dt><dd>8:00–16:00</dd></div>
+						<div><dt>Sábados</dt><dd>9:00–15:00</dd></div>
+					</dl>
+					<p><span aria-hidden="true"></span> Atención bajo previa cita</p>
 				</div>
 
-				<!-- Social -->
-				<div class="text-center md:text-left">
-					<h4
-						class="text-lg font-bold mb-6 flex items-center gap-2 justify-center md:justify-start"
-					>
-						<span class="h-px w-5 bg-pink-500" aria-hidden="true"></span>
-						Contáctanos al
-					</h4>
+				<div class="footer-column footer-social-column">
+					<h4>Síguenos</h4>
 					<div class="social-links">
 						<a
 							href="https://www.facebook.com/cetinpuebla"
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar Facebook de CETIN"
-							class="social-link social-link--facebook group"
+							class="social-link"
 						>
 							<svg
 								class="w-6 h-6 text-white"
@@ -166,7 +76,7 @@ const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-ceti
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar Instagram de CETIN"
-							class="social-link social-link--instagram group"
+							class="social-link"
 						>
 							<svg
 								class="w-6 h-6 text-white"
@@ -185,7 +95,7 @@ const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-ceti
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar TikTok de CETIN"
-							class="social-link social-link--tiktok group"
+							class="social-link"
 						>
 							<svg
 								class="w-6 h-6 text-white"
@@ -204,7 +114,7 @@ const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-ceti
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="Visitar YouTube de CETIN"
-							class="social-link social-link--youtube group"
+							class="social-link"
 						>
 							<svg
 								class="w-6 h-6 text-white"
@@ -221,140 +131,148 @@ const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-ceti
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<!-- Bottom Bar -->
-		<div class="border-t border-gray-800">
-			<div class="max-w-7xl mx-auto px-6 lg:px-12 py-6">
-				<div
-					class="flex flex-col md:flex-row justify-between items-center gap-4"
-				>
-					<p class="text-gray-400 text-sm text-center md:text-left">
-						© {{ currentYear }} CETIN - Centro de Tamizaje Infantil. Todos los
-						derechos reservados.
-					</p>
-					<nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-semibold text-gray-400" aria-label="Enlaces legales">
-						<router-link class="transition-colors hover:text-white" to="/aviso-de-privacidad">Aviso de privacidad</router-link>
-						<router-link class="transition-colors hover:text-white" to="/terminos-y-condiciones">Términos y condiciones</router-link>
-						<router-link class="transition-colors hover:text-white" to="/politica-de-cookies">Cookies y tecnologías</router-link>
-						<button type="button" class="transition-colors hover:text-white" @click="openCookieSettings">Preferencias de cookies</button>
-					</nav>
-				</div>
+			<div class="footer-bottom">
+				<p>© {{ currentYear }} CETIN. Todos los derechos reservados.</p>
+				<nav aria-label="Enlaces legales">
+					<router-link to="/aviso-de-privacidad">Aviso de privacidad</router-link>
+					<router-link to="/terminos-y-condiciones">Términos y condiciones</router-link>
+					<router-link to="/politica-de-cookies">Política de cookies</router-link>
+					<button type="button" @click="openCookieSettings">Preferencias de cookies</button>
+				</nav>
 			</div>
 		</div>
 	</footer>
 </template>
 
 <style scoped>
+.site-footer {
+	position: relative;
+	overflow: hidden;
+	background: #08152b;
+	color: white;
+}
+
+.site-footer::before {
+	position: absolute;
+	inset: 0 0 auto;
+	height: 1px;
+	background: rgb(255 255 255 / 0.16);
+	content: '';
+}
+
+.footer-cta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 2rem;
+	padding: 2rem;
+	border: 1px solid rgb(255 255 255 / 0.14);
+	border-radius: 1.5rem;
+	background: rgb(255 255 255 / 0.07);
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
+	backdrop-filter: blur(18px);
+}
+
+.footer-kicker { margin-bottom: 0.5rem; color: #f9a8d4; font-size: 0.8rem; font-weight: 600; }
+.footer-cta h2 { max-width: 42rem; font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; line-height: 1.15; }
+.footer-cta p:last-child { margin-top: 0.65rem; color: #94a3b8; }
+
+.footer-cta-actions { display: flex; flex-shrink: 0; align-items: center; gap: 0.75rem; }
+.footer-phone,
+.footer-appointment { min-height: 3rem; padding: 0.8rem 1rem; border-radius: 0.75rem; font-size: 0.88rem; font-weight: 600; }
+.footer-phone { border: 1px solid rgb(255 255 255 / 0.18); background: rgb(255 255 255 / 0.07); color: #e2e8f0; }
+.footer-appointment { display: inline-flex; align-items: center; gap: 0.65rem; background: #db2777; color: white; }
+.footer-phone:hover { border-color: rgb(255 255 255 / 0.34); background: rgb(255 255 255 / 0.11); }
+.footer-appointment:hover { background: #be185d; }
+
+.footer-grid {
+	display: grid;
+	grid-template-columns: 1.45fr 0.75fr 0.95fr 1fr;
+	gap: 3rem;
+	padding: 4rem 0 3rem;
+}
+
+.footer-brand-lockup { display: flex; align-items: center; gap: 0.9rem; }
+.footer-brand-lockup img { width: 3.5rem; height: 3.5rem; object-fit: contain; }
+.footer-brand-lockup h3 { font-size: 1.35rem; font-weight: 600; }
+.footer-brand-lockup p { color: #94a3b8; font-size: 0.76rem; }
+.footer-brand-copy { max-width: 25rem; margin-top: 1.5rem; color: #94a3b8; line-height: 1.7; }
+.footer-email { display: inline-block; margin-top: 1.25rem; color: #e2e8f0; font-size: 0.88rem; font-weight: 500; }
+.footer-email:hover { color: #f9a8d4; }
+
+.footer-column h4 { margin-bottom: 1.25rem; color: #f8fafc; font-size: 0.92rem; font-weight: 600; }
+.footer-column nav { display: grid; gap: 0.8rem; }
+.footer-column nav a { color: #94a3b8; font-size: 0.88rem; }
+.footer-column nav a:hover { color: #f9a8d4; }
+
+.footer-hours dl { display: grid; gap: 0.85rem; }
+.footer-hours dl div { display: flex; justify-content: space-between; gap: 1rem; color: #94a3b8; font-size: 0.84rem; }
+.footer-hours dd { color: #e2e8f0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.footer-hours > p { display: flex; align-items: center; gap: 0.55rem; margin-top: 1.15rem; color: #fbcfe8; font-size: 0.78rem; }
+.footer-hours > p span { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: #ec4899; }
+
 .social-links {
 	display: grid;
-	gap: 0.65rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.6rem;
 }
 
 .social-link {
-	position: relative;
-	display: grid;
-	grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-	overflow: hidden;
-	min-height: 3.5rem;
-	padding: 0.45rem 0.75rem 0.45rem 0.5rem;
+	gap: 0.55rem;
+	min-width: 0;
+	padding: 0.6rem;
 	border: 1px solid rgb(255 255 255 / 0.1);
-	border-radius: 1rem;
-	background: rgb(31 41 55 / 0.72);
-	color: white;
-	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
-	transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
-}
-
-.social-link::before {
-	position: absolute;
-	inset: 0;
-	content: '';
-	opacity: 0;
-	transition: opacity 240ms ease;
-}
-
-.social-link svg,
-.social-label,
-.social-arrow {
-	position: relative;
-	z-index: 1;
+	border-radius: 0.8rem;
+	background: rgb(255 255 255 / 0.05);
+	transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
 .social-link svg {
-	width: 2.5rem;
-	height: 2.5rem;
-	padding: 0.65rem;
-	border-radius: 0.75rem;
-	background: rgb(255 255 255 / 0.1);
-	transition: transform 240ms ease, background 240ms ease;
+	width: 1.15rem;
+	height: 1.15rem;
+	flex: 0 0 auto;
+	color: #cbd5e1;
 }
 
-.social-label {
-	font-size: 0.875rem;
-	font-weight: 650;
-	text-align: left;
-}
-
-.social-arrow {
-	font-size: 1rem;
-	color: rgb(156 163 175);
-	transition: transform 240ms ease, color 240ms ease;
-}
+.social-label { overflow: hidden; color: #cbd5e1; font-size: 0.72rem; font-weight: 500; text-overflow: ellipsis; }
+.social-arrow { display: none; }
 
 .social-link:hover,
 .social-link:focus-visible {
-	border-color: rgb(255 255 255 / 0.24);
+	border-color: rgb(244 114 182 / 0.5);
+	background: rgb(236 72 153 / 0.1);
 	outline: none;
+	transform: translateY(-2px);
 }
 
-.social-link:hover::before,
-.social-link:focus-visible::before {
-	opacity: 1;
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 0.1); color: #64748b; font-size: 0.72rem; }
+.footer-bottom nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.75rem 1.25rem; }
+.footer-bottom a:hover,
+.footer-bottom button:hover { color: #e2e8f0; }
+
+@media (max-width: 1023px) {
+	.footer-cta { align-items: flex-start; flex-direction: column; }
+	.footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem; }
 }
 
-.social-link:hover svg,
-.social-link:focus-visible svg {
-	background: rgb(255 255 255 / 0.18);
-}
-
-.social-link:hover .social-arrow,
-.social-link:focus-visible .social-arrow {
-	transform: translate(2px, -2px);
-	color: white;
-}
-
-.social-link--facebook::before {
-	background: linear-gradient(100deg, #1877f2 0%, #0d5bc4 100%);
-}
-
-.social-link--instagram::before {
-	background: linear-gradient(100deg, #833ab4 0%, #e1306c 52%, #f77737 100%);
-}
-
-.social-link--tiktok::before {
-	background: linear-gradient(100deg, #050505 0%, #17202a 55%, #00f2ea 160%);
-}
-
-.social-link--youtube::before {
-	background: linear-gradient(100deg, #ff0033 0%, #c80027 100%);
+@media (max-width: 640px) {
+	.footer-cta { padding: 1.5rem; }
+	.footer-cta-actions { width: 100%; flex-direction: column; align-items: stretch; }
+	.footer-phone,
+	.footer-appointment { justify-content: center; text-align: center; }
+	.footer-grid { grid-template-columns: 1fr; padding: 3rem 0 2rem; }
+	.footer-brand-copy { max-width: none; }
+	.social-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.footer-bottom { align-items: flex-start; flex-direction: column; }
+	.footer-bottom nav { justify-content: flex-start; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.social-link,
-	.social-link::before,
-	.social-link svg,
-	.social-arrow {
-		transition: none;
-	}
-
+	.social-link { transition: none; }
 	.social-link:hover,
-	.social-link:focus-visible,
-	.social-link:hover svg,
-	.social-link:focus-visible svg {
-		transform: none;
-	}
+	.social-link:focus-visible { transform: none; }
 }
 </style>
