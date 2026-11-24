@@ -1,25 +1,12 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear();
 const openCookieSettings = () => window.dispatchEvent(new CustomEvent('open-cetin-cookie-settings'));
-const openAppointmentForm = () => window.dispatchEvent(new CustomEvent('open-cetin-appointment'));
 </script>
 
 
 <template>
 	<footer class="site-footer text-white">
-		<div class="mx-auto max-w-7xl px-6 pb-10 pt-12 lg:px-12 lg:pt-16">
-			<section class="footer-cta" aria-labelledby="footer-cta-title">
-				<div>
-					<p class="footer-kicker">Atención con previa cita</p>
-					<h2 id="footer-cta-title">Da el primer paso para cuidar la salud de tu bebé</h2>
-					<p>Elige la sucursal y el horario que mejor se adapten a tu familia</p>
-				</div>
-				<div class="footer-cta-actions">
-					<a href="tel:+522223994072" class="footer-phone">222 399 4072</a>
-					<button type="button" class="footer-appointment" @click="openAppointmentForm">Agendar cita <span aria-hidden="true">→</span></button>
-				</div>
-			</section>
-
+		<div class="mx-auto max-w-7xl px-6 pb-10 pt-10 lg:px-12 lg:pt-12">
 			<div class="footer-grid">
 				<div class="footer-brand">
 					<div class="footer-brand-lockup">
@@ -161,36 +148,11 @@ const openAppointmentForm = () => window.dispatchEvent(new CustomEvent('open-cet
 	content: '';
 }
 
-.footer-cta {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 2rem;
-	padding: 2rem;
-	border: 1px solid rgb(255 255 255 / 0.14);
-	border-radius: 1.5rem;
-	background: rgb(255 255 255 / 0.07);
-	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
-	backdrop-filter: blur(18px);
-}
-
-.footer-kicker { margin-bottom: 0.5rem; color: #f9a8d4; font-size: 0.8rem; font-weight: 600; }
-.footer-cta h2 { max-width: 42rem; font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; line-height: 1.15; }
-.footer-cta p:last-child { margin-top: 0.65rem; color: #94a3b8; }
-
-.footer-cta-actions { display: flex; flex-shrink: 0; align-items: center; gap: 0.75rem; }
-.footer-phone,
-.footer-appointment { min-height: 3rem; padding: 0.8rem 1rem; border-radius: 0.75rem; font-size: 0.88rem; font-weight: 600; }
-.footer-phone { border: 1px solid rgb(255 255 255 / 0.18); background: rgb(255 255 255 / 0.07); color: #e2e8f0; }
-.footer-appointment { display: inline-flex; align-items: center; gap: 0.65rem; background: #db2777; color: white; }
-.footer-phone:hover { border-color: rgb(255 255 255 / 0.34); background: rgb(255 255 255 / 0.11); }
-.footer-appointment:hover { background: #be185d; }
-
 .footer-grid {
 	display: grid;
 	grid-template-columns: 1.45fr 0.75fr 0.95fr 1fr;
 	gap: 3rem;
-	padding: 4rem 0 3rem;
+	padding: 1rem 0 3rem;
 }
 
 .footer-brand-lockup { display: flex; align-items: center; gap: 0.9rem; }
@@ -254,15 +216,10 @@ const openAppointmentForm = () => window.dispatchEvent(new CustomEvent('open-cet
 .footer-bottom button:hover { color: #e2e8f0; }
 
 @media (max-width: 1023px) {
-	.footer-cta { align-items: flex-start; flex-direction: column; }
 	.footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem; }
 }
 
 @media (max-width: 640px) {
-	.footer-cta { padding: 1.5rem; }
-	.footer-cta-actions { width: 100%; flex-direction: column; align-items: stretch; }
-	.footer-phone,
-	.footer-appointment { justify-content: center; text-align: center; }
 	.footer-grid { grid-template-columns: 1fr; padding: 3rem 0 2rem; }
 	.footer-brand-copy { max-width: none; }
 	.social-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
